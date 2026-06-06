@@ -1,0 +1,15 @@
+# Cloudflare Worker — "Ask the map" natural-language -> filter DSL.
+# Deploy target for Feature #1. The static site (Cloudflare Pages) POSTs a
+# question here; the Worker returns a validated filter object the browser applies.
+#
+# The OpenRouter API key is NEVER committed. At M3, set it as a secret:
+#   npx wrangler secret put OPENROUTER_API_KEY
+name = "site-screen-ask"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+# [vars] holds only non-secret config. Models are confirmed at setup on
+# openrouter.ai/models (slugs drift).
+[vars]
+PRIMARY_MODEL = "google/gemini-2.5-flash"
+FALLBACK_MODEL = "anthropic/claude-haiku-4.5"
