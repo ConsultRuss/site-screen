@@ -1,0 +1,21 @@
+# Geospatial stack for the fetch/build pipeline stages (M1).
+#
+# SUPPLY-CHAIN POLICY: pin every dependency to an EXACT version. Before installing
+# at M1, verify each release against current PyPI, confirm the PyPI artifact
+# matches the project's GitHub tag, check the changelog, and honor the 48-hour
+# post-release delay. The pins below are a known-stable starting point captured at
+# planning time — re-confirm (and bump only deliberately) before the first install.
+#
+# Note: the project uses its OWN virtual environment; these pins are independent
+# of whatever is installed system-wide. pandas is held at 2.x here for geopandas
+# compatibility regardless of any newer system pandas.
+
+geopandas==1.0.1
+shapely==2.0.6
+pyproj==3.6.1
+fiona==1.10.1
+rasterio==1.4.3
+rasterstats==0.20.0
+pandas==2.2.3
+numpy==2.1.3
+requests==2.32.3
