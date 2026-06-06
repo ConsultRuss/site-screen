@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>South Texas Site Screen &amp; Land-Control Tracker</title>
+  <meta name="description" content="Screens South Texas land for renewable / data-center suitability and tracks candidate parcels through site control. Public data; synthetic ownership and pipeline." />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <h1>South Texas Site Screen <span>&amp; Land-Control Tracker</span></h1>
+      <p class="tagline">Which land is worth pursuing — and where each parcel stands on the way to site control. Wilson &amp; Karnes counties.</p>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" data-view="map" role="tab">Map / Screen</button>
+      <button class="tab" data-view="pipeline" role="tab">Pipeline / Tracker</button>
+      <button class="tab" data-view="about" role="tab">Methodology / About</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============================ MAP / SCREEN ============================ -->
+    <section id="view-map" class="view is-active">
+      <div class="map-layout">
+        <aside class="panel">
+          <div class="panel-block">
+            <label class="panel-label" for="ask">Ask the map</label>
+            <input id="ask" type="text" placeholder='e.g. over 200 buildable acres within 3 miles of a 138 kV substation, no floodplain' />
+            <button id="ask-go" class="btn">Filter</button>
+            <p class="hint" id="ask-status">Plain-English filtering. <em>Built-in rule-based parser</em> — the LLM-assisted version is served by a Cloudflare Worker (later milestone); the tool degrades gracefully to these rules.</p>
+          </div>
+
+          <div class="panel-block">
+            <span class="panel-label">Color parcels by</span>
+            <select id="metric">
+              <option value="suitability_score">Suitability (base model)</option>
+              <option value="flex_load_score">Flexible-load lens</option>
+              <option value="agrivoltaic_score">Agrivoltaics / stewardship lens</option>
+            </select>
+          </div>
+
+          <div class="panel-block">
+            <span class="panel-label">Filters</span>
+            <label class="field">County
+              <select id="f-county"><option value="">All</option><option>Wilson</option><option>Karnes</option></select>
+            </label>
+            <label class="field">Min buildable acres <output id="f-acres-val">0</output>
+              <input id="f-acres" type="range" min="0" max="1000" step="50" value="0" />
+            </label>
+            <label class="field">Max miles to substation <output id="f-dist-val">15</output>
+              <input id="f-dist" type="range" min="1" max="15" step="0.5" value="15" />
+            </label>
+            <label class="field">Min substation kV
+              <select id="f-kv"><option value="0">Any</option><option value="69">69 kV</option><option value="138">138 kV</option><option value="345">345 kV</option></select>
+            </label>
+            <label class="checkbox"><input id="f-noflood" type="checkbox" /> Exclude parcels &gt;10% floodplain</label>
+            <button id="f-reset" class="btn btn-ghost">Reset filters</button>
+          </div>
+
+          <div class="panel-block legend">
+            <span class="panel-label" id="legend-title">Suitability</span>
+            <div id="legend"></div>
+            <p class="count"><span id="count">0</span> parcels shown</p>
+          </div>
+        </aside>
+
+        <div id="map" aria-label="Parcel suitability map"></div>
+      </div>
+    </section>
+
+    <!-- ========================= PIPELINE / TRACKER ========================= -->
+    <section id="view-pipeline" class="view">
+      <div class="tracker-grid">
+        <div class="card"><h3>Site-control funnel</h3><canvas id="chart-funnel"></canvas></div>
+        <div class="card"><h3>Buildable acres by stage</h3><canvas id="chart-acres"></canvas></div>
+        <div class="card kpis" id="kpis"></div>
+      </div>
+      <div class="card">
+        <h3>Candidate parcels — site control</h3>
+        <p class="hint">Synthetic shortlist. Click a row to locate it on the map.</p>
+        <div class="table-wrap"><table id="tracker"><thead><tr>
+          <th data-sort="parcel_id">Parcel</th><th data-sort="county">County</th>
+          <th data-sort="pipeline_status">Status</th><th data-sort="acreage_buildable">Buildable ac</th>
+          <th data-sort="est_price_per_ac">$/ac</th><th data-sort="title_flag">Title</th>
+          <th data-sort="suitability_score">Suitability</th><th data-sort="status_date">Updated</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- ========================= METHODOLOGY / ABOUT ======================= -->
+    <section id="view-about" class="view">
+      <div class="prose">
+        <h2>Methodology &amp; About</h2>
+
+        <div class="callout">
+          <strong>What this is, honestly.</strong> A reference demonstration over <strong>public</strong> South
+          Texas data, distilled from how I evaluate sites in practice. The geospatial and infrastructure layers are
+          <strong>real and sourced</strong>; ownership names and the deal pipeline are <strong>synthetic</strong>,
+          for demonstration. I trained in ArcGIS/ESRI during my Master of Real Estate at Texas A&amp;M and
+          <strong>re-sharpened hands-on in QGIS</strong> to build this — open-source, brand-agnostic, and
+          translatable to ArcGIS Pro and Google Earth. The methodology, not the tool, is the point.
+        </div>
+
+        <h3>The model</h3>
+        <p>Every rural parcel ≥ 50 acres is scored with a transparent weighted overlay: each criterion is normalized
+        to 0–100 against absolute, domain-anchored breakpoints, weighted, summed, and ranked. Interconnection leads,
+        because in ERCOT that is the constraint that makes or breaks a site. All weights and breakpoints live in a
+        single <code>config.yaml</code> — illustrative and tunable; a production-tuned model is discussed in
+        conversation.</p>
+        <table class="weights">
+          <thead><tr><th>Criterion</th><th>Weight</th><th>How it scores</th></tr></thead>
+          <tbody>
+            <tr><td>Interconnection proximity</td><td>35%</td><td>Distance to nearest ≥138 kV substation/line (≤1 mi → 100, ≥10 mi → 0)</td></tr>
+            <tr><td>Buildable acreage</td><td>20%</td><td>Acres after exclusions/setbacks (50 ac → 0, ≥640 ac → 100)</td></tr>
+            <tr><td>Terrain</td><td>15%</td><td>Mean slope (≤2% → 100, ≥5% → 0; very steep excluded)</td></tr>
+            <tr><td>Land cover + soils</td><td>10%</td><td>Open/marginal ag favored; prime farmland (NRCS LCC I–II) penalized</td></tr>
+            <tr><td>Hazard-free</td><td>10%</td><td>% of parcel outside floodplain/wetlands</td></tr>
+            <tr><td>Road access</td><td>5%</td><td>Distance to paved public road</td></tr>
+            <tr><td>Contiguity / shape</td><td>5%</td><td>Polsby-Popper compactness</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Exclusions &amp; setbacks</strong> (subtracted before scoring): FEMA floodplain (AE/VE), NWI
+        wetlands, PAD-US protected lands, plus Eagle Ford setbacks from Texas Railroad Commission data — 150 ft
+        around active wellheads, 50 ft around pipelines — and 100 ft parcel-boundary / 150 ft right-of-way setbacks.</p>
+
+        <h3>Two more lenses</h3>
+        <p>The same parcels can be re-scored for <strong>flexible / large load</strong> (interconnection headroom,
+        proximity to generation, demand-response value) and for <strong>whole-site dual use</strong> (agrivoltaics —
+        grazing compatibility, marginal-soil preference, pollinator habitat, soil-and-water stewardship). The base
+        model and flex-load lens reward open, buildable, non-prime land; the agrivoltaic lens rewards <em>working</em>
+        ag land. Same ground, three value systems.</p>
+
+        <h3>Why this geography</h3>
+        <p>San Antonio's data-center load is on track toward 3,300+ MW by 2033, with CPS Energy planning upwards of
+        $1.3B in transmission to keep up. An hour north, Rockdale (Riot Platforms) turned a bitcoin mine into an
+        AI data center on a ~700 MW on-site substation that curtails 95%+ of its load near-instantly when the grid
+        needs it — and signed a ~$311M, 10-year AMD lease in January 2026. Interconnection-aware land screening is the
+        live problem in this corridor.</p>
+
+        <h3>Data sources &amp; restricted-data discipline</h3>
+        <p>All layers are public and cited with retrieval dates in <code>data/SOURCES.md</code> (TxGIO parcels; HIFLD
+        transmission &amp; substations; FEMA NFHL; USGS 3DEP/NLCD; USDA-NRCS soils; USFWS NWI; USGS PAD-US; Texas RRC
+        wells/pipelines; ERCOT/EIA generation context; USDA NAIP imagery). No MLS/IDX data is used. The
+        license-restricted ERCOT network model is never displayed raw — any capacity signal is abstracted to a 0–100
+        "Grid Connectivity Index"; the public map overlay uses HIFLD.</p>
+
+        <div class="callout">
+          <strong>Synthetic-data disclosure.</strong> Geospatial and infrastructure data are public and sourced.
+          Ownership names and all deal-pipeline statuses, prices, and dates are synthetic, for demonstration.
+        </div>
+
+        <p class="byline">Built by Russell W. Hild — Texas A&amp;M Master of Real Estate (Land Economics), who builds
+        and runs his own data systems. <a href="https://consultruss.com">consultruss.com</a></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
