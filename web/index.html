@@ -42,7 +42,7 @@
             <select id="metric">
               <option value="suitability_score">Suitability (base model)</option>
               <option value="flex_load_score">Flexible-load lens (provisional)</option>
-              <option value="agrivoltaic_score">Agrivoltaics lens (pending)</option>
+              <option value="agrivoltaic_score">Agrivoltaics / stewardship lens</option>
             </select>
           </div>
 
@@ -132,11 +132,12 @@
 
         <div class="callout">
           <strong>What's live in this build.</strong> Every parcel ≥ 50 acres in Wilson and Karnes counties is scored
-          from live public data for <em>interconnection</em> (distance to the nearest ≥138 kV substation and line),
-          <em>buildable acreage</em>, and <em>parcel shape</em>. Terrain, land cover/soils, floodplain, and road access
-          are wired into the model but not yet populated in this pass — they score neutral until their layers are added,
-          so rankings are driven by the criteria that are actually measured. The flexible-load lens is provisional (built
-          from the live criteria); the agrivoltaics lens is pending its land-cover and soils inputs.
+          from live public data: <em>interconnection</em> (distance to the nearest ≥138 kV substation and line),
+          <em>buildable acreage</em>, <em>terrain</em> (USGS 3DEP slope), <em>land cover</em> (NLCD), <em>floodplain</em>
+          (FEMA NFHL), and <em>parcel shape</em>. Still pending: <em>soils</em> (NRCS land-capability class) and
+          <em>road access</em> — these score neutral until added, so rankings are driven by what's measured. The
+          agrivoltaics lens is live (its marginal-soil factor waits on the soils layer); the flexible-load lens is
+          provisional, built from the live criteria pending generation-proximity data.
         </div>
 
         <h3>Two more lenses</h3>
