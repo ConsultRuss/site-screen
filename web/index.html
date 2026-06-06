@@ -41,8 +41,8 @@
             <span class="panel-label">Color parcels by</span>
             <select id="metric">
               <option value="suitability_score">Suitability (base model)</option>
-              <option value="flex_load_score">Flexible-load lens</option>
-              <option value="agrivoltaic_score">Agrivoltaics / stewardship lens</option>
+              <option value="flex_load_score">Flexible-load lens (provisional)</option>
+              <option value="agrivoltaic_score">Agrivoltaics lens (pending)</option>
             </select>
           </div>
 
@@ -52,7 +52,7 @@
               <select id="f-county"><option value="">All</option><option>Wilson</option><option>Karnes</option></select>
             </label>
             <label class="field">Min buildable acres <output id="f-acres-val">0</output>
-              <input id="f-acres" type="range" min="0" max="1000" step="50" value="0" />
+              <input id="f-acres" type="range" min="0" max="2000" step="50" value="0" />
             </label>
             <label class="field">Max miles to substation <output id="f-dist-val">15</output>
               <input id="f-dist" type="range" min="1" max="15" step="0.5" value="15" />
@@ -129,6 +129,15 @@
         <p><strong>Exclusions &amp; setbacks</strong> (subtracted before scoring): FEMA floodplain (AE/VE), NWI
         wetlands, PAD-US protected lands, plus Eagle Ford setbacks from Texas Railroad Commission data — 150 ft
         around active wellheads, 50 ft around pipelines — and 100 ft parcel-boundary / 150 ft right-of-way setbacks.</p>
+
+        <div class="callout">
+          <strong>What's live in this build.</strong> Every parcel ≥ 50 acres in Wilson and Karnes counties is scored
+          from live public data for <em>interconnection</em> (distance to the nearest ≥138 kV substation and line),
+          <em>buildable acreage</em>, and <em>parcel shape</em>. Terrain, land cover/soils, floodplain, and road access
+          are wired into the model but not yet populated in this pass — they score neutral until their layers are added,
+          so rankings are driven by the criteria that are actually measured. The flexible-load lens is provisional (built
+          from the live criteria); the agrivoltaics lens is pending its land-cover and soils inputs.
+        </div>
 
         <h3>Two more lenses</h3>
         <p>The same parcels can be re-scored for <strong>flexible / large load</strong> (interconnection headroom,

@@ -49,7 +49,7 @@
       return;
     }
     drawParcels();
-    applyFilters();
+    applyFilters(true);
     buildTracker();
     buildCharts();
     buildKpis();
@@ -70,28 +70,33 @@
 
   /* ---------------- map ---------------- */
   function initMap() {
-    MAP = L.map("map").setView([29.0, -98.0], 9);
+    // preferCanvas: render thousands of parcels efficiently.
+    MAP = L.map("map", { preferCanvas: true }).setView([29.0, -98.0], 9);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19, attribution: "&copy; OpenStreetMap contributors",
     }).addTo(MAP);
   }
 
-  function styleFor(feature) {
-    const v = feature.properties[state.metric] ?? 0;
-    return { fillColor: colorFor(v), color: "#33422c", weight: 1, fillOpacity: 0.72 };
+  const HIDDEN = { opacity: 0, fillOpacity: 0 };
+  function visibleStyle(p) {
+    const v = p[state.metric];
+    const fill = (v === null || v === undefined) ? "#7a756e" : colorFor(v); // grey = no data
+    return { fillColor: fill, color: "#2b2b26", weight: 0.6, opacity: 0.5, fillOpacity: 0.72 };
   }
 
+  const pend = "<span class='pp-pend'>pending</span>";
+  const na = (v, suf = "") => (v === null || v === undefined ? pend : v + suf);
   function popupHtml(p) {
     const row = (k, val) => `<dt>${k}</dt><dd>${val}</dd>`;
     let html = `<div class="pp-title">${p.parcel_id} · ${p.county} Co.</div>`;
-    html += `<span class="pp-score">${METRIC_LABELS[state.metric]} ${p[state.metric]}</span>`;
+    html += `<span class="pp-score">Suitability ${p.suitability_score}</span> `;
+    html += `<span class="pp-rank">rank #${p.suitability_rank}</span>`;
     html += `<dl class="pp-grid">`;
-    html += row("Buildable", `${p.acreage_buildable} ac`);
-    html += row("Substation", `${p.dist_substation_mi} mi · ${p.nearest_sub_kv} kV`);
-    html += row("Slope", `${p.slope_pct_mean}%`);
-    html += row("Floodplain", `${p.floodplain_pct}%`);
-    html += row("Land cover", p.landcover_class);
-    html += row("Soil class", `LCC ${p.soil_lcc_class}`);
+    html += row("Buildable", `${p.acreage_buildable} ac <span class="pp-dim">of ${p.acreage_total}</span>`);
+    html += row("Substation", na(p.dist_substation_mi, " mi") + (p.nearest_sub_kv ? ` · ${p.nearest_sub_kv} kV` : ""));
+    html += row("≥138 kV line", na(p.dist_transmission_mi, " mi"));
+    html += row("Floodplain", p.floodplain_pct == null ? pend : p.floodplain_pct + "%");
+    html += row("Flex-load", na(p.flex_load_score));
     if (p.pipeline_status) {
       html += row("Pipeline", p.pipeline_status);
       html += row("Title", p.title_flag);
@@ -102,14 +107,13 @@
 
   function drawParcels() {
     LAYERS.clear();
-    // Creates a layer per feature (added to the map individually in applyFilters).
     GEO_LAYER = L.geoJSON({ type: "FeatureCollection", features: FEATURES }, {
-      style: styleFor,
+      style: (f) => visibleStyle(f.properties),
       onEachFeature: (feature, layer) => {
         LAYERS.set(feature.properties.parcel_id, layer);
-        layer.bindPopup(() => popupHtml(feature.properties));
+        layer.bindPopup(() => popupHtml(layer.feature.properties), { maxWidth: 300 });
       },
-    });
+    }).addTo(MAP);
   }
 
   function passesFilters(p) {
@@ -121,30 +125,35 @@
     return true;
   }
 
-  function applyFilters() {
+  function applyFilters(fit) {
     let shown = 0;
     const bounds = [];
-    LAYERS.forEach((layer, id) => {
-      const p = FEATURES.find((f) => f.properties.parcel_id === id).properties;
+    LAYERS.forEach((layer) => {
+      const p = layer.feature.properties;
       if (passesFilters(p)) {
-        layer.setStyle(styleFor({ properties: p }));
-        if (!MAP.hasLayer(layer)) layer.addTo(MAP);
-        bounds.push(layer.getBounds());
+        layer.setStyle(visibleStyle(p));
+        if (fit) bounds.push(layer.getBounds());
         shown++;
-      } else if (MAP.hasLayer(layer)) {
-        MAP.removeLayer(layer);
+      } else {
+        layer.setStyle(HIDDEN);
       }
     });
-    $("#count").textContent = shown;
+    $("#count").textContent = shown.toLocaleString();
     updateLegend();
-    if (bounds.length) {
+    if (fit && bounds.length) {
       const all = bounds.reduce((acc, b) => acc.extend(b), L.latLngBounds(bounds[0]));
-      MAP.fitBounds(all.pad(0.15));
+      MAP.fitBounds(all.pad(0.08));
     }
   }
 
   function updateLegend() {
     $("#legend-title").textContent = METRIC_LABELS[state.metric];
+    const hasData = FEATURES.some((f) => f.properties[state.metric] != null);
+    if (!hasData) {
+      $("#legend").innerHTML =
+        `<div class="row"><span class="swatch" style="background:#7a756e"></span>computed in a later pass</div>`;
+      return;
+    }
     $("#legend").innerHTML = BUCKETS.map(
       (b) => `<div class="row"><span class="swatch" style="background:${b.color}"></span>${b.label}</div>`
     ).join("");
@@ -152,16 +161,16 @@
 
   /* ---------------- controls ---------------- */
   function wireControls() {
-    $("#metric").addEventListener("change", (e) => { state.metric = e.target.value; applyFilters(); });
-    $("#f-county").addEventListener("change", (e) => { state.county = e.target.value; applyFilters(); });
+    $("#metric").addEventListener("change", (e) => { state.metric = e.target.value; applyFilters(false); });
+    $("#f-county").addEventListener("change", (e) => { state.county = e.target.value; applyFilters(false); });
     $("#f-acres").addEventListener("input", (e) => {
-      state.minAcres = +e.target.value; $("#f-acres-val").textContent = e.target.value; applyFilters();
+      state.minAcres = +e.target.value; $("#f-acres-val").textContent = e.target.value; applyFilters(false);
     });
     $("#f-dist").addEventListener("input", (e) => {
-      state.maxDist = +e.target.value; $("#f-dist-val").textContent = e.target.value; applyFilters();
+      state.maxDist = +e.target.value; $("#f-dist-val").textContent = e.target.value; applyFilters(false);
     });
-    $("#f-kv").addEventListener("change", (e) => { state.minKv = +e.target.value; applyFilters(); });
-    $("#f-noflood").addEventListener("change", (e) => { state.noFlood = e.target.checked; applyFilters(); });
+    $("#f-kv").addEventListener("change", (e) => { state.minKv = +e.target.value; applyFilters(false); });
+    $("#f-noflood").addEventListener("change", (e) => { state.noFlood = e.target.checked; applyFilters(false); });
     $("#f-reset").addEventListener("click", resetFilters);
     $("#ask-go").addEventListener("click", () => askTheMap($("#ask").value));
     $("#ask").addEventListener("keydown", (e) => { if (e.key === "Enter") askTheMap($("#ask").value); });
@@ -173,7 +182,7 @@
     $("#f-dist").value = 15; $("#f-dist-val").textContent = "15"; $("#f-kv").value = "0";
     $("#f-noflood").checked = false; $("#ask").value = "";
     $("#ask-status").innerHTML = "Filters reset.";
-    applyFilters();
+    applyFilters(true);
   }
 
   /* Rule-based natural-language parser (the deterministic fallback). */
@@ -183,7 +192,7 @@
     const applied = [];
     let m;
     if ((m = t.match(/(\d{2,4})\s*\+?\s*(?:buildable\s*)?acre/))) {
-      state.minAcres = +m[1]; $("#f-acres").value = Math.min(1000, state.minAcres);
+      state.minAcres = +m[1]; $("#f-acres").value = Math.min(2000, state.minAcres);
       $("#f-acres-val").textContent = state.minAcres; applied.push(`≥ ${state.minAcres} buildable ac`);
     }
     if ((m = t.match(/(\d+(?:\.\d+)?)\s*(?:mi|mile)/))) {
@@ -202,7 +211,7 @@
     $("#ask-status").innerHTML = applied.length
       ? `Applied (rule-based): <strong>${applied.join(" · ")}</strong>.`
       : `No filters recognized. Try: “over 300 buildable acres within 3 miles of a 138 kV substation, no floodplain”.`;
-    applyFilters();
+    applyFilters(true);
   }
 
   /* ---------------- tracker ---------------- */
@@ -243,8 +252,8 @@
     if (!layer) return;
     setTimeout(() => {
       MAP.invalidateSize();
-      if (!MAP.hasLayer(layer)) layer.addTo(MAP);
-      MAP.fitBounds(layer.getBounds().pad(2));
+      layer.setStyle(visibleStyle(layer.feature.properties)); // ensure visible if filtered out
+      MAP.fitBounds(layer.getBounds(), { maxZoom: 14, padding: [40, 40] });
       layer.openPopup();
     }, 80);
   }
