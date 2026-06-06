@@ -12,11 +12,11 @@
     agrivoltaic_score: "Agrivoltaics",
   };
   const BUCKETS = [
-    { min: 80, color: "#2f7d3a", label: "80–100" },
-    { min: 60, color: "#8fb04a", label: "60–79" },
-    { min: 40, color: "#e8c33f", label: "40–59" },
-    { min: 20, color: "#d98a3d", label: "20–39" },
-    { min: 0, color: "#b5402f", label: "0–19" },
+    { min: 80, color: "#3f6b3a", label: "80–100" },
+    { min: 60, color: "#7f9b4e", label: "60–79" },
+    { min: 40, color: "#c8a87c", label: "40–59" },
+    { min: 20, color: "#bf7a3a", label: "20–39" },
+    { min: 0, color: "#9e3b2c", label: "0–19" },
   ];
   const STATUS_ORDER = [
     "Identified", "Screened", "Outreach", "LOI", "Option/Lease Negotiation",
@@ -255,17 +255,28 @@
     STATUS_ORDER.forEach((s) => { counts[s] = 0; acres[s] = 0; });
     shortlist().forEach((p) => { counts[p.pipeline_status]++; acres[p.pipeline_status] += p.acreage_buildable; });
     const used = STATUS_ORDER.filter((s) => counts[s] > 0);
-    const green = "#2f5e3a";
+
+    Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
+    Chart.defaults.color = "#8a8580";
+    const grid = "rgba(255,255,255,0.06)";
+    const opts = {
+      indexAxis: "y",
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: grid }, border: { color: grid }, ticks: { precision: 0 } },
+        y: { grid: { display: false }, border: { color: grid } },
+      },
+    };
 
     charts.funnel = new Chart($("#chart-funnel"), {
       type: "bar",
-      data: { labels: used, datasets: [{ label: "Parcels", data: used.map((s) => counts[s]), backgroundColor: green }] },
-      options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { ticks: { precision: 0 } } } },
+      data: { labels: used, datasets: [{ data: used.map((s) => counts[s]), backgroundColor: "#c8a87c", borderRadius: 3 }] },
+      options: opts,
     });
     charts.acres = new Chart($("#chart-acres"), {
       type: "bar",
-      data: { labels: used, datasets: [{ label: "Buildable ac", data: used.map((s) => acres[s]), backgroundColor: "#8fb04a" }] },
-      options: { indexAxis: "y", plugins: { legend: { display: false } } },
+      data: { labels: used, datasets: [{ data: used.map((s) => acres[s]), backgroundColor: "#7f9b4e", borderRadius: 3 }] },
+      options: opts,
     });
   }
 
