@@ -1,0 +1,160 @@
+# =============================================================================
+# Site Screen — suitability model configuration
+# -----------------------------------------------------------------------------
+# Every weight, breakpoint, exclusion, and lens lives here. The scoring pipeline
+# reads this file and nothing is hard-coded, so a reviewer can see exactly how a
+# parcel earns its score and re-tune without touching code. The values below are
+# ILLUSTRATIVE, defensible defaults — not a production-tuned model.
+#
+# Scoring approach (see README "Methodology"):
+#   normalize each criterion to 0-100  ->  weight  ->  sum  ->  rank.
+# Normalization is "hybrid": anchored piecewise-linear for numeric criteria,
+# lookup tables for categorical ones. Absolute (domain-anchored) breakpoints are
+# used rather than dataset-relative min/max, so a parcel's score is reproducible
+# and does not shift when parcels are added or removed.
+# =============================================================================
+
+study_area:
+  counties: [Wilson, Karnes]
+  state: TX
+  parcel_min_acres: 50          # utility-scale siting floor
+
+crs:
+  storage: "EPSG:4326"          # WGS84 — what the web app consumes
+  analysis: "EPSG:3083"         # NAD83 Texas Centric Albers Equal Area — area/distance math
+
+# -----------------------------------------------------------------------------
+# Hard exclusions + setbacks. Subtracted as absolute masks; what remains is the
+# parcel's buildable acreage. (Acreage scoring keys off buildable, not gross.)
+# -----------------------------------------------------------------------------
+exclusions:
+  fema_flood_zones: [AE, VE]           # 100-yr floodplain + coastal hazard
+  nwi_wetland_types: [palustrine, lacustrine, riverine]
+  padus_gap_status: [1, 2, 3]          # protected lands
+  slope_hard_exclude_pct: 12.0         # very steep -> unbuildable (10-15% band)
+  setbacks_ft:
+    well_head: 150                     # Texas RRC active wellheads (Eagle Ford)
+    pipeline: 50                       # mapped high-pressure pipeline easements
+    parcel_boundary: 100               # civil/zoning standard
+    public_row: 150                    # public rights-of-way
+
+# -----------------------------------------------------------------------------
+# Base suitability model. Weights MUST sum to 1.0 (validated at load).
+# -----------------------------------------------------------------------------
+model:
+  weights:
+    interconnection:   0.35     # lead criterion — in ERCOT, the make-or-break
+    buildable_acreage: 0.20
+    terrain:           0.15
+    landcover_soils:   0.10
+    hazard_free:       0.10
+    road_access:       0.05
+    shape:             0.05
+
+  # Step-4b normalization. Each entry maps a raw metric to 0-100 (higher better).
+  normalization:
+
+    interconnection:            # distance (mi) to nearest >=138 kV substation
+      type: linear
+      full_score_at: 1.0        # <=1 mi  -> 100
+      zero_score_at: 10.0       # >=10 mi -> 0   (anchored to gen-tie ~$1.5-2.0M/mi)
+
+    buildable_acreage:          # acres after exclusions/setbacks
+      type: linear
+      zero_score_at: 50.0       # at the floor -> 0
+      full_score_at: 640.0      # >=640 ac -> 100 (~a 100 MW project @ ~7-9 ac/MWac)
+
+    terrain:                    # mean slope %
+      type: linear
+      full_score_at: 2.0        # <=2%  -> 100
+      zero_score_at: 5.0        # >=5%  -> 0  (single-axis-tracker threshold)
+
+    road_access:                # distance (mi) to paved public road
+      type: linear
+      full_score_at: 0.5        # <=0.5 mi -> 100
+      zero_score_at: 5.0        # >=5 mi   -> 0
+
+    hazard_free:                # % of parcel OUTSIDE floodplain/wetlands
+      type: identity            # 0..100 maps straight through
+
+    shape:                      # Polsby-Popper compactness 0..1
+      type: scale
+      factor: 100.0
+
+    landcover:                  # NLCD / CDL class -> score
+      type: lookup
+      table:
+        pasture_hay:        90  # NLCD 81
+        grassland_pasture:  85  # CDL 176
+        shrubland:          75  # CDL 152
+        cultivated_crops:   70  # NLCD 82
+        developed_open:     30  # NLCD 21
+        forest:             25  # NLCD 41-43
+        developed:          10  # NLCD 22-24
+        water:               0  # NLCD 11
+        wetlands:            0  # NLCD 90/95
+        default:            50
+
+    soils_lcc:                  # NRCS Land Capability Class -> score
+      type: lookup             # marginal favored (buildability/permitting signal)
+      table:
+        "III":   90
+        "IV":    85
+        "II":    50
+        "I":     30            # prime farmland penalized
+        default: 60
+
+  # How land cover and soils combine into the single 10% "landcover_soils" criterion.
+  landcover_soils_blend:
+    landcover_weight: 0.6
+    soils_weight:     0.4
+
+# -----------------------------------------------------------------------------
+# Flexible / large-load lens (Feature #4). Re-weights the same normalized
+# criteria; solar-yield and ag factors drop out. Weights sum to 1.0.
+# -----------------------------------------------------------------------------
+flex_load_lens:
+  target_load_mw_default: 100         # drives the capital-hurdle card + SB6 logic
+  weights:
+    interconnection:       0.35       # proximity / headroom
+    proximity_generation:  0.25       # co-location with existing/queued gen
+    buildable_acreage:     0.20       # room for load + on-site gen
+    curtailment_basis:     0.10       # negative-LMP / congested-node opportunity
+    hazard_road:           0.10       # constructability
+
+  large_load_threshold_mw: 75         # Texas SB 6 (enacted, eff. 2025-09-01)
+
+  # Capital-hurdle estimate keyed to PUCT DRAFT rule 16 TAC 25.194 (Project 58481).
+  # STATUS: DRAFT — proposed Mar 2026, final expected mid-2026. Figures are
+  # PROPOSED, not enacted. Surface with a "draft" label in the UI.
+  capital_hurdle:
+    rule_status: draft
+    interconnection_fee_per_mw_usd:   50000
+    financial_security_per_mw_usd:    50000
+    security_forfeit_pct:             0.80    # forfeited to TSP on withdrawal/reduction
+    study_fee_usd:
+      tier_75_to_250mw: 100000
+      over_250mw:       300000
+    ciac_pct: 1.00                            # 100% CIAC for radial lines + substations
+
+# -----------------------------------------------------------------------------
+# Agrivoltaics / whole-site stewardship lens (Feature #5). Deliberately inverts
+# the base model's soil preference: here WORKING ag land scores high. Sum = 1.0.
+# -----------------------------------------------------------------------------
+agrivoltaic_lens:
+  weights:
+    grazing_forage:          0.30     # pasture/shrub cover -> solar-grazing fit
+    existing_ag_continuity:  0.20     # currently farmed/grazed (acquisition lever)
+    soil_water_stewardship:  0.20     # slope + drainage -> earthworks feasibility
+    marginal_soil_pref:      0.15     # NRCS LCC III-IV favored
+    pollinator_potential:    0.15
+
+# -----------------------------------------------------------------------------
+# Restricted-data discipline. Any capacity signal derived from the license-
+# restricted ERCOT GIS Report is computed in the pipeline and surfaced ONLY as a
+# 0-100 "Grid Connectivity Index" — never as raw ERCOT-model lines/names. The
+# public map overlay uses HIFLD (public domain).
+# -----------------------------------------------------------------------------
+grid_connectivity:
+  abstract_only: true
+  output_range: [0, 100]
