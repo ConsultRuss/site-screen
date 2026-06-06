@@ -106,6 +106,32 @@ def provisional_flex_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float
     )
 
 
+# Land-cover -> agrivoltaic factor scores (0..100).
+_GRAZE = {"pasture_hay": 95, "grassland_pasture": 95, "shrubland": 80, "cultivated_crops": 55,
+          "developed_open": 40, "forest": 30, "developed": 10, "water": 0, "wetlands": 10}
+_AGCONT = {"pasture_hay": 90, "grassland_pasture": 85, "cultivated_crops": 85, "shrubland": 55,
+           "developed_open": 20, "forest": 20, "developed": 5, "water": 0, "wetlands": 10}
+_POLLI = {"grassland_pasture": 90, "shrubland": 85, "pasture_hay": 80, "wetlands": 70, "forest": 50,
+          "developed_open": 45, "cultivated_crops": 40, "developed": 15, "water": 0}
+
+
+def agrivoltaic_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
+    """Whole-site dual-use lens. Grazing/continuity/pollinator come from land cover,
+    stewardship from slope; marginal-soil preference is neutral until NRCS soils land."""
+    w = cfg["agrivoltaic_lens"]["weights"]
+    lc = parcel.get("landcover_class")
+    slope = parcel.get("slope_pct_mean")
+    stewardship = NEUTRAL if slope is None else clamp(100.0 - max(0.0, slope - 1.0) * 12.0)
+    norm = {
+        "grazing_forage": _GRAZE.get(lc, NEUTRAL) if lc else NEUTRAL,
+        "existing_ag_continuity": _AGCONT.get(lc, NEUTRAL) if lc else NEUTRAL,
+        "soil_water_stewardship": stewardship,
+        "marginal_soil_pref": NEUTRAL,  # pending NRCS SSURGO land-capability class
+        "pollinator_potential": _POLLI.get(lc, NEUTRAL) if lc else NEUTRAL,
+    }
+    return round(weighted_lens(norm, w), 1)
+
+
 def suitability_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
     """Base-model suitability for one parcel, 0..100 (rounded to 1 decimal)."""
     breakdown = suitability_breakdown(parcel, cfg)

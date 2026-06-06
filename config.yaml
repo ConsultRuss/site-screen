@@ -28,7 +28,7 @@ crs:
 # parcel's buildable acreage. (Acreage scoring keys off buildable, not gross.)
 # -----------------------------------------------------------------------------
 exclusions:
-  fema_flood_zones: [AE, VE]           # 100-yr floodplain + coastal hazard
+  fema_flood_zones: [A, AE, AH, AO, AR, A99, V, VE]   # SFHA high-risk zones (Zone X = minimal, NOT excluded)
   nwi_wetland_types: [palustrine, lacustrine, riverine]
   padus_gap_status: [1, 2, 3]          # protected lands
   slope_hard_exclude_pct: 12.0         # very steep -> unbuildable (10-15% band)

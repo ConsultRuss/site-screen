@@ -70,13 +70,13 @@ def cmd_run(args: argparse.Namespace) -> int:
     print("== build ==")
     fc = build.run(cfg)
     print("== score + synthesize ==")
-    from .scoring import provisional_flex_score
+    from .scoring import agrivoltaic_score, provisional_flex_score
 
     props = [f["properties"] for f in fc["features"]]
     rank_parcels(props, cfg)
     for p in props:
         p["flex_load_score"] = provisional_flex_score(p, cfg)
-        p["agrivoltaic_score"] = None  # needs land cover + soils (a later pass)
+        p["agrivoltaic_score"] = agrivoltaic_score(p, cfg)
     assign_synthetic(fc, cfg)
     print("== export ==")
     out = REPO_ROOT / "web" / "data" / "parcels.geojson"
@@ -88,7 +88,10 @@ def cmd_run(args: argparse.Namespace) -> int:
             "parcel_count": len(fc["features"]),
             "shortlist_count": sum(1 for p in props if p["pipeline_status"]),
             "criteria_status": fc.get("_criteria_status"),
-            "lenses": {"flex_load": "provisional", "agrivoltaic": "pending"},
+            "lenses": {
+                "flex_load": "provisional (interconnection/buildable/hazard)",
+                "agrivoltaic": "live (marginal-soil pending NRCS)",
+            },
         },
     )
     print(f"run complete: {len(fc['features'])} parcels -> {out}")

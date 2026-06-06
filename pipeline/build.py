@@ -27,6 +27,14 @@ ANALYSIS_CRS = "EPSG:3083"
 M2_PER_ACRE = 4046.8564224
 MILES_PER_M = 1.0 / 1609.344
 
+# NLCD class code -> config landcover key (see config.yaml normalization.landcover)
+NLCD_TO_KEY = {
+    11: "water", 21: "developed_open", 22: "developed", 23: "developed", 24: "developed",
+    31: "default", 41: "forest", 42: "forest", 43: "forest", 52: "shrubland",
+    71: "grassland_pasture", 81: "pasture_hay", 82: "cultivated_crops",
+    90: "wetlands", 95: "wetlands",
+}
+
 
 def _round_coords(obj: Any, nd: int = 5) -> Any:
     """Round GeoJSON coordinates to ~1 m precision to keep the web payload small."""
@@ -110,9 +118,12 @@ def run(cfg: dict[str, Any]) -> dict[str, Any]:
     # --- floodplain overlay -> hazard %, and buildable acreage ---
     flood = _load("flood")
     flood_union = None
-    if flood is not None and len(flood):
-        flood_union = flood.geometry.union_all()
-        status["hazard_free"] = "live"
+    if flood is not None and len(flood) and "FLD_ZONE" in flood:
+        sfha = set(cfg["exclusions"]["fema_flood_zones"])  # high-risk only; Zone X is not flood
+        flood = flood[flood["FLD_ZONE"].isin(sfha)]
+        if len(flood):
+            flood_union = flood.geometry.union_all()
+            status["hazard_free"] = "live"
 
     geom = parcels.geometry
     if flood_union is not None:
@@ -128,6 +139,47 @@ def run(cfg: dict[str, Any]) -> dict[str, Any]:
     perim = geom.length
     compactness = (4.0 * math.pi * geom.area) / (perim.pow(2))
     compactness = compactness.clip(0, 1)
+
+    # --- terrain: mean slope (3DEP Slope-Degrees raster) -> percent grade ---
+    slope_pct = None
+    slope_path = RAW_DIR / "slope.tif"
+    if slope_path.exists():
+        try:
+            import rasterio
+            from rasterstats import zonal_stats
+
+            with rasterio.open(slope_path) as src:
+                rcrs = src.crs
+            pz = parcels.to_crs(rcrs) if rcrs else parcels.to_crs("EPSG:3857")
+            zs = zonal_stats(list(pz.geometry), str(slope_path), stats=["mean"], nodata=-9999.0)
+            slope_pct = [
+                round(math.tan(math.radians(s["mean"])) * 100.0, 1)
+                if s and s.get("mean") is not None
+                else None
+                for s in zs
+            ]
+            status["terrain"] = "live"
+        except Exception as exc:  # raster optional — never sink the run
+            print(f"  slope zonal failed: {exc}")
+
+    # --- land cover: NLCD dominant class per parcel -> config key ---
+    landcover = None
+    nlcd_path = RAW_DIR / "nlcd.tif"
+    if nlcd_path.exists():
+        try:
+            import rasterio
+            from rasterstats import zonal_stats
+
+            with rasterio.open(nlcd_path) as src:
+                ncrs = src.crs
+            pz = parcels.to_crs(ncrs) if ncrs else parcels.to_crs("EPSG:4326")
+            zs = zonal_stats(list(pz.geometry), str(nlcd_path), categorical=True, nodata=0)
+            landcover = [
+                NLCD_TO_KEY.get(int(max(s, key=s.get)), "default") if s else None for s in zs
+            ]
+            status["landcover_soils"] = "live (landcover; soils pending)"
+        except Exception as exc:
+            print(f"  nlcd zonal failed: {exc}")
 
     # --- assemble features (output geometry simplified, EPSG:4326) ---
     out = parcels.to_crs("EPSG:4326")
@@ -158,9 +210,9 @@ def run(cfg: dict[str, Any]) -> dict[str, Any]:
                 round(float(flood_pct.iloc[i]), 1) if flood_union is not None else None
             ),
             "compactness": round(float(compactness.iloc[i]), 3),
+            "slope_pct_mean": (slope_pct[i] if slope_pct is not None else None),
+            "landcover_class": (landcover[i] if landcover is not None else None),
             # pending criteria (filled in a later pass; scorer treats None as neutral)
-            "slope_pct_mean": None,
-            "landcover_class": None,
             "soil_lcc_class": None,
             "dist_road_mi": None,
             "mineral_excl_pct": None,
