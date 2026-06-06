@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=m2" />
 </head>
 <body>
   <header class="site-header">
@@ -77,10 +77,11 @@
 
     <!-- ========================= PIPELINE / TRACKER ========================= -->
     <section id="view-pipeline" class="view">
+      <div class="card kpis" id="kpis"></div>
       <div class="tracker-grid">
         <div class="card"><h3>Site-control funnel</h3><canvas id="chart-funnel"></canvas></div>
         <div class="card"><h3>Buildable acres by stage</h3><canvas id="chart-acres"></canvas></div>
-        <div class="card kpis" id="kpis"></div>
+        <div class="card"><h3>Est. acquisition cost by stage</h3><canvas id="chart-cost"></canvas></div>
       </div>
       <div class="card">
         <h3>Candidate parcels — site control</h3>
@@ -120,13 +121,13 @@
             <tr><td>Interconnection proximity</td><td>35%</td><td>Distance to nearest ≥138 kV substation/line (≤1 mi → 100, ≥10 mi → 0)</td></tr>
             <tr><td>Buildable acreage</td><td>20%</td><td>Acres after exclusions/setbacks (50 ac → 0, ≥640 ac → 100)</td></tr>
             <tr><td>Terrain</td><td>15%</td><td>Mean slope (≤2% → 100, ≥5% → 0; very steep excluded)</td></tr>
-            <tr><td>Land cover + soils</td><td>10%</td><td>Open/marginal ag favored; prime farmland (NRCS LCC I–II) penalized</td></tr>
+            <tr><td>Land cover + soils</td><td>10%</td><td>Open/marginal land favored; prime farmland (NRCS LCC 1–2) penalized</td></tr>
             <tr><td>Hazard-free</td><td>10%</td><td>% of parcel outside floodplain/wetlands</td></tr>
             <tr><td>Road access</td><td>5%</td><td>Distance to paved public road</td></tr>
             <tr><td>Contiguity / shape</td><td>5%</td><td>Polsby-Popper compactness</td></tr>
           </tbody>
         </table>
-        <p><strong>Exclusions &amp; setbacks</strong> (subtracted before scoring): FEMA floodplain (AE/VE), NWI
+        <p><strong>Exclusions &amp; setbacks</strong> (subtracted before scoring): FEMA SFHA high-risk floodplain, NWI
         wetlands, PAD-US protected lands, plus Eagle Ford setbacks from Texas Railroad Commission data — 150 ft
         around active wellheads, 50 ft around pipelines — and 100 ft parcel-boundary / 150 ft right-of-way setbacks.</p>
 
@@ -160,6 +161,20 @@
         wells/pipelines; ERCOT/EIA generation context; USDA NAIP imagery). No MLS/IDX data is used. The
         license-restricted ERCOT network model is never displayed raw — any capacity signal is abstracted to a 0–100
         "Grid Connectivity Index"; the public map overlay uses HIFLD.</p>
+        <table class="weights sources">
+          <thead><tr><th>Layer</th><th>Source</th><th>In this build</th></tr></thead>
+          <tbody>
+            <tr><td>Parcels</td><td>TxGIO StratMap (county appraisal districts)</td><td>live</td></tr>
+            <tr><td>Substations · transmission</td><td>HIFLD · DOE-NETL Energy Atlas</td><td>live</td></tr>
+            <tr><td>Terrain (slope)</td><td>USGS 3DEP</td><td>live</td></tr>
+            <tr><td>Land cover</td><td>USGS / MRLC NLCD 2021</td><td>live</td></tr>
+            <tr><td>Soils (capability class)</td><td>USDA-NRCS SSURGO · Soil Data Access</td><td>live</td></tr>
+            <tr><td>Floodplain</td><td>FEMA NFHL (SFHA zones)</td><td>live</td></tr>
+            <tr><td>Roads</td><td>U.S. Census TIGER</td><td>live</td></tr>
+            <tr><td>Generation</td><td>EIA power plants</td><td>live</td></tr>
+            <tr><td>Aerial basemap</td><td>USDA NAIP / Esri World Imagery</td><td>live</td></tr>
+          </tbody>
+        </table>
 
         <div class="callout">
           <strong>Synthetic-data disclosure.</strong> Geospatial and infrastructure data are public and sourced.
@@ -174,6 +189,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=m2"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* South Texas Site Screen — front-end skeleton (M0).
+/* South Texas Site Screen — front-end.
  * Loads the scored GeoJSON and drives three views: Map, Pipeline, About.
  * The "Ask the map" box uses a built-in rule-based parser; the LLM-assisted
  * version (Cloudflare Worker) is a later milestone and degrades to these rules. */
@@ -11,6 +11,12 @@
     flex_load_score: "Flexible-load",
     agrivoltaic_score: "Agrivoltaics",
   };
+  const LAND_LABELS = {
+    pasture_hay: "Pasture / hay", grassland_pasture: "Grassland", shrubland: "Shrub / scrub",
+    cultivated_crops: "Cropland", forest: "Forest", developed: "Developed",
+    developed_open: "Developed (open)", water: "Water", wetlands: "Wetlands", default: "Other",
+  };
+  const landLabel = (c) => (c ? LAND_LABELS[c] || c : null);
   const BUCKETS = [
     { min: 80, color: "#3f6b3a", label: "80–100" },
     { min: 60, color: "#7f9b4e", label: "60–79" },
@@ -72,9 +78,14 @@
   function initMap() {
     // preferCanvas: render thousands of parcels efficiently.
     MAP = L.map("map", { preferCanvas: true }).setView([29.0, -98.0], 9);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    const street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19, attribution: "&copy; OpenStreetMap contributors",
     }).addTo(MAP);
+    const aerial = L.tileLayer(
+      "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 19, attribution: "Imagery &copy; Esri, USDA NAIP" }
+    );
+    L.control.layers({ Street: street, "Aerial (NAIP)": aerial }, null, { position: "topright" }).addTo(MAP);
   }
 
   const HIDDEN = { opacity: 0, fillOpacity: 0 };
@@ -86,20 +97,30 @@
 
   const pend = "<span class='pp-pend'>pending</span>";
   const na = (v, suf = "") => (v === null || v === undefined ? pend : v + suf);
+  function scoreBar(v) {
+    const c = v == null ? "#7a756e" : colorFor(v);
+    return `<div class="pp-bar"><span style="width:${v || 0}%;background:${c}"></span></div>`;
+  }
   function popupHtml(p) {
     const row = (k, val) => `<dt>${k}</dt><dd>${val}</dd>`;
     let html = `<div class="pp-title">${p.parcel_id} · ${p.county} Co.</div>`;
-    html += `<span class="pp-score">Suitability ${p.suitability_score}</span> `;
-    html += `<span class="pp-rank">rank #${p.suitability_rank}</span>`;
+    html += `<div class="pp-scorewrap"><span class="pp-score">Suitability ${p.suitability_score}</span>`;
+    html += `<span class="pp-rank">#${p.suitability_rank} of ${FEATURES.length.toLocaleString()}</span></div>`;
+    html += scoreBar(p.suitability_score);
     html += `<dl class="pp-grid">`;
     html += row("Buildable", `${p.acreage_buildable} ac <span class="pp-dim">of ${p.acreage_total}</span>`);
     html += row("Substation", na(p.dist_substation_mi, " mi") + (p.nearest_sub_kv ? ` · ${p.nearest_sub_kv} kV` : ""));
     html += row("≥138 kV line", na(p.dist_transmission_mi, " mi"));
+    html += row("Slope", na(p.slope_pct_mean, "%"));
+    html += row("Land cover", na(landLabel(p.landcover_class)));
+    html += row("Soil class", p.soil_lcc_class ? "LCC " + p.soil_lcc_class : pend);
     html += row("Floodplain", p.floodplain_pct == null ? pend : p.floodplain_pct + "%");
-    html += row("Flex-load", na(p.flex_load_score));
+    html += row("Road · gen", na(p.dist_road_mi, " mi") + " · " + na(p.dist_generation_mi, " mi"));
+    html += row("Flex · agri", na(p.flex_load_score) + " · " + na(p.agrivoltaic_score));
     if (p.pipeline_status) {
       html += row("Pipeline", p.pipeline_status);
-      html += row("Title", p.title_flag);
+      html += row("Title", `<span class="pill ${p.title_flag}">${p.title_flag}</span>`);
+      html += row("Est. $/ac", p.est_price_per_ac ? "$" + p.est_price_per_ac.toLocaleString() : "—");
     }
     html += `</dl><div class="pp-synthetic">Owner “${p.owner}” &amp; any pipeline data are synthetic.</div>`;
     return html;
@@ -259,34 +280,39 @@
   }
 
   /* ---------------- charts + KPIs ---------------- */
+  const money = (v) => (v >= 1e6 ? "$" + (v / 1e6).toFixed(1) + "M" : "$" + Math.round(v).toLocaleString());
+
   function buildCharts() {
-    const counts = {}; const acres = {};
-    STATUS_ORDER.forEach((s) => { counts[s] = 0; acres[s] = 0; });
-    shortlist().forEach((p) => { counts[p.pipeline_status]++; acres[p.pipeline_status] += p.acreage_buildable; });
+    const counts = {}, acres = {}, cost = {};
+    STATUS_ORDER.forEach((s) => { counts[s] = 0; acres[s] = 0; cost[s] = 0; });
+    shortlist().forEach((p) => {
+      counts[p.pipeline_status]++;
+      acres[p.pipeline_status] += p.acreage_buildable;
+      cost[p.pipeline_status] += p.acreage_buildable * (p.est_price_per_ac || 0);
+    });
     const used = STATUS_ORDER.filter((s) => counts[s] > 0);
 
     Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
     Chart.defaults.color = "#8a8580";
     const grid = "rgba(255,255,255,0.06)";
-    const opts = {
+    const opts = (tickFmt) => ({
       indexAxis: "y",
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { color: grid }, border: { color: grid }, ticks: { precision: 0 } },
+        x: { grid: { color: grid }, border: { color: grid }, ticks: { precision: 0, callback: tickFmt } },
         y: { grid: { display: false }, border: { color: grid } },
       },
-    };
+    });
+    const bar = (id, data, color, tickFmt) =>
+      new Chart($(id), {
+        type: "bar",
+        data: { labels: used, datasets: [{ data, backgroundColor: color, borderRadius: 3 }] },
+        options: opts(tickFmt),
+      });
 
-    charts.funnel = new Chart($("#chart-funnel"), {
-      type: "bar",
-      data: { labels: used, datasets: [{ data: used.map((s) => counts[s]), backgroundColor: "#c8a87c", borderRadius: 3 }] },
-      options: opts,
-    });
-    charts.acres = new Chart($("#chart-acres"), {
-      type: "bar",
-      data: { labels: used, datasets: [{ data: used.map((s) => acres[s]), backgroundColor: "#7f9b4e", borderRadius: 3 }] },
-      options: opts,
-    });
+    charts.funnel = bar("#chart-funnel", used.map((s) => counts[s]), "#c8a87c");
+    charts.acres = bar("#chart-acres", used.map((s) => Math.round(acres[s])), "#7f9b4e");
+    charts.cost = bar("#chart-cost", used.map((s) => Math.round(cost[s])), "#bf7a3a", (v) => money(v));
   }
 
   function buildKpis() {
@@ -294,12 +320,14 @@
     const totalAc = sl.reduce((a, p) => a + p.acreage_buildable, 0);
     const prices = sl.map((p) => p.est_price_per_ac).filter(Boolean);
     const avg = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+    const totalVal = sl.reduce((a, p) => a + p.acreage_buildable * (p.est_price_per_ac || 0), 0);
     const securedIdx = STATUS_ORDER.indexOf("Site Control Secured");
     const secured = sl.filter((p) => STATUS_ORDER.indexOf(p.pipeline_status) >= securedIdx).length;
     const kpi = (num, lbl) => `<div class="kpi"><span class="num">${num}</span><span class="lbl">${lbl}</span></div>`;
     $("#kpis").innerHTML =
       kpi(sl.length, "parcels in pipeline") +
       kpi(totalAc.toLocaleString() + " ac", "buildable under control") +
+      kpi(money(totalVal), "est. pipeline value") +
       kpi("$" + avg.toLocaleString(), "avg. est. $/ac") +
       kpi(secured, "at/after site control");
   }
