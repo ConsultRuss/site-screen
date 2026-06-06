@@ -96,14 +96,22 @@ def suitability_breakdown(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[s
     }
 
 
-def provisional_flex_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
-    """Provisional flexible-load lens from the criteria that are LIVE today
-    (interconnection, buildable acreage, hazard-free). The full lens adds
-    proximity-to-generation and curtailment/basis once those layers are wired."""
+def flex_load_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
+    """Flexible / large-load co-location lens, weighted per config.flex_load_lens.
+    Interconnection, generation-proximity (EIA plants), buildable acreage, and
+    hazard/road are live; curtailment-basis is neutral (needs nodal LMP data)."""
+    w = cfg["flex_load_lens"]["weights"]
     b = suitability_breakdown(parcel, cfg)
-    return round(
-        0.5 * b["interconnection"] + 0.3 * b["buildable_acreage"] + 0.2 * b["hazard_free"], 1
-    )
+    dg = parcel.get("dist_generation_mi")
+    prox_gen = NEUTRAL if dg is None else normalize_linear(dg, 1.0, 25.0)
+    norm = {
+        "interconnection": b["interconnection"],
+        "proximity_generation": prox_gen,
+        "buildable_acreage": b["buildable_acreage"],
+        "curtailment_basis": NEUTRAL,  # needs nodal LMP / basis data
+        "hazard_road": (b["hazard_free"] + b["road_access"]) / 2.0,
+    }
+    return round(weighted_lens(norm, w), 1)
 
 
 # Land-cover -> agrivoltaic factor scores (0..100).
@@ -113,6 +121,8 @@ _AGCONT = {"pasture_hay": 90, "grassland_pasture": 85, "cultivated_crops": 85, "
            "developed_open": 20, "forest": 20, "developed": 5, "water": 0, "wetlands": 10}
 _POLLI = {"grassland_pasture": 90, "shrubland": 85, "pasture_hay": 80, "wetlands": 70, "forest": 50,
           "developed_open": 45, "cultivated_crops": 40, "developed": 15, "water": 0}
+# NRCS Land Capability Class -> agrivoltaic marginal-soil preference (favor marginal 3-4).
+_MARGINAL = {"1": 20, "2": 40, "3": 95, "4": 90, "5": 70, "6": 70, "7": 55, "8": 50}
 
 
 def agrivoltaic_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
@@ -120,13 +130,14 @@ def agrivoltaic_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
     stewardship from slope; marginal-soil preference is neutral until NRCS soils land."""
     w = cfg["agrivoltaic_lens"]["weights"]
     lc = parcel.get("landcover_class")
+    lcc = parcel.get("soil_lcc_class")
     slope = parcel.get("slope_pct_mean")
     stewardship = NEUTRAL if slope is None else clamp(100.0 - max(0.0, slope - 1.0) * 12.0)
     norm = {
         "grazing_forage": _GRAZE.get(lc, NEUTRAL) if lc else NEUTRAL,
         "existing_ag_continuity": _AGCONT.get(lc, NEUTRAL) if lc else NEUTRAL,
         "soil_water_stewardship": stewardship,
-        "marginal_soil_pref": NEUTRAL,  # pending NRCS SSURGO land-capability class
+        "marginal_soil_pref": _MARGINAL.get(lcc, NEUTRAL) if lcc else NEUTRAL,
         "pollinator_potential": _POLLI.get(lc, NEUTRAL) if lc else NEUTRAL,
     }
     return round(weighted_lens(norm, w), 1)

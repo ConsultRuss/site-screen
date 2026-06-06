@@ -95,13 +95,17 @@ model:
         wetlands:            0  # NLCD 90/95
         default:            50
 
-    soils_lcc:                  # NRCS Land Capability Class -> score
-      type: lookup             # marginal favored (buildability/permitting signal)
+    soils_lcc:                  # NRCS non-irrigated Land Capability Class (1-8) -> score
+      type: lookup             # marginal favored; prime farmland penalized
       table:
-        "III":   90
-        "IV":    85
-        "II":    50
-        "I":     30            # prime farmland penalized
+        "1":     30            # Class I  — prime farmland, penalized
+        "2":     50            # Class II — good farmland
+        "3":     90            # Class III — marginal, favored
+        "4":     85            # Class IV — marginal, favored
+        "5":     75            # Class V-VIII — non-cropland (range/pasture)
+        "6":     75
+        "7":     60
+        "8":     55
         default: 60
 
   # How land cover and soils combine into the single 10% "landcover_soils" criterion.

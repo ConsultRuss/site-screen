@@ -66,8 +66,8 @@ def test_landcover_and_soil_lookups():
     assert normalize("pasture_hay", norm["landcover"]) == 90.0
     assert normalize("water", norm["landcover"]) == 0.0
     assert normalize("nonsense", norm["landcover"]) == 50.0  # default
-    assert normalize("III", norm["soils_lcc"]) == 90.0
-    assert normalize("I", norm["soils_lcc"]) == 30.0  # prime farmland penalized
+    assert normalize("3", norm["soils_lcc"]) == 90.0  # NRCS class 3 — marginal, favored
+    assert normalize("1", norm["soils_lcc"]) == 30.0  # class 1 — prime farmland, penalized
 
 
 def test_ideal_parcel_scores_near_top():

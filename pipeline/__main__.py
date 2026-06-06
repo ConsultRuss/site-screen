@@ -70,12 +70,12 @@ def cmd_run(args: argparse.Namespace) -> int:
     print("== build ==")
     fc = build.run(cfg)
     print("== score + synthesize ==")
-    from .scoring import agrivoltaic_score, provisional_flex_score
+    from .scoring import agrivoltaic_score, flex_load_score
 
     props = [f["properties"] for f in fc["features"]]
     rank_parcels(props, cfg)
     for p in props:
-        p["flex_load_score"] = provisional_flex_score(p, cfg)
+        p["flex_load_score"] = flex_load_score(p, cfg)
         p["agrivoltaic_score"] = agrivoltaic_score(p, cfg)
     assign_synthetic(fc, cfg)
     print("== export ==")
@@ -89,8 +89,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             "shortlist_count": sum(1 for p in props if p["pipeline_status"]),
             "criteria_status": fc.get("_criteria_status"),
             "lenses": {
-                "flex_load": "provisional (interconnection/buildable/hazard)",
-                "agrivoltaic": "live (marginal-soil pending NRCS)",
+                "flex_load": "live (curtailment-basis neutral — needs nodal LMP)",
+                "agrivoltaic": "live",
             },
         },
     )

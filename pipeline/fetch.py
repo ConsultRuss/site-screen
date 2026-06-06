@@ -42,6 +42,21 @@ ELEVATION_URL = (
 )
 NLCD_WCS_URL = "https://www.mrlc.gov/geoserver/mrlc_download/wcs"
 NLCD_COVERAGE = "mrlc_download:NLCD_2021_Land_Cover_L48"
+_TIGER = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Transportation/MapServer"
+ROADS_URLS = [f"{_TIGER}/{i}/query" for i in (2, 5, 8)]  # primary, secondary, local
+GENERATION_URL = (
+    "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/"
+    "Power_Plants_in_the_US/FeatureServer/0/query"
+)
+SDA_URL = "https://sdmdataaccess.sc.egov.usda.gov/Tabular/post.rest"
+SDA_SQL = (
+    "SELECT mu.mukey, dom.lcc, mp.mupolygongeo.STAsText() AS geom "
+    "FROM mapunit mu JOIN mupolygon mp ON mp.mukey=mu.mukey "
+    "OUTER APPLY (SELECT TOP 1 c.nirrcapcl AS lcc FROM component c "
+    "WHERE c.mukey=mu.mukey AND c.nirrcapcl IS NOT NULL ORDER BY c.comppct_r DESC) dom "
+    "WHERE mu.mukey IN (SELECT mukey FROM "
+    "SDA_Get_Mukey_from_intersection_with_WktWgs84('{wkt}'))"
+)
 
 # Web-Mercator m^2 floor (~38 true acres at this latitude after distortion) — a safe
 # server-side pre-filter that never drops a true >=50 ac parcel; the exact >=50 ac
@@ -215,6 +230,56 @@ def fetch_flood_tiled(bbox: str, nx: int = 4, ny: int = 4, page: int = 500) -> i
     return _save("flood", feats)
 
 
+def fetch_roads(bbox: str) -> int:
+    """TIGER primary + secondary + local roads in the study bbox (distance proxy)."""
+    feats: list[dict[str, Any]] = []
+    for url in ROADS_URLS:
+        try:
+            feats += fetch_arcgis(url, geometry=bbox, out_fields="MTFCC")
+        except Exception as exc:
+            print(f"  road layer failed: {exc}")
+    return _save("roads", feats)
+
+
+def fetch_soils_sda(bbox: str, nx: int = 4, ny: int = 4) -> int:
+    """NRCS SSURGO mapunit polygons + dominant non-irrigated Land Capability Class
+    from Soil Data Access. Tiled (the AOI is large); overlaps are harmless (build
+    joins by parcel centroid). LCC is the agronomic class 1-8."""
+    import requests
+    from shapely import wkt as shapely_wkt
+
+    xmin, ymin, xmax, ymax = (float(v) for v in bbox.split(","))
+    dx, dy = (xmax - xmin) / nx, (ymax - ymin) / ny
+    feats: list[dict[str, Any]] = []
+    failed = 0
+    for i in range(nx):
+        for j in range(ny):
+            x0, y0 = xmin + i * dx, ymin + j * dy
+            x1, y1 = x0 + dx, y0 + dy
+            ring = f"{x0} {y0},{x1} {y0},{x1} {y1},{x0} {y1},{x0} {y0}"
+            sql = SDA_SQL.format(wkt=f"POLYGON(({ring}))")
+            try:
+                resp = requests.post(
+                    SDA_URL, json={"format": "JSON", "query": sql}, timeout=TIMEOUT
+                )
+                resp.raise_for_status()
+                for _mukey, lcc, geom in resp.json().get("Table", []):
+                    if not geom or lcc is None:
+                        continue
+                    feats.append(
+                        {
+                            "type": "Feature",
+                            "properties": {"lcc": str(lcc).strip()},
+                            "geometry": shapely_wkt.loads(geom).__geo_interface__,
+                        }
+                    )
+            except Exception:
+                failed += 1
+    if failed:
+        print(f"  [soils] {failed}/{nx * ny} tiles failed")
+    return _save("soils", feats)
+
+
 def fetch_nlcd_raster(bbox: str, out_name: str = "nlcd") -> int:
     """Download NLCD 2021 Land Cover for the study bbox from the MRLC WCS (~30 m).
 
@@ -349,6 +414,14 @@ def run(cfg: dict[str, Any]) -> dict[str, Any]:
     _try(status, "flood", lambda: fetch_flood_tiled(bbox_local))
     _try(status, "slope", lambda: fetch_slope_raster(bbox_local))
     _try(status, "nlcd", lambda: fetch_nlcd_raster(bbox_local))
+    _try(status, "roads", lambda: fetch_roads(bbox_local))
+    _try(status, "soils", lambda: fetch_soils_sda(bbox_local))
+    _try(status, "generation", lambda: _save(
+        "generation",
+        fetch_arcgis(
+            GENERATION_URL, geometry=bbox_infra, out_fields="Plant_Name,PrimSource,Total_MW"
+        ),
+    ))
 
     (RAW_DIR / "fetch_status.json").write_text(json.dumps(status, indent=2), encoding="utf-8")
     return status

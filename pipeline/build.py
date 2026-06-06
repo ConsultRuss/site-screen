@@ -181,6 +181,34 @@ def run(cfg: dict[str, Any]) -> dict[str, Any]:
         except Exception as exc:
             print(f"  nlcd zonal failed: {exc}")
 
+    # --- road access: distance to nearest TIGER road ---
+    dist_road_mi = None
+    roads = _load("roads")
+    if roads is not None and len(roads):
+        jr = gpd.sjoin_nearest(parcels[["geometry"]], roads[["geometry"]], distance_col="_d")
+        jr = jr[~jr.index.duplicated(keep="first")]
+        dist_road_mi = (jr["_d"] * MILES_PER_M).reindex(parcels.index)
+        status["road_access"] = "live"
+
+    # --- soils: NRCS Land Capability Class via parcel-centroid spatial join ---
+    soil_lcc = None
+    soils = _load("soils")
+    if soils is not None and len(soils) and "lcc" in soils:
+        cent_g = gpd.GeoDataFrame(geometry=parcels.geometry.centroid, crs=parcels.crs)
+        sj = gpd.sjoin(cent_g, soils[["lcc", "geometry"]], how="left", predicate="within")
+        sj = sj[~sj.index.duplicated(keep="first")].reindex(parcels.index)
+        soil_lcc = [v if isinstance(v, str) and v else None for v in sj["lcc"]]
+        if any(soil_lcc):
+            status["landcover_soils"] = "live (landcover + soils)"
+
+    # --- flex co-location: distance to nearest existing power plant (EIA) ---
+    dist_gen_mi = None
+    gen = _load("generation")
+    if gen is not None and len(gen):
+        jg = gpd.sjoin_nearest(parcels[["geometry"]], gen[["geometry"]], distance_col="_d")
+        jg = jg[~jg.index.duplicated(keep="first")]
+        dist_gen_mi = (jg["_d"] * MILES_PER_M).reindex(parcels.index)
+
     # --- assemble features (output geometry simplified, EPSG:4326) ---
     out = parcels.to_crs("EPSG:4326")
     cent = parcels.geometry.centroid.to_crs("EPSG:4326")  # centroid in projected CRS, then WGS84
@@ -206,15 +234,16 @@ def run(cfg: dict[str, Any]) -> dict[str, Any]:
             "dist_substation_mi": val(dist_sub_mi, i),
             "nearest_sub_kv": val(near_kv, i, 0),
             "dist_transmission_mi": val(dist_line_mi, i),
+            "dist_generation_mi": val(dist_gen_mi, i),
             "floodplain_pct": (
                 round(float(flood_pct.iloc[i]), 1) if flood_union is not None else None
             ),
             "compactness": round(float(compactness.iloc[i]), 3),
             "slope_pct_mean": (slope_pct[i] if slope_pct is not None else None),
             "landcover_class": (landcover[i] if landcover is not None else None),
-            # pending criteria (filled in a later pass; scorer treats None as neutral)
-            "soil_lcc_class": None,
-            "dist_road_mi": None,
+            "soil_lcc_class": (soil_lcc[i] if soil_lcc is not None else None),
+            "dist_road_mi": val(dist_road_mi, i),
+            # pending: mineral-exclusion % (RRC wells/pipelines) — not in this pass
             "mineral_excl_pct": None,
         }
         gi = simp.iloc[i].__geo_interface__
