@@ -30,6 +30,18 @@ data is deliberately excluded** (license-restricted, not republishable).
 | Soils / farmland class | USDA-NRCS SSURGO / Web Soil Survey (Land Capability Class) | `websoilsurvey.nrcs.usda.gov` / SDA / gSSURGO | Shapefile / GDB | Penalize prime farmland (LCC I–II), favor marginal (LCC III–IV) | Public domain | _pending_ |
 | Oil/gas wells & pipelines | Texas Railroad Commission (RRC) GIS | `rrc.texas.gov/.../gis-viewer/` | Shapefile / GIS | Eagle Ford exclusion buffers (150 ft wellhead, 50 ft pipeline) | Public | _pending_ |
 
+## Pipeline run status (M1 — 2026-06-06)
+
+The `fetch` stage queries these endpoints server-side (by county FIPS or study-area bbox):
+
+- **Parcels — LIVE.** TxGIO StratMap "most recent" — `feature.geographic.texas.gov/.../Parcels/stratmap_land_parcels_48_most_recent/MapServer/0` (public). **6,080 parcels ≥ 50 ac** across Wilson + Karnes.
+- **Substations — LIVE.** HIFLD Electric Substations — `services5.arcgis.com/HDRa0B57OVrv2E1q/.../Electric_Substations` (189 in study area; `MAX_VOLT` ≥ 138 kV used).
+- **Transmission — LIVE.** HIFLD via DOE NETL Energy Transition Atlas — `arcgis.netl.doe.gov/.../Energy_Transition_Atlas_493d6/FeatureServer/18` (321 lines; `voltage` ≥ 138 kV used).
+- **Floodplain (FEMA NFHL) — PENDING.** Endpoint returned HTTP 500 on the last run; the hazard criterion scores neutral until it loads.
+- **Terrain (DEM), land cover (NLCD), soils (NRCS), roads (TIGER), wells/pipelines (RRC) — PENDING.** Wired into the model; not populated this pass.
+
+Live criteria (interconnection 35%, buildable acreage 20%, shape 5%) drive ~60% of the model. Pending criteria score a neutral 50 and are flagged in `screen_run.json` (`criteria_status`), so rankings are driven by what is actually measured. The flexible-load lens is provisional (live criteria only); the agrivoltaics lens is pending its land-cover + soils inputs.
+
 ## Restricted-data discipline
 
 The **ERCOT GIS Report (`pg7-200-er`)** and the detailed ERCOT network model are

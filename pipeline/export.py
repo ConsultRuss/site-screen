@@ -22,8 +22,10 @@ def write_geojson(feature_collection: dict[str, Any], out_path: str | Path) -> N
         json.dump(feature_collection, fh, ensure_ascii=False)
 
 
-def write_run_metadata(cfg: dict[str, Any], out_path: str | Path) -> dict[str, Any]:
-    """Write data/screen_run.json: weights + study area + timestamp."""
+def write_run_metadata(
+    cfg: dict[str, Any], out_path: str | Path, extra: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Write data/screen_run.json: weights + study area + timestamp + run details."""
     meta = {
         "pipeline_version": __version__,
         "run_utc": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -33,6 +35,8 @@ def write_run_metadata(cfg: dict[str, Any], out_path: str | Path) -> dict[str, A
         "note": "Geospatial layers are public + sourced (data/SOURCES.md). "
         "Ownership names and the deal pipeline are synthetic.",
     }
+    if extra:
+        meta.update(extra)
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:

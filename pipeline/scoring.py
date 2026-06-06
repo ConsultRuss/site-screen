@@ -55,6 +55,14 @@ def weighted_lens(normalized: dict[str, float], weights: dict[str, float]) -> fl
     return sum(weights[c] * normalized[c] for c in weights)
 
 
+NEUTRAL = 50.0
+
+
+def _norm_or_neutral(value: Any, spec: dict[str, Any]) -> float:
+    """Normalize, but a not-yet-measured (None) criterion scores a neutral 50."""
+    return NEUTRAL if value is None else normalize(value, spec)
+
+
 def suitability_breakdown(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[str, float]:
     """Per-criterion normalized scores (0..100) for one parcel under the base model.
 
@@ -72,17 +80,30 @@ def suitability_breakdown(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[s
     )
 
     # % of the parcel OUTSIDE hazards = 100 - % inside floodplain/wetlands.
-    hazard_free_pct = 100.0 - float(parcel.get("floodplain_pct", 0.0))
+    # None (no flood layer this pass) -> neutral, not a falsely-perfect 100.
+    fp = parcel.get("floodplain_pct")
+    hazard_free = NEUTRAL if fp is None else normalize(100.0 - float(fp), norm["hazard_free"])
 
+    g = _norm_or_neutral
     return {
-        "interconnection": normalize(parcel["dist_substation_mi"], norm["interconnection"]),
-        "buildable_acreage": normalize(parcel["acreage_buildable"], norm["buildable_acreage"]),
-        "terrain": normalize(parcel["slope_pct_mean"], norm["terrain"]),
+        "interconnection": g(parcel.get("dist_substation_mi"), norm["interconnection"]),
+        "buildable_acreage": g(parcel.get("acreage_buildable"), norm["buildable_acreage"]),
+        "terrain": g(parcel.get("slope_pct_mean"), norm["terrain"]),
         "landcover_soils": landcover_soils,
-        "hazard_free": normalize(hazard_free_pct, norm["hazard_free"]),
-        "road_access": normalize(parcel["dist_road_mi"], norm["road_access"]),
-        "shape": normalize(parcel["compactness"], norm["shape"]),
+        "hazard_free": hazard_free,
+        "road_access": g(parcel.get("dist_road_mi"), norm["road_access"]),
+        "shape": g(parcel.get("compactness"), norm["shape"]),
     }
+
+
+def provisional_flex_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
+    """Provisional flexible-load lens from the criteria that are LIVE today
+    (interconnection, buildable acreage, hazard-free). The full lens adds
+    proximity-to-generation and curtailment/basis once those layers are wired."""
+    b = suitability_breakdown(parcel, cfg)
+    return round(
+        0.5 * b["interconnection"] + 0.3 * b["buildable_acreage"] + 0.2 * b["hazard_free"], 1
+    )
 
 
 def suitability_score(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:

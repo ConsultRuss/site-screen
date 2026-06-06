@@ -75,6 +75,22 @@ def test_ideal_parcel_scores_near_top():
     assert score > 90.0
 
 
+def test_pending_criteria_score_neutral():
+    # Criteria with no data yet (None) must score a neutral 50 — not 0 or a falsely
+    # perfect 100 — so the weighted total stays well-defined while live criteria drive it.
+    p = {
+        "parcel_id": "X", "dist_substation_mi": 1.0, "acreage_buildable": 640.0,
+        "compactness": 0.8, "slope_pct_mean": None, "dist_road_mi": None,
+        "landcover_class": None, "soil_lcc_class": None, "floodplain_pct": None,
+    }
+    b = suitability_breakdown(p, CFG)
+    assert b["terrain"] == 50.0
+    assert b["road_access"] == 50.0
+    assert b["hazard_free"] == 50.0  # no flood layer -> neutral, not 100
+    assert b["interconnection"] == 100.0  # live criterion still real
+    assert b["buildable_acreage"] == 100.0
+
+
 def test_ranking_is_deterministic_and_orders_by_quality():
     good = _parcel(parcel_id="WIL-GOOD")  # close sub, big, flat, dry
     poor = _parcel(

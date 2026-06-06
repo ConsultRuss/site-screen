@@ -1,21 +1,182 @@
-"""Stage 2 - build: clip, exclude, and compute per-parcel metrics.
+"""Stage 2 - build: clip / reproject / compute per-parcel metrics.
 
-Implemented in M1. Requires the geospatial stack (geopandas/rasterio/shapely/
-pyproj). Reprojects to the analysis CRS, applies the >=50-acre filter, subtracts
-the hard exclusions and setbacks from config.yaml to derive buildable acreage,
-and computes each criterion metric (distances, mean slope, hazard %, compactness,
-land-cover/soil class) that ``scoring`` then normalizes.
+Reads the cached layers from fetch, reprojects to the equal-area analysis CRS,
+applies the exact >=50 ac filter, and computes the metrics the scorer needs:
+
+  * interconnection  - distance (mi) to nearest >=138 kV substation and line  [LIVE]
+  * buildable acres  - parcel area minus floodplain minus boundary setback     [LIVE]
+  * hazard-free %    - share of the parcel outside the floodplain             [LIVE if flood]
+  * compactness      - Polsby-Popper from geometry                            [LIVE]
+  * terrain / land cover / soils / road access                                [PENDING -> None]
+
+Criteria with no fetched layer this pass are left as ``None``; the scorer treats
+None as a neutral 50 so the weighted total stays well-defined, and which criteria
+are live vs pending is recorded in data/screen_run.json. Heavy deps are imported
+lazily so the rest of the CLI loads without the geo stack.
 """
 
 from __future__ import annotations
 
+import json
+import math
 from typing import Any
 
-from .fetch import StageNotImplemented
+from .fetch import RAW_DIR
+
+ANALYSIS_CRS = "EPSG:3083"
+M2_PER_ACRE = 4046.8564224
+MILES_PER_M = 1.0 / 1609.344
 
 
-def run(cfg: dict[str, Any]) -> None:
-    raise StageNotImplemented(
-        "build lands in M1 (needs geopandas/rasterio/shapely/pyproj). "
-        "It derives buildable acreage + criterion metrics per config.yaml."
-    )
+def _round_coords(obj: Any, nd: int = 5) -> Any:
+    """Round GeoJSON coordinates to ~1 m precision to keep the web payload small."""
+    if isinstance(obj, (list, tuple)):
+        if obj and isinstance(obj[0], (int, float)):
+            return [round(float(obj[0]), nd), round(float(obj[1]), nd)]
+        return [_round_coords(x, nd) for x in obj]
+    return obj
+
+
+def _to_kv(series):
+    """Coerce a voltage column to numeric kV; HIFLD uses -999999 for unknown."""
+    import pandas as pd
+
+    v = pd.to_numeric(series, errors="coerce")
+    return v.where((v >= 1) & (v < 1000))  # drop sentinels / nonsense
+
+
+def _load(name: str):
+    import geopandas as gpd
+
+    path = RAW_DIR / f"{name}.geojson"
+    if not path.exists():
+        return None
+    gdf = gpd.read_file(path)
+    if gdf.empty:
+        return None
+    if gdf.crs is None:
+        gdf = gdf.set_crs("EPSG:4326")
+    return gdf.to_crs(ANALYSIS_CRS)
+
+
+def run(cfg: dict[str, Any]) -> dict[str, Any]:
+    import geopandas as gpd
+
+    floor_ac = cfg["study_area"]["parcel_min_acres"]
+    setback_m = cfg["exclusions"]["setbacks_ft"]["parcel_boundary"] * 0.3048
+
+    parcels = _load("parcels")
+    if parcels is None:
+        raise RuntimeError("no parcels cached — run fetch first")
+
+    parcels["area_ac"] = parcels.geometry.area / M2_PER_ACRE
+    parcels = parcels[parcels["area_ac"] >= floor_ac].copy().reset_index(drop=True)
+    print(f"  parcels >= {floor_ac} ac: {len(parcels)}")
+
+    status: dict[str, str] = {
+        "interconnection": "pending",
+        "buildable_acreage": "live",
+        "hazard_free": "pending",
+        "shape": "live",
+        "terrain": "pending",
+        "landcover_soils": "pending",
+        "road_access": "pending",
+    }
+
+    # --- interconnection: nearest >=138 kV substation + line ---
+    subs = _load("substations")
+    dist_sub_mi = None
+    near_kv = None
+    if subs is not None and "MAX_VOLT" in subs:
+        subs = subs.assign(kv=_to_kv(subs["MAX_VOLT"]))
+        subs138 = subs[subs["kv"] >= 138][["kv", "geometry"]].reset_index(drop=True)
+        if len(subs138):
+            joined = gpd.sjoin_nearest(parcels[["geometry"]], subs138, distance_col="_d")
+            joined = joined[~joined.index.duplicated(keep="first")]
+            dist_sub_mi = (joined["_d"] * MILES_PER_M).reindex(parcels.index)
+            near_kv = joined["kv"].reindex(parcels.index)
+            status["interconnection"] = "live"
+
+    lines = _load("transmission")
+    dist_line_mi = None
+    if lines is not None and "voltage" in lines:
+        lines = lines.assign(kv=_to_kv(lines["voltage"]))
+        lines138 = lines[lines["kv"] >= 138][["geometry"]].reset_index(drop=True)
+        if len(lines138):
+            jl = gpd.sjoin_nearest(parcels[["geometry"]], lines138, distance_col="_d")
+            jl = jl[~jl.index.duplicated(keep="first")]
+            dist_line_mi = (jl["_d"] * MILES_PER_M).reindex(parcels.index)
+
+    # --- floodplain overlay -> hazard %, and buildable acreage ---
+    flood = _load("flood")
+    flood_union = None
+    if flood is not None and len(flood):
+        flood_union = flood.geometry.union_all()
+        status["hazard_free"] = "live"
+
+    geom = parcels.geometry
+    if flood_union is not None:
+        flood_area = geom.intersection(flood_union).area
+        flood_pct = (100.0 * flood_area / geom.area).clip(0, 100)
+        non_flood = geom.difference(flood_union)
+    else:
+        flood_pct = geom.area * 0.0  # all zeros
+        non_flood = geom
+    buildable_ac = (non_flood.buffer(-setback_m).area / M2_PER_ACRE).clip(lower=0)
+
+    # --- compactness (Polsby-Popper) ---
+    perim = geom.length
+    compactness = (4.0 * math.pi * geom.area) / (perim.pow(2))
+    compactness = compactness.clip(0, 1)
+
+    # --- assemble features (output geometry simplified, EPSG:4326) ---
+    out = parcels.to_crs("EPSG:4326")
+    cent = parcels.geometry.centroid.to_crs("EPSG:4326")  # centroid in projected CRS, then WGS84
+    simp = out.geometry.simplify(0.00025, preserve_topology=True)
+
+    def val(series, i, ndigits=2):
+        if series is None:
+            return None
+        x = series.iloc[i]
+        import pandas as pd
+
+        return None if pd.isna(x) else round(float(x), ndigits)
+
+    features: list[dict[str, Any]] = []
+    for i in range(len(parcels)):
+        county = str(parcels["county"].iloc[i]).title() if "county" in parcels else "Unknown"
+        props = {
+            "county": county,
+            "acreage_total": round(float(parcels["area_ac"].iloc[i]), 1),
+            "acreage_buildable": round(float(buildable_ac.iloc[i]), 1),
+            "centroid_lat": round(float(cent.y.iloc[i]), 5),
+            "centroid_lon": round(float(cent.x.iloc[i]), 5),
+            "dist_substation_mi": val(dist_sub_mi, i),
+            "nearest_sub_kv": val(near_kv, i, 0),
+            "dist_transmission_mi": val(dist_line_mi, i),
+            "floodplain_pct": (
+                round(float(flood_pct.iloc[i]), 1) if flood_union is not None else None
+            ),
+            "compactness": round(float(compactness.iloc[i]), 3),
+            # pending criteria (filled in a later pass; scorer treats None as neutral)
+            "slope_pct_mean": None,
+            "landcover_class": None,
+            "soil_lcc_class": None,
+            "dist_road_mi": None,
+            "mineral_excl_pct": None,
+        }
+        gi = simp.iloc[i].__geo_interface__
+        features.append(
+            {
+                "type": "Feature",
+                "properties": props,
+                "geometry": {"type": gi["type"], "coordinates": _round_coords(gi["coordinates"])},
+            }
+        )
+
+    (RAW_DIR / "build_status.json").write_text(json.dumps(status, indent=2), encoding="utf-8")
+    return {
+        "type": "FeatureCollection",
+        "_criteria_status": status,
+        "features": features,
+    }
