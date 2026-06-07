@@ -1,0 +1,6 @@
+# sites.consultruss.com — public portfolio tool by Russell W. Hild (consultruss.com).
+# Search crawlers and AI agents are welcome.
+User-agent: *
+Allow: /
+
+Sitemap: https://sites.consultruss.com/sitemap.xml

@@ -1,0 +1,21 @@
+# South Texas Site Screen & Land-Control Tracker
+
+> Interconnection-aware land screening over public South Texas data, by Russell W. Hild (consultruss.com). Every rural parcel >= 50 acres in Wilson and Karnes counties is scored on a transparent weighted suitability model, then a synthetic shortlist is tracked through a site-control pipeline.
+
+## What it is
+A public reference demonstration of how to screen rural land for renewable / data-center development in the ERCOT South Texas corridor, and track candidate parcels toward site control. Built by Russell W. Hild — Texas A&M Master of Real Estate (Land Economics) — who builds and runs his own data systems.
+
+## Methodology
+- Every parcel >= 50 acres scored 0-100 on a transparent weighted overlay: interconnection proximity (35%), buildable acreage (20%), terrain/slope (15%), land cover + soils (10%), hazard-free / floodplain (10%), road access (5%), parcel shape (5%). All weights and breakpoints live in a single config file (auditable, tunable).
+- Two additional lenses re-score the same parcels: flexible / large-load (interconnection headroom + proximity to generation) and agrivoltaics / stewardship (grazing compatibility, marginal-soil preference, pollinator habitat).
+- "Ask the map" turns a plain-English question into a validated parcel filter.
+
+## Data and honesty
+- Geospatial and infrastructure layers are public and sourced: TxGIO parcels, HIFLD transmission and substations, FEMA NFHL floodplain, USGS 3DEP slope, USGS/MRLC NLCD land cover, USDA-NRCS soils, EIA generation, USDA NAIP imagery.
+- Ownership names and the deal pipeline (statuses, prices, dates) are synthetic, for demonstration only.
+
+## Author
+Russell W. Hild — consultruss.com
+- LinkedIn: https://www.linkedin.com/in/russhld/
+- X: https://x.com/RussHld
+- GitHub (source): https://github.com/ConsultRuss/site-screen
