@@ -96,7 +96,7 @@ async function llmParse(question, env) {
       models, // first is primary, second is fallback (OpenRouter routing)
       temperature: 0,
       max_tokens: 200,
-      response_format: { type: "json_schema", json_schema: FILTER_SCHEMA },
+      response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: question },

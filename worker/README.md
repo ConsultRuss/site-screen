@@ -18,8 +18,8 @@ Only these keys are ever emitted (`FILTER_FIELDS` in `src/index.js`):
 
 ## Two layers (graceful degradation)
 
-1. **LLM** — OpenRouter, **pinned models** (`models: [primary, fallback]`), **structured
-   output** (JSON-schema), **temperature 0**, `max_tokens: 200`. Primary
+1. **LLM** — OpenRouter, **pinned models** (`models: [primary, fallback]`), **JSON output
+   mode** (`response_format: json_object`), **temperature 0**, `max_tokens: 200`. Primary
    `google/gemini-2.5-flash`, fallback `anthropic/claude-haiku-4.5`.
 2. The result is **validated** against the whitelist; on any miss (no key, bad JSON,
    model down, rate-limited) it falls back to the deterministic `ruleParse()`. The
@@ -45,5 +45,5 @@ npx wrangler deploy                            # publish
 ```
 
 After deploy, set `WORKER_URL` in `web/js/app.js` to the deployed URL
-(e.g. `https://site-screen-ask.<account>.workers.dev`). Confirm exact model slugs on
-`openrouter.ai/models` at setup — slugs drift.
+(a custom domain on your zone, e.g. `https://ask.consultruss.com`). Confirm exact model
+slugs on `openrouter.ai/models` at setup — slugs drift.
