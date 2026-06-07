@@ -88,7 +88,7 @@
             <label class="panel-label" for="ask">Ask the map</label>
             <input id="ask" type="text" placeholder='e.g. over 200 buildable acres within 3 miles of a 138 kV substation, no floodplain' />
             <button id="ask-go" class="btn">Filter</button>
-            <p class="hint" id="ask-status">Plain-English filtering. When deployed, a rate-limited Cloudflare Worker (pinned LLM) parses the question; otherwise a <em>built-in rule-based parser</em> handles it — so the tool always works.</p>
+            <p class="hint" id="ask-status">Plain-English filtering. A rate-limited Cloudflare Worker (pinned LLM) parses your question; a <em>built-in rule-based parser</em> is the fallback, so the tool always works.</p>
           </div>
 
           <div class="panel-block">
@@ -158,9 +158,11 @@
           <strong>What this is, honestly.</strong> A reference demonstration over <strong>public</strong> South
           Texas data, distilled from how I evaluate sites in practice. The geospatial and infrastructure layers are
           <strong>real and sourced</strong>; ownership names and the deal pipeline are <strong>synthetic</strong>,
-          for demonstration. I trained in ArcGIS/ESRI during my Master of Real Estate at Texas A&amp;M and
-          <strong>re-sharpened hands-on in QGIS</strong> to build this — open-source, brand-agnostic, and
-          translatable to ArcGIS Pro and Google Earth. The methodology, not the tool, is the point.
+          for demonstration. I trained in ArcGIS/ESRI during my Master of Real Estate at Texas A&amp;M. The
+          analytical model here &mdash; the <strong>criteria, weights, and exclusions</strong> &mdash; is mine; I built
+          the implementation with <strong>AI-assisted development</strong> in QGIS and Python (open-source,
+          brand-agnostic, translatable to ArcGIS Pro and Google Earth). The methodology and the judgment behind it,
+          not the tooling, are the point.
         </div>
 
         <h3>The model</h3>
