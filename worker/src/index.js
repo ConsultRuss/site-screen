@@ -108,11 +108,27 @@ async function llmParse(question, env) {
   const data = await resp.json();
   const content = data?.choices?.[0]?.message?.content;
   if (!content) return null;
+  return extractJson(content);
+}
+
+// Robustly pull a JSON object from a model response — handles ```json fences and
+// JSON embedded in prose (some providers don't honor response_format: json_object).
+function extractJson(text) {
+  let t = String(text).trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
   try {
-    return JSON.parse(content);
+    return JSON.parse(t);
   } catch {
-    return null;
+    /* fall through to brace extraction */
   }
+  const m = t.match(/\{[\s\S]*\}/);
+  if (m) {
+    try {
+      return JSON.parse(m[0]);
+    } catch {
+      /* give up -> deterministic fallback */
+    }
+  }
+  return null;
 }
 
 function corsHeaders(origin, env) {
