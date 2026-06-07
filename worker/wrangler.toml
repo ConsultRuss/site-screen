@@ -9,11 +9,12 @@ main = "src/index.js"
 compatibility_date = "2026-06-01"
 
 # Non-secret config. Models are pinned here (confirm exact slugs on
-# openrouter.ai/models at setup — slugs drift). ALLOWED_ORIGINS restricts which
-# sites the browser may call this Worker from (comma-separated).
+# openrouter.ai/models at setup — slugs drift). ZDR-compliant models so requests
+# route under a Zero-Data-Retention provider policy. ALLOWED_ORIGINS restricts
+# which sites the browser may call this Worker from (comma-separated).
 [vars]
-PRIMARY_MODEL = "google/gemini-2.5-flash"
-FALLBACK_MODEL = "anthropic/claude-haiku-4.5"
+PRIMARY_MODEL = "meta-llama/llama-3.3-70b-instruct"
+FALLBACK_MODEL = "meta-llama/llama-3.1-8b-instruct"
 ALLOWED_ORIGINS = "https://sites.consultruss.com,http://localhost:8011"
 
 # Per-IP rate limit: 12 requests / 60 s. Bounds cost/abuse on the key-holding

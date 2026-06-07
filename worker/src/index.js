@@ -13,8 +13,8 @@
  */
 
 const MAX_QUESTION_CHARS = 280;
-const DEFAULT_PRIMARY = "google/gemini-2.5-flash";
-const DEFAULT_FALLBACK = "anthropic/claude-haiku-4.5";
+const DEFAULT_PRIMARY = "meta-llama/llama-3.3-70b-instruct";
+const DEFAULT_FALLBACK = "meta-llama/llama-3.1-8b-instruct";
 
 // Whitelisted filter fields — the only keys we ever emit or accept.
 const FILTER_FIELDS = {

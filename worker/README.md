@@ -20,7 +20,8 @@ Only these keys are ever emitted (`FILTER_FIELDS` in `src/index.js`):
 
 1. **LLM** — OpenRouter, **pinned models** (`models: [primary, fallback]`), **JSON output
    mode** (`response_format: json_object`), **temperature 0**, `max_tokens: 200`. Primary
-   `google/gemini-2.5-flash`, fallback `anthropic/claude-haiku-4.5`.
+   `meta-llama/llama-3.3-70b-instruct`, fallback `meta-llama/llama-3.1-8b-instruct`
+   (ZDR-compliant providers — turning a sentence into a small JSON filter needs no frontier model).
 2. The result is **validated** against the whitelist; on any miss (no key, bad JSON,
    model down, rate-limited) it falls back to the deterministic `ruleParse()`. The
    browser also keeps its own copy of the parser, so the feature works even if the
