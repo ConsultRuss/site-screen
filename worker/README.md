@@ -9,26 +9,41 @@ filter object** the web app applies to the parcel GeoJSON. It never sees the dat
 returns:
 
 ```json
-{ "filter": { "minBuildableAcres": 300, "maxDistSubstationMi": 3, "minKv": 138, "noFloodplain": true }, "source": "rules" }
+{ "filter": { "minBuildableAcres": 300, "maxDistSubstationMi": 3, "minKv": 138, "noFloodplain": true }, "source": "llm" }
 ```
 
 Only these keys are ever emitted (`FILTER_FIELDS` in `src/index.js`):
 `county`, `minBuildableAcres`, `maxDistSubstationMi`, `minKv`, `noFloodplain`.
+`source` is `"llm"`, `"rules"`, or `"rate_limited"`.
 
-## Two layers
+## Two layers (graceful degradation)
 
-1. **LLM** (OpenRouter, structured outputs, `temperature: 0`) proposes a filter —
-   primary `google/gemini-2.5-flash`, fallback `anthropic/claude-haiku-4.5`.
-2. The result is **validated** against the whitelist; on any miss it falls back to
-   the deterministic `ruleParse()`. So the feature works keyless and degrades
-   gracefully. The LLM layer is wired in M3; M0 ships the rule-based fallback.
+1. **LLM** — OpenRouter, **pinned models** (`models: [primary, fallback]`), **structured
+   output** (JSON-schema), **temperature 0**, `max_tokens: 200`. Primary
+   `google/gemini-2.5-flash`, fallback `anthropic/claude-haiku-4.5`.
+2. The result is **validated** against the whitelist; on any miss (no key, bad JSON,
+   model down, rate-limited) it falls back to the deterministic `ruleParse()`. The
+   browser also keeps its own copy of the parser, so the feature works even if the
+   Worker is unreachable.
 
-## Run / deploy (M3)
+## Guardrails (cost / abuse)
+
+- **Per-IP rate limit** — 12 requests / 60 s via the Cloudflare Rate Limiting binding
+  (`[[ratelimits]]` in `wrangler.toml`); returns `429` + `source: "rate_limited"`.
+- **Input cap** — questions truncated to 280 chars.
+- **Output cap** — `max_tokens: 200` (the filter JSON is tiny) keeps per-call cost ~$0.
+- **CORS** — restricted to `ALLOWED_ORIGINS` (sites.consultruss.com + localhost).
+- **Key** — `OPENROUTER_API_KEY` is a secret, never committed.
+
+## Run / deploy
 
 ```bash
-npx wrangler dev          # local
-npx wrangler secret put OPENROUTER_API_KEY   # set the key (never committed)
-npx wrangler deploy       # publish
+npm i -g wrangler                              # or use npx
+npx wrangler dev                               # local (no key -> rule fallback)
+npx wrangler secret put OPENROUTER_API_KEY     # set the key (never committed)
+npx wrangler deploy                            # publish
 ```
 
-Confirm exact model slugs on `openrouter.ai/models` at setup — slugs drift.
+After deploy, set `WORKER_URL` in `web/js/app.js` to the deployed URL
+(e.g. `https://site-screen-ask.<account>.workers.dev`). Confirm exact model slugs on
+`openrouter.ai/models` at setup — slugs drift.

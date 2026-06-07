@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=m2" />
+  <link rel="stylesheet" href="css/styles.css?v=m3" />
 </head>
 <body>
   <header class="site-header">
@@ -34,7 +34,7 @@
             <label class="panel-label" for="ask">Ask the map</label>
             <input id="ask" type="text" placeholder='e.g. over 200 buildable acres within 3 miles of a 138 kV substation, no floodplain' />
             <button id="ask-go" class="btn">Filter</button>
-            <p class="hint" id="ask-status">Plain-English filtering. <em>Built-in rule-based parser</em> — the LLM-assisted version is served by a Cloudflare Worker (later milestone); the tool degrades gracefully to these rules.</p>
+            <p class="hint" id="ask-status">Plain-English filtering. When deployed, a rate-limited Cloudflare Worker (pinned LLM) parses the question; otherwise a <em>built-in rule-based parser</em> handles it — so the tool always works.</p>
           </div>
 
           <div class="panel-block">
@@ -189,6 +189,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=m2"></script>
+  <script src="js/app.js?v=m3"></script>
 </body>
 </html>

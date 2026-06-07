@@ -1,15 +1,26 @@
 # Cloudflare Worker — "Ask the map" natural-language -> filter DSL.
-# Deploy target for Feature #1. The static site (Cloudflare Pages) POSTs a
-# question here; the Worker returns a validated filter object the browser applies.
+# The static site (Cloudflare Pages) POSTs a question here; the Worker returns a
+# validated filter object the browser applies. The Worker never sees the data.
 #
-# The OpenRouter API key is NEVER committed. At M3, set it as a secret:
+# The OpenRouter API key is NEVER committed — set it as a secret before deploy:
 #   npx wrangler secret put OPENROUTER_API_KEY
 name = "site-screen-ask"
 main = "src/index.js"
 compatibility_date = "2026-06-01"
 
-# [vars] holds only non-secret config. Models are confirmed at setup on
-# openrouter.ai/models (slugs drift).
+# Non-secret config. Models are pinned here (confirm exact slugs on
+# openrouter.ai/models at setup — slugs drift). ALLOWED_ORIGINS restricts which
+# sites the browser may call this Worker from (comma-separated).
 [vars]
 PRIMARY_MODEL = "google/gemini-2.5-flash"
 FALLBACK_MODEL = "anthropic/claude-haiku-4.5"
+ALLOWED_ORIGINS = "https://sites.consultruss.com,http://localhost:8011"
+
+# Per-IP rate limit: 12 requests / 60 s. Bounds cost/abuse on the key-holding
+# endpoint; the browser falls back to its built-in parser when limited.
+[[ratelimits]]
+name = "ASK_RATE_LIMITER"
+namespace_id = "1001"
+  [ratelimits.simple]
+  limit = 12
+  period = 60

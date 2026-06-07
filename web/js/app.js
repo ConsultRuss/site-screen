@@ -6,6 +6,9 @@
   "use strict";
 
   const DATA_URL = "data/parcels.geojson";
+  // Ask-the-map Worker endpoint. Empty = built-in rule parser only (works offline).
+  // Set to the deployed Worker URL at M5 (e.g. https://site-screen-ask.<acct>.workers.dev).
+  const WORKER_URL = "";
   const METRIC_LABELS = {
     suitability_score: "Suitability",
     flex_load_score: "Flexible-load",
@@ -206,33 +209,58 @@
     applyFilters(true);
   }
 
-  /* Rule-based natural-language parser (the deterministic fallback). */
-  function askTheMap(text) {
-    if (!text.trim()) return;
+  /* "Ask the map": try the Worker (LLM, locked model) then fall back to the
+   * built-in deterministic parser. Both paths emit the same filter-DSL shape. */
+  function localRuleParse(text) {
     const t = text.toLowerCase();
-    const applied = [];
+    const f = {};
     let m;
-    if ((m = t.match(/(\d{2,4})\s*\+?\s*(?:buildable\s*)?acre/))) {
-      state.minAcres = +m[1]; $("#f-acres").value = Math.min(2000, state.minAcres);
+    if ((m = t.match(/(\d{2,4})\s*\+?\s*(?:buildable\s*)?acre/))) f.minBuildableAcres = +m[1];
+    if ((m = t.match(/(\d+(?:\.\d+)?)\s*(?:mi|mile)/))) f.maxDistSubstationMi = +m[1];
+    if ((m = t.match(/(\d{2,3})\s*kv/))) {
+      const kv = +m[1];
+      f.minKv = kv >= 345 ? 345 : kv >= 138 ? 138 : 69;
+    }
+    if (/no floodplain|outside (?:the )?floodplain|not in (?:the )?floodplain/.test(t)) f.noFloodplain = true;
+    if (t.includes("wilson")) f.county = "Wilson";
+    else if (t.includes("karnes")) f.county = "Karnes";
+    return f;
+  }
+
+  function applyFilterObject(f, source) {
+    const applied = [];
+    if (f.minBuildableAcres != null) {
+      state.minAcres = f.minBuildableAcres; $("#f-acres").value = Math.min(2000, state.minAcres);
       $("#f-acres-val").textContent = state.minAcres; applied.push(`≥ ${state.minAcres} buildable ac`);
     }
-    if ((m = t.match(/(\d+(?:\.\d+)?)\s*(?:mi|mile)/))) {
-      state.maxDist = +m[1]; $("#f-dist").value = Math.min(15, state.maxDist);
+    if (f.maxDistSubstationMi != null) {
+      state.maxDist = f.maxDistSubstationMi; $("#f-dist").value = Math.min(15, state.maxDist);
       $("#f-dist-val").textContent = state.maxDist; applied.push(`≤ ${state.maxDist} mi to substation`);
     }
-    if ((m = t.match(/(\d{2,3})\s*kv/))) {
-      state.minKv = +m[1]; $("#f-kv").value = String(state.minKv); applied.push(`≥ ${state.minKv} kV`);
-    }
-    if (/no floodplain|outside (?:the )?floodplain|not in (?:the )?floodplain/.test(t)) {
-      state.noFlood = true; $("#f-noflood").checked = true; applied.push("no floodplain");
-    }
-    if (t.includes("wilson")) { state.county = "Wilson"; $("#f-county").value = "Wilson"; applied.push("Wilson Co."); }
-    else if (t.includes("karnes")) { state.county = "Karnes"; $("#f-county").value = "Karnes"; applied.push("Karnes Co."); }
-
+    if (f.minKv != null) { state.minKv = f.minKv; $("#f-kv").value = String(state.minKv); applied.push(`≥ ${state.minKv} kV`); }
+    if (f.noFloodplain) { state.noFlood = true; $("#f-noflood").checked = true; applied.push("no floodplain"); }
+    if (f.county) { state.county = f.county; $("#f-county").value = f.county; applied.push(`${f.county} Co.`); }
     $("#ask-status").innerHTML = applied.length
-      ? `Applied (rule-based): <strong>${applied.join(" · ")}</strong>.`
+      ? `Applied (${source}): <strong>${applied.join(" · ")}</strong>.`
       : `No filters recognized. Try: “over 300 buildable acres within 3 miles of a 138 kV substation, no floodplain”.`;
     applyFilters(true);
+  }
+
+  async function askTheMap(text) {
+    if (!text.trim()) return;
+    if (WORKER_URL) {
+      try {
+        const r = await fetch(WORKER_URL, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: text }), signal: AbortSignal.timeout(9000),
+        });
+        if (r.ok) {
+          const d = await r.json();
+          if (d && d.filter) { applyFilterObject(d.filter, d.source === "llm" ? "AI" : "rules"); return; }
+        }
+      } catch { /* fall through to the offline parser */ }
+    }
+    applyFilterObject(localRuleParse(text), WORKER_URL ? "rules · offline" : "rules");
   }
 
   /* ---------------- tracker ---------------- */
