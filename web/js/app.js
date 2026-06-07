@@ -6,9 +6,9 @@
   "use strict";
 
   const DATA_URL = "data/parcels.geojson";
-  // Ask-the-map Worker endpoint. Empty = built-in rule parser only (works offline).
-  // Set to the deployed Worker URL at M5 (e.g. https://site-screen-ask.<acct>.workers.dev).
-  const WORKER_URL = "";
+  // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
+  // Empty string = built-in rule parser only (works fully offline).
+  const WORKER_URL = "https://ask.consultruss.com";
   const METRIC_LABELS = {
     suitability_score: "Suitability",
     flex_load_score: "Flexible-load",
