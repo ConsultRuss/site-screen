@@ -162,3 +162,37 @@ agrivoltaic_lens:
 grid_connectivity:
   abstract_only: true
   output_range: [0, 100]
+
+# -----------------------------------------------------------------------------
+# Verdict layer (Feature A1). The model RANKS; the analyst DECIDES. These rules
+# compute objective *flags* per parcel from the metrics above — they do not write
+# a verdict. Authored verdicts (pursue / pursue-if / pass) live in
+# web/data/verdicts.json, written parcel-by-parcel, never generated.
+#
+# Thresholds are ILLUSTRATIVE and defensible, not a production rule set — the
+# real kill/caution criteria are employer- and deal-specific (same honesty
+# stance as the model weights). Each flag carries a class: kill-risk | caution.
+# -----------------------------------------------------------------------------
+verdict_rules:
+  prime_soil:                  # prime farmland — siting + community-relations risk
+    soil_lcc_classes: ["1", "2"]
+    class: kill-risk
+  floodplain:                  # material floodplain share left after exclusions
+    pct_over: 10.0
+    class: kill-risk
+  weak_interconnect:           # "near a substation" != "near power"
+    min_kv: 138                # below 138 kV -> weak
+    backbone_kv: 345           # if not on the 345 kV backbone...
+    backbone_dist_mi: 2.0      # ...and >2 mi from transmission -> weak
+    class: kill-risk
+  poor_shape:                  # low compactness -> hard to lay out
+    compactness_under: 0.5
+    class: caution
+  title_cloud:                 # any non-clear title flag
+    class: caution
+  price_rich:                  # priced well above the county shortlist norm
+    median_multiple: 1.25
+    class: caution
+  # well_density (wells_within_parcel > 0): deferred — the RRC wellhead layer is
+  # not fetched in this pass (mineral_excl_pct is null), so the flag is omitted
+  # rather than faked. Lands when the wells layer is added to the pipeline.
