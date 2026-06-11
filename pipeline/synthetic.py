@@ -9,6 +9,7 @@ The About view and README disclose this.
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 # Generic, non-identifying owners (LLCs, trusts, initial+surname).
@@ -59,6 +60,33 @@ def _stable_idx(key: str, n: int) -> int:
     return h % n
 
 
+# --- Synthetic land prices, calibrated to recent local vacant-land sales ---
+# A ConnectMLS pull of SOLD/PENDING tracts > 50 ac in Karnes & Wilson over the
+# last 24 months, with houses excluded (improved tracts ran ~28% higher per acre),
+# anchors the magnitude: Karnes vacant land ~$7,270/ac at ~75 ac, with per-acre
+# price falling as tract size grows (the large-tract size discount; South Texas
+# regional sold average ~$5,900/ac). Wilson runs above Karnes (San Antonio growth
+# corridor). Prices stay SYNTHETIC and are disclosed as such — calibrated, invented.
+_PPA_REF_AC = 75.0              # reference tract size for the anchor
+_PPA_REF = 7270.0              # Karnes vacant median $/ac at the reference size
+_PPA_DECLINE = 1310.0          # $/ac drop per natural-log step in tract size
+_PPA_FLOOR = 2600.0            # large-tract / brush-country floor
+_PPA_COUNTY = {"Wilson": 1.30}  # county premium vs Karnes (default 1.0)
+
+
+def _price_per_ac(parcel_id: str, county: str, total_acres: float) -> int:
+    """Calibrated synthetic asking price per acre, rounded to $50.
+
+    Larger tracts price lower per acre (size discount); a per-parcel ±20%
+    variation gives the realistic spread that makes the price-rich flag meaningful.
+    """
+    acres = max(float(total_acres or _PPA_REF_AC), _PPA_REF_AC)
+    base = _PPA_REF - _PPA_DECLINE * math.log(acres / _PPA_REF_AC)
+    base *= _PPA_COUNTY.get(county, 1.0)
+    variation = 1.0 + (_stable_idx(parcel_id + "p", 41) - 20) / 100.0  # +/-20%
+    return int(round(max(base * variation, _PPA_FLOOR) / 50.0) * 50)
+
+
 def assign_synthetic(fc: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
     feats = fc["features"]
 
@@ -79,7 +107,7 @@ def assign_synthetic(fc: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
     shortlist = feats[: len(_FUNNEL)]
     for offset, (f, (status, title)) in enumerate(zip(shortlist, _FUNNEL, strict=False)):
         p = f["properties"]
-        price = 3200 + (_stable_idx(p["parcel_id"], 14) * 100)  # $3,200-$4,500
+        price = _price_per_ac(p["parcel_id"], p.get("county", ""), p.get("acreage_total", 0.0))
         day = 1 + _stable_idx(p["parcel_id"] + "d", 27)
         month = 4 + (offset % 3)  # Apr-Jun 2026
         p["pipeline_status"] = status
