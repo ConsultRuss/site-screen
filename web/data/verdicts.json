@@ -1,0 +1,196 @@
+{
+  "_note": "Authored verdicts — written parcel-by-parcel by RWH, never generated. The model ranks; these decide. Each names its reasoning; every pursue-if names the cure. Parcels without an entry show computed flags only, no verdict.",
+  "author": "RWH",
+  "date": "2026-06-11",
+  "verdicts": [
+    {
+      "parcel_id": "KAR-000001",
+      "verdict": "pursue",
+      "rationale": "Top of the screen and it earns it: on the 345 kV system with the line crossing the parcel, 846 buildable acres, clean title and zero floodplain — and at $3,450/ac, well-priced for land this well-connected. Pursue.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000002",
+      "verdict": "pursue",
+      "rationale": "On the 345 kV backbone and 2.6 miles from existing generation — the co-location case writes itself for a flexible load. 855 buildable acres, floodplain well under the exclusion line. Pursue.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000003",
+      "verdict": "pass",
+      "rationale": "Scores third out of more than five thousand, but the 138 kV substation 160 feet away sits 4.4 miles off the transmission backbone — proximity to a substation is not proximity to power. The full reasoning is in the memo.",
+      "memo": {
+        "headline": "Why I'd pass on the #3 parcel in my own model",
+        "paragraphs": [
+          "This parcel scores 94.8 — third out of more than five thousand. The land itself is close to ideal: 576 buildable acres of shrubland on capability-class-3 soil, compact shape, zero floodplain, a public road on the boundary. The model rewards it heavily for sitting 160 feet from a substation. That's exactly why I'd pass — and why a screening model is a tool, not an analyst.",
+          "The substation is 138 kV, and the transmission backbone is 4.4 miles away; the nearest generation is 14. Proximity to a substation is not proximity to power. A small 138 kV station that far off the backbone is most likely a distribution-class sub serving local load, with little or no headroom for a large interconnection. In ERCOT after SB 6, a large-load applicant is posting security and study fees by the megawatt before anyone confirms whether capacity exists — so “we'll figure out the wires later” is a capital commitment, not a hope. Curing the gap means a multi-mile line build or a station upgrade on the transmission provider's clock, and the energization date drifts past the window that makes a site competitive. Speed to power is the product; this parcel doesn't have it to sell.",
+          "What would change my mind: a headroom screen from the transmission provider showing real capacity at the station, evidence of planned backbone reinforcement nearby, or a seller at a basis low enough to hold this as a long-dated option rather than a development site. None of those are in evidence. The parcel ranked just below it sits on the 345 kV system with transmission crossing the property and 1,800+ buildable acres — that's where the next dollar of diligence goes."
+        ],
+        "kicker": "Verdict — PASS. The model measured distance. The decision is about headroom, timeline, and what the capital has to believe."
+      },
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000004",
+      "verdict": "pursue",
+      "rationale": "The best risk-adjusted parcel on the board: 345 kV with transmission crossing the property, 1,861 buildable acres, clean on hazards and title, at just $3,450/ac for a tract this size. This is where the next dollar of diligence goes.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000005",
+      "verdict": "pursue_if",
+      "condition": "the array can be sited clear of the 13% floodplain and the prime-soil designation clears community and permitting review",
+      "rationale": "On the 345 kV system with 1,094 buildable acres, but it's capability-class-2 prime farmland with 13% in floodplain — two of the things my model and the neighbors both push back on. Worth the work only if both net out.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000006",
+      "verdict": "pursue",
+      "rationale": "345 kV, line on the parcel, 929 clean buildable acres at a manageable 2.5% floodplain. No flags. Pursue.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000007",
+      "verdict": "pursue",
+      "rationale": "Also a 138 kV parcel — but the transmission line is 0.3 miles away, not 4.4, so the interconnection is real. Good shape, clean, 945 buildable acres. This is 138 kV done right, and the contrast with the #3 parcel is the whole point.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "WIL-000001",
+      "verdict": "pursue_if",
+      "condition": "a layout study confirms the array fits the parcel's irregular shape efficiently",
+      "rationale": "Transmission crosses the property, so the grid connection is there, and 1,062 buildable acres in Wilson County is real scale. Compactness is poor (0.42) — the shape is the open question, not the interconnection.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000008",
+      "verdict": "pursue_if",
+      "condition": "the buildable footprint still pencils after excluding the 16% floodplain and working around the parcel's shape",
+      "rationale": "On the 345 kV backbone with the line crossing it and 1,175 buildable acres — strong enough to diligence — but 16% floodplain and a low compactness score mean the usable area has to be proven before an offer.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000009",
+      "verdict": "pass",
+      "rationale": "The #3 parcel's problem in miniature, and worse: 138 kV, 2.3 miles off the backbone, only 549 buildable acres, 15 miles to generation — and at $4,350/ac you'd pay a small-tract premium for a site whose speed-to-power isn't there. Pass.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000010",
+      "verdict": "pursue",
+      "rationale": "345 kV with the line on the parcel and an excellent 0.82 compactness — a tight, clean site. Only 407 buildable acres, so it's a ~40 MW project rather than a flagship, but it's a clean one.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000011",
+      "verdict": "pursue",
+      "rationale": "138 kV, but the transmission line crosses the property, so the connection is real. 451 buildable acres of marginal-soil shrubland, clean on hazards. A solid mid-size pursue.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000012",
+      "verdict": "pursue_if",
+      "condition": "the 22% floodplain leaves a contiguous buildable block large enough to justify the $4,300/ac basis",
+      "rationale": "Transmission crosses it, so interconnection isn't the question — the 22% floodplain is. At a full price, the buildable footprint has to survive the hazard exclusion before this moves.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000013",
+      "verdict": "pursue_if",
+      "condition": "the basis can be negotiated toward the county norm",
+      "rationale": "138 kV, but the substation is 300 feet away and the line crosses the parcel — interconnection is not in doubt. 414 clean buildable acres. The catch is price: at $5,200/ac it's rich for the area. For a parcel the line already runs through it can still pencil — pursue if the basis comes down.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000014",
+      "verdict": "pass",
+      "rationale": "Three strikes the model can't unsee: capability-class-2 prime soil, 13% floodplain, and a 0.46 compactness score. Even with transmission on the parcel, the land fights the use at every turn.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000015",
+      "verdict": "pursue",
+      "rationale": "138 kV with the backbone a third of a mile off, marginal class-7 soil (which I want, not avoid), good shape, no hazards. The 17-mile distance to generation only bites a flex-load play; as a generation site, pursue.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "WIL-000002",
+      "verdict": "pursue_if",
+      "condition": "the prime-soil designation clears permitting and community review",
+      "rationale": "Under four miles to existing generation makes the flexible-load case interesting, and the interconnection is workable. The hold-up is the class-2 prime farmland — a real-world friction, not a model artifact.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000016",
+      "verdict": "pursue_if",
+      "condition": "the prime-soil class is acceptable to the offtaker and the permitting path",
+      "rationale": "345 kV, line on the parcel, and 2.3 miles to generation — one of the best co-location profiles on the list. But it's prime farmland, so the diligence is about optics and permitting as much as engineering.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000017",
+      "verdict": "pursue_if",
+      "condition": "the pending survey clears title and the 23% floodplain leaves a workable footprint",
+      "rationale": "Already under option and on the 345 kV system with transmission crossing — the reasons to chase it are clear. The reasons to be careful: a survey-pending title flag and 23% floodplain. Resolve both before committing further.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000018",
+      "verdict": "pursue_if",
+      "condition": "the pending survey clears the title flag and the prime-soil designation is acceptable",
+      "rationale": "Under option, 138 kV with the backbone half a mile away, 799 buildable acres. Two open items — a title survey and class-2 prime soil — keep this conditional, not closed.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000019",
+      "verdict": "pursue_if",
+      "condition": "the prime-soil designation clears permitting and the secured basis still pencils against the build",
+      "rationale": "Site control is secured on the 345 kV system, but the basis looks full in hindsight: $6,250/ac for 318 acres of class-2 prime farmland is top-of-market for the area. It's secured, so the move is to make it work — if the prime soil clears permitting and the price still pencils.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000020",
+      "verdict": "pursue_if",
+      "condition": "the 34% floodplain still leaves a contiguous buildable block worth the secured position",
+      "rationale": "Site control is secured and the line crosses the property, but a third of the parcel is in floodplain. The question is no longer access to the grid — it's how much developable ground is actually left.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000021",
+      "verdict": "pass",
+      "rationale": "138 kV and 2.1 miles off the backbone, now compounded by an active title issue. The grid problem alone is the #3 parcel's problem; the title cloud just adds cost to a site that doesn't have the speed-to-power to begin with.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    },
+    {
+      "parcel_id": "KAR-000022",
+      "verdict": "pursue_if",
+      "condition": "the prime-soil class clears permitting and the rich basis is justified by the role",
+      "rationale": "Title is cleared and the line runs a quarter-mile off a 138 kV sub, so interconnection is fine. But it's small (287 buildable acres), prime soil, and richly priced at $6,450/ac — a tuck-in that only works if the price and the soil both clear. Not a flagship.",
+      "author": "RWH",
+      "date": "2026-06-11"
+    }
+  ]
+}
