@@ -44,6 +44,8 @@ body {
 }
 .brand h1 span { font-weight: 400; color: var(--muted); }
 .tagline { margin: 10px 0 18px; color: var(--muted); font-size: 0.92rem; max-width: 72ch; }
+.brand-backlink { display: inline-block; color: var(--accent); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.04em; }
+.brand-backlink:hover { text-decoration: underline; }
 .tabs { display: flex; gap: 26px; }
 .tab {
   border: none; background: none; padding: 0 0 14px; cursor: pointer; font: inherit;
