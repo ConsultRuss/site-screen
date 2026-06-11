@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=m4" />
+  <link rel="stylesheet" href="css/styles.css?v=a1" />
 
   <script type="application/ld+json">
   {
@@ -72,10 +72,12 @@
       <h1>South Texas Site Screen <span>&amp; Land-Control Tracker</span></h1>
       <p class="tagline">Which land is worth pursuing — and where each parcel stands on the way to site control. Wilson &amp; Karnes counties.</p>
       <a class="brand-backlink" href="https://consultruss.com">← Russell W. Hild · consultruss.com</a>
+      <a class="brand-backlink linkedin" href="https://www.linkedin.com/in/russhld/" target="_blank" rel="noopener">LinkedIn ↗</a>
     </div>
     <nav class="tabs" role="tablist">
       <button class="tab is-active" data-view="map" role="tab">Map / Screen</button>
       <button class="tab" data-view="pipeline" role="tab">Pipeline / Tracker</button>
+      <button class="tab" data-view="changelog" role="tab">What's new</button>
       <button class="tab" data-view="about" role="tab">Methodology / About</button>
     </nav>
   </header>
@@ -85,6 +87,7 @@
     <section id="view-map" class="view is-active">
       <div class="map-layout">
         <aside class="panel">
+          <div id="memo-mount"></div>
           <div class="panel-block">
             <label class="panel-label" for="ask">Ask the map</label>
             <input id="ask" type="text" placeholder='e.g. over 200 buildable acres within 3 miles of a 138 kV substation, no floodplain' />
@@ -124,6 +127,11 @@
             <div id="legend"></div>
             <p class="count"><span id="count">0</span> parcels shown</p>
           </div>
+
+          <div class="panel-block">
+            <span class="panel-label">Reading the verdicts</span>
+            <p class="verdict-note">Each parcel carries objective <em>flags</em> computed from the data. A <em>verdict</em> — pursue / pursue-if / pass — is my authored call, written parcel-by-parcel, never generated. Flag thresholds here are illustrative; production criteria are deal-specific.</p>
+          </div>
         </aside>
 
         <div id="map" aria-label="Parcel suitability map"></div>
@@ -140,12 +148,12 @@
       </div>
       <div class="card">
         <h3>Candidate parcels — site control</h3>
-        <p class="hint">Synthetic shortlist. Click a row to locate it on the map.</p>
+        <p class="hint">Synthetic shortlist. Click a row to locate it on the map. <em>Verdicts are authored parcel-by-parcel, not generated; flag thresholds are illustrative.</em></p>
         <div class="table-wrap"><table id="tracker"><thead><tr>
           <th data-sort="parcel_id">Parcel</th><th data-sort="county">County</th>
           <th data-sort="pipeline_status">Status</th><th data-sort="acreage_buildable">Buildable ac</th>
           <th data-sort="est_price_per_ac">$/ac</th><th data-sort="title_flag">Title</th>
-          <th data-sort="suitability_score">Suitability</th><th data-sort="status_date">Updated</th>
+          <th data-sort="suitability_score">Suitability</th><th data-sort="verdict">Verdict</th><th data-sort="status_date">Updated</th>
         </tr></thead><tbody></tbody></table></div>
       </div>
     </section>
@@ -242,10 +250,24 @@
         and runs his own data systems. <a href="https://consultruss.com">consultruss.com</a></p>
       </div>
     </section>
+
+    <!-- ============================ WHAT'S NEW ============================ -->
+    <section id="view-changelog" class="view">
+      <div class="prose">
+        <h2>What's new</h2>
+        <p class="changelog-intro">Shipped, newest first — a running build log for the screen and tracker.</p>
+        <ul class="changelog-list">
+          <li><time>2026-06-11</time><span><b>Verdict layer.</b> The model ranks; I decide. Authored pursue / pursue-if / pass calls on the shortlist, objective risk flags computed on every parcel, and a worked memo on why I'd pass on the #3 parcel in my own model.</span></li>
+          <li><time>2026-06-11</time><span><b>Data integrity.</b> De-duplicated stacked parcel records from the statewide layer — the same physical parcel was being counted several times. 6,080 → 5,130 distinct parcels.</span></li>
+          <li><time>2026-06-11</time><span><b>Homepage + contact.</b> consultruss.com now features the demo; the header links back to the homepage and to LinkedIn.</span></li>
+          <li><time>2026-06-07</time><span><b>Launch.</b> Every parcel ≥ 50 acres in Wilson &amp; Karnes scored from live public data; Ask-the-map; site-control tracker.</span></li>
+        </ul>
+      </div>
+    </section>
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=m4"></script>
+  <script src="js/app.js?v=a1"></script>
 </body>
 </html>

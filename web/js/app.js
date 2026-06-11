@@ -5,7 +5,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/parcels.geojson";
+  const DATA_URL = "data/parcels.geojson?v=a1";
   // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
   // Empty string = built-in rule parser only (works fully offline).
   const WORKER_URL = "https://ask.consultruss.com";
@@ -20,6 +20,20 @@
     developed_open: "Developed (open)", water: "Water", wetlands: "Wetlands", default: "Other",
   };
   const landLabel = (c) => (c ? LAND_LABELS[c] || c : null);
+  const VERDICT_LABEL = { pursue: "Pursue", pursue_if: "Pursue-if", pass: "Pass" };
+  const VERDICT_ORDER = { pursue: 0, pursue_if: 1, pass: 2 };
+  const FLAG_LABEL = {
+    prime_soil: "Prime soil", floodplain: "Floodplain >10%", weak_interconnect: "Weak interconnect",
+    poor_shape: "Poor shape", title_cloud: "Title cloud", price_rich: "Price-rich",
+  };
+  const FLAG_DESC = {
+    prime_soil: "Prime farmland (NRCS land-capability class 1–2) — siting and community-relations risk",
+    floodplain: "More than 10% of the parcel in mapped floodplain",
+    weak_interconnect: "Below 138 kV, or off the 345 kV backbone and far from transmission",
+    poor_shape: "Low compactness — harder to lay out an array",
+    title_cloud: "A non-clear title flag",
+    price_rich: "Priced well above the county shortlist norm",
+  };
   const BUCKETS = [
     { min: 80, color: "#3f6b3a", label: "80–100" },
     { min: 60, color: "#7f9b4e", label: "60–79" },
@@ -34,6 +48,8 @@
 
   let MAP, GEO_LAYER, FEATURES = [];
   const LAYERS = new Map(); // parcel_id -> leaflet layer
+  const VERDICTS = new Map(); // parcel_id -> authored verdict entry
+  let MEMO = null; // the verdict entry carrying the featured pass memo
   let charts = {};
 
   const state = {
@@ -57,11 +73,17 @@
       $("#ask-status").textContent = "Could not load parcel data: " + err;
       return;
     }
+    try {
+      const vr = await fetch("data/verdicts.json?v=a1");
+      const vd = await vr.json();
+      (vd.verdicts || []).forEach((v) => { VERDICTS.set(v.parcel_id, v); if (v.memo) MEMO = v; });
+    } catch { /* verdicts are optional — flags still render without them */ }
     drawParcels();
     applyFilters(true);
     buildTracker();
     buildCharts();
     buildKpis();
+    mountMemo();
   }
 
   /* ---------------- tabs ---------------- */
@@ -104,12 +126,31 @@
     const c = v == null ? "#7a756e" : colorFor(v);
     return `<div class="pp-bar"><span style="width:${v || 0}%;background:${c}"></span></div>`;
   }
+  function flagChips(p) {
+    const flags = p.flags || [];
+    if (!flags.length) return "";
+    const chips = flags.map((f) =>
+      `<span class="flag-chip ${f.class}" title="${FLAG_DESC[f.id] || ""}">${FLAG_LABEL[f.id] || f.id}</span>`
+    ).join("");
+    return `<div class="pp-flags flags-row">${chips}</div>`;
+  }
+  function verdictAndFlags(p) {
+    const v = VERDICTS.get(p.parcel_id);
+    let html = "";
+    if (v) {
+      html += `<div class="pp-verdictwrap"><span class="verdict ${v.verdict}">${VERDICT_LABEL[v.verdict]}</span></div>`;
+      if (v.rationale) html += `<div class="pp-verdict-rationale">${v.rationale}</div>`;
+      if (v.memo) html += `<span class="pp-memo-link" onclick="openMemo()">Read the full memo →</span>`;
+    }
+    return html + flagChips(p);
+  }
   function popupHtml(p) {
     const row = (k, val) => `<dt>${k}</dt><dd>${val}</dd>`;
     let html = `<div class="pp-title">${p.parcel_id} · ${p.county} Co.</div>`;
     html += `<div class="pp-scorewrap"><span class="pp-score">Suitability ${p.suitability_score}</span>`;
     html += `<span class="pp-rank">#${p.suitability_rank} of ${FEATURES.length.toLocaleString()}</span></div>`;
     html += scoreBar(p.suitability_score);
+    html += verdictAndFlags(p);
     html += `<dl class="pp-grid">`;
     html += row("Buildable", `${p.acreage_buildable} ac <span class="pp-dim">of ${p.acreage_total}</span>`);
     html += row("Substation", na(p.dist_substation_mi, " mi") + (p.nearest_sub_kv ? ` · ${p.nearest_sub_kv} kV` : ""));
@@ -276,9 +317,23 @@
     renderRows();
   }
 
+  function sortVal(p, key) {
+    if (key === "verdict") {
+      const v = VERDICTS.get(p.parcel_id);
+      return v ? VERDICT_ORDER[v.verdict] : 99;
+    }
+    return p[key];
+  }
+  function verdictCell(p) {
+    const v = VERDICTS.get(p.parcel_id);
+    if (!v) return `<span class="verdict-none">—</span>`;
+    const title = (v.rationale || "").replace(/"/g, "&quot;");
+    return `<span class="verdict ${v.verdict}" title="${title}">${VERDICT_LABEL[v.verdict]}</span>`;
+  }
+
   function renderRows() {
     const rows = shortlist().sort((a, b) => {
-      const x = a[sortKey], y = b[sortKey];
+      const x = sortVal(a, sortKey), y = sortVal(b, sortKey);
       if (x == null) return 1; if (y == null) return -1;
       return (x > y ? 1 : x < y ? -1 : 0) * sortDir;
     });
@@ -289,7 +344,7 @@
         <td>${p.pipeline_status}</td><td>${p.acreage_buildable}</td>
         <td>${p.est_price_per_ac ? "$" + p.est_price_per_ac.toLocaleString() : "—"}</td>
         <td><span class="pill ${p.title_flag}">${p.title_flag}</span></td>
-        <td>${p.suitability_score}</td><td>${p.status_date}</td>
+        <td>${p.suitability_score}</td><td>${verdictCell(p)}</td><td>${p.status_date}</td>
       </tr>`).join("");
     tbody.querySelectorAll("tr").forEach((tr) =>
       tr.addEventListener("click", () => locateOnMap(tr.dataset.id)));
@@ -359,6 +414,35 @@
       kpi("$" + avg.toLocaleString(), "avg. est. $/ac") +
       kpi(secured, "at/after site control");
   }
+
+  /* ---------- featured pass memo ---------- */
+  function mountMemo() {
+    const mount = $("#memo-mount");
+    if (!mount || !MEMO || !MEMO.memo) return;
+    const m = MEMO.memo;
+    const paras = (m.paragraphs || []).map((t) => `<p>${t}</p>`).join("");
+    mount.innerHTML =
+      `<details class="memo-panel">
+        <summary>
+          <span class="memo-eyebrow">Analyst's call<span class="memo-pass-badge">PASS</span></span>
+          <span class="memo-headline">${m.headline}</span>
+          <span class="memo-cue">Why I'd pass on a top-ranked parcel in my own model →</span>
+        </summary>
+        <div class="memo-body">
+          ${paras}
+          <p class="memo-kicker">${m.kicker || ""}</p>
+          <button class="btn btn-ghost memo-locate" type="button">Show the parcel on the map</button>
+        </div>
+      </details>`;
+    const det = mount.querySelector(".memo-panel");
+    mount.querySelector(".memo-locate").addEventListener("click", () => locateOnMap(MEMO.parcel_id));
+    det.addEventListener("toggle", () => { if (det.open) locateOnMap(MEMO.parcel_id); });
+  }
+  function openMemo() {
+    const det = document.querySelector(".memo-panel");
+    if (det) { det.open = true; det.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+  }
+  window.openMemo = openMemo;
 
   document.addEventListener("DOMContentLoaded", init);
 })();
