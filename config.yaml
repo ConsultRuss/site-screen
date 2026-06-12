@@ -196,3 +196,66 @@ verdict_rules:
   # well_density (wells_within_parcel > 0): deferred — the RRC wellhead layer is
   # not fetched in this pass (mineral_excl_pct is null), so the flag is omitted
   # rather than faked. Lands when the wells layer is added to the pipeline.
+
+# -----------------------------------------------------------------------------
+# Deal economics (Feature A3). Development-margin / option economics — NOT
+# stabilized-NOI. The SINGLE source of shared deal assumptions; A1.5 (portfolio)
+# inherits this block untouched. Every value is ILLUSTRATIVE with a stated basis;
+# sourced in docs RESEARCH_2026-06-11_deal-economics.md (Sonnet agents x Gemini x
+# adversarial verifier). Pipeline/economics.py reads this; nothing is hard-coded.
+# -----------------------------------------------------------------------------
+deal_economics:
+  disclosure: "All figures synthetic + illustrative; basis stated per line. Not investment advice."
+
+  control:                      # flip control = data-center/large-load PURCHASE-option
+    option_pct: 0.03            # ~3% of price (range 1-10%; transacted TX DC option ratios)
+    option_pct_range: [0.01, 0.10]
+    note: "Purchase-option, credited at closing if exercised, forfeit if abandoned."
+
+  diligence_usd:                # verified subset — VERIFICATION_2026-06-11_permitting-guide
+    phase_i_esa:        [4000, 10000]
+    alta_survey:        [15000, 50000]
+    wetland_delineation: [5000, 15000]
+    title_cure_legal:   [5000, 20000]
+    rrc_records:        [3500, 8000]
+    geotech:            [15000, 45000]
+    drainage_hh:        [25000, 75000]
+  diligence_order_of_magnitude: [geotech, drainage_hh]   # flagged "order-of-magnitude" in UI
+
+  carry:
+    annual_rate: 0.12           # illustrative cost-of-capital on deployed dollars
+    compounding: quarterly
+
+  mw:
+    ac_per_mw: 8                # NREL 7.5-8.3; real Eagle Ford projects 7.7-10 (Stockdale Novis Wilson 7.7)
+
+  exit:
+    time_to_power_months: [36, 48, 60]   # ERCOT queue-dependent; Batch-Zero-era estimates
+    uplift_multiples: [2, 4, 6]          # raw->powered, base 4x; broker-observed ERCOT range, illustrative
+    uplift_basis_note: "raw ~2-5K/ac -> NTP-ready ~15-20K/ac; broker-observed ERCOT range, not an appraised average. The 20-100x / 200K-1M per-ac figure is a different (metro/industrial DC) product and is NOT claimed here."
+    ntp_fee_per_mw: [80000, 120000]      # per-MW NTP/RTB exit lens (Enerdatics 2026); early-stage ~20K/MW
+    hurdle_irr: 0.25                     # illustrative IRR hurdle for the sensitivity overlay
+    success_probability: 0.35            # illustrative chance-of-reaching-NTP-and-exit (industry 10-50%); risk-adjusted lens
+
+  lease:                        # solar ground lease, tiered by interconnection quality
+    tiers_usd_per_ac_yr:        # [low, high] by tier
+      standard:        [300, 500]
+      good_transmission: [500, 1000]
+      near_substation: [1000, 1500]
+      prime:           [1500, 2000]
+    escalation_pct: 0.02
+    term_years: 25
+    structure: "NNN-style"
+    rollback_note: "TX 1-d-1 open-space (Tax Code 23.51): 3-yr ag rollback + 7 pct interest, developer-indemnified."
+
+  jv:                           # land-into-JV retained interest — softest panel, hedge hardest
+    retained_pct: [0.05, 0.10, 0.15]     # low / base / high
+    stabilized_share_pct: [0.02, 0.05]   # raw land share of stabilized value (solar 2-5pct; DC ~5pct, JetAI)
+    per_mw_stabilized_usd: 1000000        # illustrative powered-land-stage value per MW (1-2M per MW)
+    valuation_basis: "as-entitled (negotiated), not cost"
+    note: "Most assumption-heavy. Energy land is usually leased/sold, not contributed — land-as-equity cuts ITC basis (HoldCo isolation is the workaround). No public energy comp; present as scenario with stated assumptions."
+
+  incentives:
+    note: "Section 151.359 sales-tax exemption + Ch. 312 abatement only (Ch. 312 up to 10 yr, local, school districts not eligible). JETI eligibility for data-center end-use is unsettled (Section 403.602); not assumed."
+
+  sb6_framing: "Post-SB 6, large-load interconnection carries per-MW security and study costs borne by the end developer (PUCT Section 25.194 proposed rule, Project 58481; re-check ~July 2026). Direction only — figures not assumed."
