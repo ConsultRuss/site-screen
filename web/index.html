@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=a6" />
+  <link rel="stylesheet" href="css/styles.css?v=a7" />
 
   <script type="application/ld+json">
   {
@@ -78,8 +78,10 @@
       <button class="tab is-active" data-view="map" role="tab">Map / Screen</button>
       <button class="tab" data-view="pipeline" role="tab">Pipeline / Tracker</button>
       <button class="tab" data-view="deal" role="tab">Deal sheet</button>
+      <button class="tab" data-view="power" role="tab">Power &amp; timeline</button>
       <button class="tab" data-view="portfolio" role="tab">Portfolio</button>
       <button class="tab" data-view="changelog" role="tab">What's new</button>
+      <button class="tab" data-view="integrity" role="tab">Data integrity</button>
       <button class="tab" data-view="about" role="tab">Methodology / About</button>
     </nav>
   </header>
@@ -155,7 +157,7 @@
           <th data-sort="parcel_id">Parcel</th><th data-sort="county">County</th>
           <th data-sort="pipeline_status">Status</th><th data-sort="acreage_buildable">Buildable ac</th>
           <th data-sort="est_price_per_ac">$/ac</th><th data-sort="title_flag">Title</th>
-          <th data-sort="suitability_score">Suitability</th><th data-sort="verdict">Verdict</th><th data-sort="status_date">Updated</th>
+          <th data-sort="suitability_score">Suitability</th><th data-sort="speed_to_power">Speed to power</th><th data-sort="verdict">Verdict</th><th data-sort="status_date">Updated</th>
         </tr></thead><tbody></tbody></table></div>
       </div>
     </section>
@@ -169,6 +171,18 @@
       </div>
       <div id="deal-body"></div>
       <p class="deal-synthetic">All deal figures are synthetic and illustrative; assumptions are stated per panel. Not investment advice.</p>
+    </section>
+
+    <!-- ========================= POWER & TIMELINE ========================= -->
+    <section id="view-power" class="view">
+      <div class="pt-head">
+        <h2>Power &amp; timeline <span class="badge-illustrative">illustrative · basis-stated</span></h2>
+        <label class="deal-picker">Parcel <select id="pt-parcel"></select></label>
+        <div class="pt-variants" id="pt-variants" role="tablist"></div>
+        <p class="hint" id="pt-methodology"></p>
+      </div>
+      <div id="pt-body"></div>
+      <p class="deal-synthetic">Speed-to-power is a disclosed phase-model estimate gated on the interconnection queue — not a scraped commissioning date. Synthetic + illustrative.</p>
     </section>
 
     <!-- ============================ PORTFOLIO ============================ -->
@@ -281,6 +295,8 @@
         <h2>What's new</h2>
         <p class="changelog-intro">Shipped, newest first — a running build log for the screen and tracker.</p>
         <ul class="changelog-list">
+          <li><time>2026-06-12</time><span><b>Power &amp; timeline.</b> A per-parcel speed-to-power estimate — P50 months with an honest band — and the energization phase behind it. A disclosed phase model gated on the interconnection queue, modulated by each parcel's grid quality. The restricted ERCOT queue stays backend-only; context is public.</span></li>
+          <li><time>2026-06-12</time><span><b>Data integrity.</b> The screen audits itself: source freshness and license posture, run QA (all seven criteria live), field completeness, and known gaps — flagged, not hidden.</span></li>
           <li><time>2026-06-11</time><span><b>Portfolio view.</b> Given an option budget ($500K / $1M / $1.5M), how I'd deploy it across the shortlist — spread options to control the best parcels, stage diligence on the speed-to-power winners. The model ranks; I allocate.</span></li>
           <li><time>2026-06-11</time><span><b>Deal sheet.</b> Per-parcel development-margin economics — flip / ground-lease / JV side by side, a time-to-power × exit-value sensitivity table, and budget-vs-actual on the synthetic pipeline. Synthetic and illustrative; every assumption stated.</span></li>
           <li><time>2026-06-11</time><span><b>Verdict layer.</b> The model ranks; I decide. Authored pursue / pursue-if / pass calls on the shortlist, objective risk flags computed on every parcel, and a worked memo on why I'd pass on the #3 parcel in my own model.</span></li>
@@ -290,10 +306,19 @@
         </ul>
       </div>
     </section>
+
+    <!-- ========================= DATA INTEGRITY ========================= -->
+    <section id="view-integrity" class="view">
+      <div class="prose">
+        <h2>Data integrity</h2>
+        <p class="changelog-intro">What's real, what's modeled, what's stale, and what I won't republish — computed from the run artifacts.</p>
+      </div>
+      <div id="integrity-body"></div>
+    </section>
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=a6"></script>
+  <script src="js/app.js?v=a7"></script>
 </body>
 </html>
