@@ -5,7 +5,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/parcels.geojson?v=a1";
+  const DATA_URL = "data/parcels.geojson?v=a3";
   // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
   // Empty string = built-in rule parser only (works fully offline).
   const WORKER_URL = "https://ask.consultruss.com";
@@ -52,6 +52,10 @@
   let MEMO = null; // the verdict entry carrying the featured pass memo
   let charts = {};
 
+  // Deal sheet (A3): development-margin economics + authored deal notes.
+  let ECON = null, NOTES = null;
+  const PROPS = new Map(); // parcel_id -> geojson properties (pipeline status/date/rank)
+
   const state = {
     metric: "suitability_score",
     county: "", minAcres: 0, maxDist: 15, minKv: 0, noFlood: false,
@@ -73,11 +77,25 @@
       $("#ask-status").textContent = "Could not load parcel data: " + err;
       return;
     }
+    FEATURES.forEach((f) => PROPS.set(f.properties.parcel_id, f.properties));
     try {
-      const vr = await fetch("data/verdicts.json?v=a1");
+      const vr = await fetch("data/verdicts.json?v=a3");
       const vd = await vr.json();
       (vd.verdicts || []).forEach((v) => { VERDICTS.set(v.parcel_id, v); if (v.memo) MEMO = v; });
     } catch { /* verdicts are optional — flags still render without them */ }
+    try {
+      const [er, nr] = await Promise.all([
+        fetch("data/economics.json?v=a3"),
+        fetch("data/deal-notes.json?v=a3"),
+      ]);
+      ECON = await er.json();
+      NOTES = await nr.json();
+      buildDealSheet();
+    } catch (err) {
+      // Deal data is optional — degrade gracefully, never break the rest of the site.
+      const body = $("#deal-body");
+      if (body) body.innerHTML = `<p class="hint">Deal data unavailable right now (${err}).</p>`;
+    }
     drawParcels();
     applyFilters(true);
     buildTracker();
@@ -166,7 +184,11 @@
       html += row("Title", `<span class="pill ${p.title_flag}">${p.title_flag}</span>`);
       html += row("Est. $/ac", p.est_price_per_ac ? "$" + p.est_price_per_ac.toLocaleString() : "—");
     }
-    html += `</dl><div class="pp-synthetic">Owner “${p.owner}” &amp; any pipeline data are synthetic.</div>`;
+    html += `</dl>`;
+    if (p.pipeline_status) {
+      html += `<div class="pp-deal-link" onclick="openDeal('${p.parcel_id}')">Deal sheet →</div>`;
+    }
+    html += `<div class="pp-synthetic">Owner “${p.owner}” &amp; any pipeline data are synthetic.</div>`;
     return html;
   }
 
@@ -342,7 +364,7 @@
       <tr data-id="${p.parcel_id}">
         <td>${p.parcel_id}</td><td>${p.county}</td>
         <td>${p.pipeline_status}</td><td>${p.acreage_buildable}</td>
-        <td>${p.est_price_per_ac ? "$" + p.est_price_per_ac.toLocaleString() : "—"}</td>
+        <td><span class="deal-link" onclick="event.stopPropagation();openDeal('${p.parcel_id}')" title="Open the deal sheet">${p.est_price_per_ac ? "$" + p.est_price_per_ac.toLocaleString() : "—"}</span></td>
         <td><span class="pill ${p.title_flag}">${p.title_flag}</span></td>
         <td>${p.suitability_score}</td><td>${verdictCell(p)}</td><td>${p.status_date}</td>
       </tr>`).join("");
@@ -414,6 +436,226 @@
       kpi("$" + avg.toLocaleString(), "avg. est. $/ac") +
       kpi(secured, "at/after site control");
   }
+
+  /* ---------------- deal sheet (A3) ---------------- */
+  // Development-margin economics per parcel: flip / ground-lease / JV, a
+  // time-to-power × exit-value sensitivity, and budget-vs-actual. All figures
+  // are synthetic + illustrative; every assumption is stated in-panel.
+  const EXIT_MULTS = ["2", "4", "6"]; // money_multiple / uplift_per_ac keys are strings
+  const pct = (frac, dp = 0) => (frac * 100).toFixed(dp) + "%"; // 0.485 -> "48%"
+  const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const TIER_LABEL = {
+    prime: "Prime", near_substation: "Near substation",
+    good_transmission: "Good transmission", standard: "Standard",
+  };
+  const tierLabel = (t) => TIER_LABEL[t] || (t ? t.replace(/_/g, " ") : "—");
+
+  function buildDealSheet() {
+    const sel = $("#deal-parcel");
+    if (!sel || !ECON || !ECON.parcels) return;
+    const ids = Object.keys(ECON.parcels).sort();
+    sel.innerHTML = ids.map((id) => {
+      const p = ECON.parcels[id];
+      return `<option value="${id}">${id} · ${p.county} · #${p.suitability_rank}</option>`;
+    }).join("");
+    const featured = (NOTES && ECON.parcels[NOTES.featured_parcel]) ? NOTES.featured_parcel : ids[0];
+    sel.value = featured;
+    if (NOTES && NOTES.methodology) $("#deal-methodology").textContent = NOTES.methodology;
+    sel.addEventListener("change", (e) => renderDeal(e.target.value));
+    renderDeal(featured);
+  }
+
+  // success-case grid uses IRR; risk-adjusted grid uses RA. Cells are keyed by
+  // numeric mult; we look up by mult so we never rely on array order.
+  function sensiTable(rows, field, posClass, negClass) {
+    const head = `<tr><th>Time to power</th>${EXIT_MULTS.map((m) => `<th>${m}×</th>`).join("")}</tr>`;
+    const body = rows.map((r) => {
+      const miss = r.months === "miss";
+      const label = miss ? "Misses the window" : `${r.months} months`;
+      const cells = EXIT_MULTS.map((m) => {
+        const cell = r.cells.find((c) => c.mult === +m);
+        const v = cell ? cell[field] : null;
+        const txt = v == null ? "—" : Math.round(v * 100) + "%";
+        let cls;
+        if (field === "irr") cls = cell && cell.clears ? posClass : negClass;
+        else cls = v != null && v >= 0 ? posClass : negClass;
+        return `<td class="${cls}">${txt}</td>`;
+      }).join("");
+      return `<tr class="${miss ? "miss-row" : ""}"><th scope="row">${label}</th>${cells}</tr>`;
+    }).join("");
+    return `<div class="deal-table-wrap"><table class="deal-sensi-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+  }
+
+  function renderDeal(id) {
+    const body = $("#deal-body");
+    const d = ECON && ECON.parcels ? ECON.parcels[id] : null;
+    if (!body || !d) { if (body) body.innerHTML = `<p class="hint">No deal data for ${esc(id)}.</p>`; return; }
+    const props = PROPS.get(id) || {};
+    const flip = d.flip, lease = d.lease, jv = d.jv;
+    const A = ECON.assumptions || {};
+    const notes = NOTES || {};
+    const ablocks = notes.assumption_blocks || {};
+
+    /* 1 — header */
+    const v = VERDICTS.get(id);
+    const verdictChip = v ? `<span class="verdict ${v.verdict}">${VERDICT_LABEL[v.verdict]}</span>` : "";
+    const statusBit = props.pipeline_status
+      ? `Status: ${esc(props.pipeline_status)}${props.status_date ? ` (updated ${esc(props.status_date)})` : ""}`
+      : "Status: —";
+    const header = `
+      <div class="deal-parcel-head">
+        <div class="deal-ph-top">
+          <h3>${esc(id)} · ${esc(d.county)} Co.</h3>
+          ${verdictChip}
+        </div>
+        <div class="deal-ph-meta">
+          <span>${statusBit}</span>
+          <span>Suitability #${d.suitability_rank}</span>
+        </div>
+        <div class="deal-figrow">
+          <div class="deal-fig"><span class="deal-fig-num">${money(d.land_price)}</span><span class="deal-fig-lbl">Land price</span></div>
+          <div class="deal-fig"><span class="deal-fig-num">~${d.mw_est} MW</span><span class="deal-fig-lbl">Est. capacity</span></div>
+          <div class="deal-fig"><span class="deal-fig-num">${money(d.capital_deployed)}</span><span class="deal-fig-lbl">Capital deployed</span></div>
+          <div class="deal-fig"><span class="deal-fig-num">$${(d.est_price_per_ac || 0).toLocaleString()}/ac</span><span class="deal-fig-lbl">Est. basis</span></div>
+        </div>
+      </div>`;
+
+    /* 2 — three structures side by side */
+    const flipRows = EXIT_MULTS.map((k) =>
+      `<li><span class="ds-k">${k}× exit</span><span class="ds-v">${flip.money_multiple[k]}× on capital · $${(flip.uplift_per_ac[k] || 0).toLocaleString()}/ac uplift</span></li>`
+    ).join("");
+    const flipCard = `
+      <div class="deal-card">
+        <span class="deal-card-tag">A · Flip at NTP-ready</span>
+        <ul class="ds-list">${flipRows}</ul>
+        <dl class="ds-grid">
+          <dt>$/MW NTP fee</dt><dd>${money(flip.ntp_fee_per_mw[0])}–${money(flip.ntp_fee_per_mw[1])}</dd>
+          <dt>Capital at risk</dt><dd>${money(d.capital_deployed)}</dd>
+        </dl>
+        <p class="assumption-block">${esc(ablocks.flip || "")}</p>
+      </div>`;
+
+    const leaseCard = `
+      <div class="deal-card">
+        <span class="deal-card-tag">B · Powered-land ground lease</span>
+        <dl class="ds-grid">
+          <dt>Tier</dt><dd>${tierLabel(lease.tier)}</dd>
+          <dt>Rate</dt><dd>$${(lease.rate_per_ac_yr || 0).toLocaleString()}/ac/yr</dd>
+          <dt>Annual</dt><dd>${money(lease.annual)}</dd>
+          <dt>Yield</dt><dd>${pct(lease.yield_on_basis)} <span class="ds-dim">implied yield on land basis, not a market cap rate</span></dd>
+          <dt>Terms</dt><dd>${(lease.escalation_pct * 100).toFixed(0)}%/yr · ${lease.term_years}-yr · ${esc(lease.structure)}</dd>
+        </dl>
+        <p class="assumption-block">${esc(ablocks.lease || "")}</p>
+      </div>`;
+
+    const jvCard = `
+      <div class="deal-card">
+        <span class="deal-card-tag">C · JV retained interest <span class="ds-flag">most speculative</span></span>
+        <dl class="ds-grid">
+          <dt>Retained interest</dt><dd>${pct(jv.retained_pct.low)}–${pct(jv.retained_pct.high)}</dd>
+          <dt>Stabilized share</dt><dd>${pct(jv.stabilized_share_pct.low)}–${pct(jv.stabilized_share_pct.high)}</dd>
+          <dt>Illustrative value</dt><dd>${money(jv.retained_value_base)}</dd>
+          <dt>Valuation</dt><dd>${esc(jv.valuation_basis)}</dd>
+        </dl>
+        <p class="assumption-block">${esc(ablocks.jv || "")}</p>
+      </div>`;
+
+    const structures = `<div class="deal-structures">${flipCard}${leaseCard}${jvCard}</div>`;
+
+    /* 3 — sensitivity (centerpiece, dual grid) */
+    const sensitivity = `
+      <div class="deal-sensitivity">
+        <p class="deal-sensi-cap">Time-to-power × exit value — <strong>exit price scales the return; time-to-power gates it.</strong></p>
+        <p class="deal-sensi-sub">Success case — IRR if the exit happens.</p>
+        ${sensiTable(flip.sensitivity, "irr", "clears", "below")}
+        <p class="deal-sensi-sub">Risk-adjusted — at ~${Math.round(flip.success_probability * 100)}% odds of reaching NTP. Only fast energization clears.</p>
+        ${sensiTable(flip.sensitivity, "ra", "ra-pos", "ra-neg")}
+        <p class="hint">Success case assumes the exit happens; the miss row is a total write-off of control + diligence. Hurdle shown: ${(flip.hurdle_irr * 100).toFixed(0)}% IRR.</p>
+      </div>`;
+
+    /* 4 — budget vs actual (only where authored actuals exist) */
+    const actuals = (notes.parcels && notes.parcels[id]) ? notes.parcels[id].budget_actuals : null;
+    const budget = d.budget || [];
+    let bva;
+    if (actuals && actuals.length) {
+      let tB = 0, tA = 0;
+      const rows = actuals.map((a) => {
+        const b = budget.find((x) => x.stage === a.stage);
+        const budv = b ? b.budget : 0;
+        const actv = budv * (1 + a.actual_delta_pct);
+        const varc = actv - budv;
+        tB += budv; tA += actv;
+        const vcls = varc > 0 ? "over" : varc < 0 ? "under" : "";
+        const vsign = varc > 0 ? "+" : "";
+        return `<tr>
+          <th scope="row">${esc(a.stage)}</th>
+          <td>${money(budv)}</td>
+          <td>${money(actv)}</td>
+          <td class="variance ${vcls}">${vsign}${money(varc)}</td>
+          <td class="ds-note">${esc(a.note || "")}</td>
+        </tr>`;
+      }).join("");
+      const tVar = tA - tB;
+      const tcls = tVar > 0 ? "over" : tVar < 0 ? "under" : "";
+      const tsign = tVar > 0 ? "+" : "";
+      bva = `
+        <div class="deal-bva">
+          <h4>Budget vs actual</h4>
+          <div class="deal-table-wrap"><table class="deal-bva-table">
+            <thead><tr><th>Stage</th><th>Budget</th><th>Actual</th><th>Variance</th><th>Note</th></tr></thead>
+            <tbody>${rows}
+              <tr class="bva-total">
+                <th scope="row">Total</th><td>${money(tB)}</td><td>${money(tA)}</td>
+                <td class="variance ${tcls}">${tsign}${money(tVar)}</td><td></td>
+              </tr>
+            </tbody>
+          </table></div>
+        </div>`;
+    } else {
+      const totalBudget = budget.reduce((s, x) => s + (x.budget || 0), 0);
+      bva = `
+        <div class="deal-bva">
+          <h4>Budget vs actual</h4>
+          <p class="hint">Budget-vs-actual appears once a parcel is under option — this one is at “${esc(props.pipeline_status || "—")}”. Budgeted control + diligence + legal: ${money(totalBudget)}.</p>
+        </div>`;
+    }
+
+    /* 5 — load-bearing assumptions */
+    const dilig = A.diligence_usd || {};
+    const oom = A.diligence_order_of_magnitude || [];
+    const diligRows = Object.keys(dilig).map((k) => {
+      const [lo, hi] = dilig[k];
+      const label = k.replace(/_/g, " ");
+      const tag = oom.includes(k) ? " (order-of-magnitude)" : "";
+      return `<li><span class="ds-k">${esc(label)}</span><span class="ds-v">$${lo.toLocaleString()}–$${hi.toLocaleString()}${tag}</span></li>`;
+    }).join("");
+    const multsTxt = (A.uplift_multiples || []).join("×, ") + "×";
+    const assumptions = `
+      <div class="deal-assumptions">
+        <h4>Load-bearing assumptions</h4>
+        <ul class="ds-assume-keys">
+          <li>Option: ${(A.option_pct * 100).toFixed(0)}% of price</li>
+          <li>Carry: ${(A.carry_rate * 100).toFixed(0)}%/yr</li>
+          <li>${A.ac_per_mw} ac/MW</li>
+          <li>Exit: ${multsTxt}</li>
+          <li>Hurdle: ${(A.hurdle_irr * 100).toFixed(0)}% IRR</li>
+        </ul>
+        <ul class="ds-list ds-dilig">${diligRows}</ul>
+        <p class="deal-assume-line">${esc(notes.incentives_line || A.incentives_note || "")}</p>
+        <p class="deal-assume-line">${esc(A.sb6_framing || "")}</p>
+        <p class="deal-assume-disc">${esc(A.disclosure || "")}</p>
+      </div>`;
+
+    body.innerHTML = header + structures + sensitivity + bva + assumptions;
+  }
+
+  function openDeal(id) {
+    activateView("deal");
+    const sel = $("#deal-parcel");
+    if (sel) sel.value = id;
+    renderDeal(id);
+  }
+  window.openDeal = openDeal;
 
   /* ---------- featured pass memo ---------- */
   function mountMemo() {

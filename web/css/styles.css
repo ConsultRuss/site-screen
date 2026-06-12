@@ -60,7 +60,7 @@ body {
 main { flex: 1; min-height: 0; display: flex; }
 .view { display: none; flex: 1; min-height: 0; width: 100%; }
 .view.is-active { display: flex; }
-#view-pipeline.is-active, #view-about.is-active { display: block; overflow: auto; padding: 28px; }
+#view-pipeline.is-active, #view-about.is-active, #view-deal.is-active { display: block; overflow: auto; padding: 28px; }
 
 /* ---------- Map ---------- */
 .map-layout { display: flex; flex: 1; min-height: 0; width: 100%; padding: 16px; gap: 14px; }
@@ -235,10 +235,175 @@ td .verdict-none { color: var(--faint); font-size: 0.74rem; }
 .changelog-list time { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
 .changelog-list b { color: var(--ink); font-weight: 600; }
 
+/* ---------- Deal sheet (A3) ---------- */
+/* Per-parcel development-margin economics. Same warm-dark palette as the rest;
+   .deal-card mirrors .card, .assumption-block mirrors the .callout accent. */
+.deal-head { max-width: 1100px; margin: 0 auto 6px; }
+.deal-head h2 {
+  font-family: var(--font-serif); font-weight: 600; color: var(--ink);
+  font-size: 1.8rem; margin: 0 0 0.5em; letter-spacing: -0.3px;
+}
+.badge-illustrative {
+  display: inline-block; vertical-align: middle; margin-left: 10px;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--font-sans); font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+}
+.deal-picker {
+  display: block; max-width: 360px; font-size: 0.8rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;
+}
+.deal-picker select { text-transform: none; letter-spacing: normal; font-weight: 400; }
+#deal-methodology { max-width: 76ch; }
+
+#deal-body { max-width: 1100px; margin: 18px auto 0; }
+.deal-synthetic {
+  max-width: 1100px; margin: 22px auto 0; color: #8a6a2f;
+  font-size: 0.74rem; line-height: 1.5;
+}
+
+/* 1 — header */
+.deal-parcel-head {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px 20px; margin-bottom: 16px;
+}
+.deal-ph-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.deal-ph-top h3 {
+  font-family: var(--font-serif); font-weight: 600; color: var(--ink);
+  font-size: 1.25rem; margin: 0;
+}
+.deal-ph-meta {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 14px;
+  font-size: 0.82rem; color: var(--muted);
+}
+.deal-figrow { display: flex; flex-wrap: wrap; gap: 14px 30px; }
+.deal-fig { display: flex; flex-direction: column; }
+.deal-fig-num { font-family: var(--font-serif); font-weight: 600; color: var(--accent); font-size: 1.15rem; line-height: 1.1; }
+.deal-fig-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+/* 2 — three structures */
+.deal-structures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 16px; }
+.deal-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px 20px; display: flex; flex-direction: column;
+}
+.deal-card-tag {
+  display: block; font-size: 0.72rem; font-weight: 600; color: var(--accent);
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px;
+}
+.ds-flag {
+  display: inline-block; margin-left: 6px; background: rgba(162, 60, 43, 0.22); color: #d98a7d;
+  font-size: 0.58rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 999px;
+}
+.ds-list { list-style: none; padding: 0; margin: 0 0 10px; }
+.ds-list li {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.82rem;
+}
+.ds-list li:last-child { border-bottom: none; }
+.ds-k { color: var(--muted); }
+.ds-v { color: var(--secondary); font-weight: 500; text-align: right; }
+.ds-grid { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0 0 10px; font-size: 0.82rem; }
+.ds-grid dt { color: var(--muted); }
+.ds-grid dd { margin: 0; color: var(--secondary); font-weight: 500; }
+.ds-dim { display: block; color: var(--muted); font-weight: 400; font-size: 0.72rem; margin-top: 2px; }
+
+/* assumption block — quote-style left accent, like the .callout family */
+.assumption-block {
+  margin: auto 0 0; background: var(--accent-soft); border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0; padding: 10px 13px; font-size: 0.76rem;
+  color: var(--secondary); line-height: 1.55;
+}
+
+/* 3 — sensitivity */
+.deal-sensitivity {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px 20px; margin-bottom: 16px;
+}
+.deal-sensi-cap { margin: 0 0 4px; font-size: 0.92rem; color: var(--secondary); }
+.deal-sensi-cap strong { color: var(--ink); }
+.deal-sensi-sub {
+  margin: 16px 0 8px; font-size: 0.78rem; font-weight: 500; color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.deal-table-wrap { overflow-x: auto; }
+.deal-sensi-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.deal-sensi-table th, .deal-sensi-table td {
+  padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; text-align: center;
+}
+.deal-sensi-table thead th {
+  color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 500; cursor: default;
+}
+.deal-sensi-table th[scope="row"] { text-align: left; color: var(--secondary); font-weight: 500; cursor: default; }
+.deal-sensi-table td { color: var(--secondary); font-variant-numeric: tabular-nums; font-weight: 500; }
+.deal-sensi-table td.clears { background: rgba(127, 155, 78, 0.18); color: #a7c073; }
+.deal-sensi-table td.below { background: rgba(158, 59, 44, 0.16); color: #d98a7d; }
+.deal-sensi-table td.ra-pos { background: rgba(127, 155, 78, 0.14); color: #a7c073; }
+.deal-sensi-table td.ra-neg { background: rgba(158, 59, 44, 0.12); color: #d98a7d; }
+.deal-sensi-table tr.miss-row th[scope="row"] { color: #9e3b2c; font-style: italic; }
+
+/* 4 — budget vs actual */
+.deal-bva {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px 20px; margin-bottom: 16px;
+}
+.deal-bva h4, .deal-assumptions h4 {
+  font-family: var(--font-serif); font-weight: 600; color: var(--ink);
+  font-size: 1.05rem; margin: 0 0 12px;
+}
+.deal-bva-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+.deal-bva-table th, .deal-bva-table td {
+  padding: 8px 12px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap;
+}
+.deal-bva-table thead th {
+  color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 500; cursor: default;
+}
+.deal-bva-table th[scope="row"] { color: var(--secondary); font-weight: 500; cursor: default; text-transform: capitalize; }
+.deal-bva-table td { color: var(--secondary); font-variant-numeric: tabular-nums; }
+.deal-bva-table .ds-note { white-space: normal; min-width: 220px; color: var(--muted); font-size: 0.78rem; }
+.deal-bva-table .variance { font-weight: 600; }
+.variance.over { color: #9e3b2c; }
+.variance.under { color: #3f6b3a; }
+.deal-bva-table tr.bva-total th, .deal-bva-table tr.bva-total td {
+  border-top: 2px solid var(--line); border-bottom: none; font-weight: 600; color: var(--ink);
+}
+
+/* 5 — load-bearing assumptions */
+.deal-assumptions {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.ds-assume-keys {
+  list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 8px 10px;
+}
+.ds-assume-keys li {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px;
+  padding: 4px 12px; font-size: 0.76rem; color: var(--secondary);
+}
+.ds-dilig { margin-bottom: 12px; }
+.deal-assume-line { font-size: 0.78rem; color: var(--muted); line-height: 1.55; margin: 10px 0 0; }
+.deal-assume-disc { font-size: 0.74rem; color: #8a6a2f; line-height: 1.5; margin: 12px 0 0; }
+
+/* deep-links — popup + tracker into the deal sheet */
+.pp-deal-link {
+  display: inline-block; margin-top: 8px; font-size: 0.74rem; color: #8a6a2f;
+  font-weight: 600; cursor: pointer;
+}
+.pp-deal-link:hover { text-decoration: underline; }
+.deal-link { color: var(--accent); cursor: pointer; }
+.deal-link:hover { text-decoration: underline; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
   .map-layout { flex-direction: column; }
   .panel { width: 100%; max-height: 44vh; }
   .tracker-grid { grid-template-columns: 1fr; }
   .brand h1 { font-size: 1.4rem; }
+}
+@media (max-width: 720px) {
+  .deal-structures { grid-template-columns: 1fr; }
 }

@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=a1" />
+  <link rel="stylesheet" href="css/styles.css?v=a3" />
 
   <script type="application/ld+json">
   {
@@ -77,6 +77,7 @@
     <nav class="tabs" role="tablist">
       <button class="tab is-active" data-view="map" role="tab">Map / Screen</button>
       <button class="tab" data-view="pipeline" role="tab">Pipeline / Tracker</button>
+      <button class="tab" data-view="deal" role="tab">Deal sheet</button>
       <button class="tab" data-view="changelog" role="tab">What's new</button>
       <button class="tab" data-view="about" role="tab">Methodology / About</button>
     </nav>
@@ -156,6 +157,17 @@
           <th data-sort="suitability_score">Suitability</th><th data-sort="verdict">Verdict</th><th data-sort="status_date">Updated</th>
         </tr></thead><tbody></tbody></table></div>
       </div>
+    </section>
+
+    <!-- ============================ DEAL SHEET ============================ -->
+    <section id="view-deal" class="view">
+      <div class="deal-head">
+        <h2>Deal sheet <span class="badge-illustrative">illustrative · basis-stated</span></h2>
+        <label class="deal-picker">Parcel <select id="deal-parcel"></select></label>
+        <p class="hint" id="deal-methodology"></p>
+      </div>
+      <div id="deal-body"></div>
+      <p class="deal-synthetic">All deal figures are synthetic and illustrative; assumptions are stated per panel. Not investment advice.</p>
     </section>
 
     <!-- ========================= METHODOLOGY / ABOUT ======================= -->
@@ -257,6 +269,7 @@
         <h2>What's new</h2>
         <p class="changelog-intro">Shipped, newest first — a running build log for the screen and tracker.</p>
         <ul class="changelog-list">
+          <li><time>2026-06-11</time><span><b>Deal sheet.</b> Per-parcel development-margin economics — flip / ground-lease / JV side by side, a time-to-power × exit-value sensitivity table, and budget-vs-actual on the synthetic pipeline. Synthetic and illustrative; every assumption stated.</span></li>
           <li><time>2026-06-11</time><span><b>Verdict layer.</b> The model ranks; I decide. Authored pursue / pursue-if / pass calls on the shortlist, objective risk flags computed on every parcel, and a worked memo on why I'd pass on the #3 parcel in my own model.</span></li>
           <li><time>2026-06-11</time><span><b>Data integrity.</b> De-duplicated stacked parcel records from the statewide layer — the same physical parcel was being counted several times. 6,080 → 5,130 distinct parcels.</span></li>
           <li><time>2026-06-11</time><span><b>Homepage + contact.</b> consultruss.com now features the demo; the header links back to the homepage and to LinkedIn.</span></li>
@@ -268,6 +281,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=a1"></script>
+  <script src="js/app.js?v=a3"></script>
 </body>
 </html>
