@@ -14,7 +14,7 @@ PF = CFG["deal_economics"]["portfolio"]
 
 
 def test_portfolio_config_present_with_locked_values():
-    assert PF["budgets_usd"] == [250000, 500000, 1000000]
+    assert PF["budgets_usd"] == [500000, 1000000, 1500000]
     assert PF["exclude_verdicts"] == ["pass"]
     assert PF["stage_top_n"] == 3
     assert PF["priority"] == "risk_adjusted"
@@ -86,7 +86,7 @@ def test_allocation_monotonic_in_budget():
 
 def test_build_portfolio_runs_all_budgets_with_assumptions():
     data = pf.build_portfolio(ECON, VERD, CFG)
-    assert [a["budget"] for a in data["allocations"]] == [250000, 500000, 1000000]
+    assert [a["budget"] for a in data["allocations"]] == [500000, 1000000, 1500000]
     assert data["assumptions"]["stage_top_n"] == 3
     import json
     # no None leaks in controlled rows
