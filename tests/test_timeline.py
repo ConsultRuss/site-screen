@@ -107,3 +107,25 @@ def test_phase_bars_label_parallel_and_uncertain():
     assert inter["uncertain"] is True and inter["parallel"] is False
     perm = next(p for p in phases if p["name"] == "Permitting")
     assert perm["parallel"] is True
+
+
+def test_parcel_timeline_has_both_variants_and_solar_headline():
+    rec = tl.parcel_timeline(STRONG, CFG)
+    assert set(rec["variants"]) == {"solar", "dc"}
+    assert rec["headline"]["variant"] == "solar"           # default
+    assert rec["headline"]["p50"] == rec["variants"]["solar"]["p50"]
+    assert "band" in rec["headline"] and "expected_row" in rec["headline"]
+    assert len(rec["variants"]["solar"]["phases"]) == 4
+
+
+def test_build_timeline_shortlist_only_with_queue_context_no_none_leaks():
+    parcels = [
+        dict(STRONG, pipeline_status="LOI"),
+        {"parcel_id": "X", "pipeline_status": None, "nearest_sub_kv": 138, "dist_substation_mi": 2},
+    ]
+    out = tl.build_timeline(parcels, CFG)
+    assert set(out["parcels"]) == {"KAR-000004"}            # non-shortlist skipped
+    assert "queue_context" in out and "batch_zero" in out["queue_context"]
+    assert "assumptions" in out
+    import json
+    assert "null" not in json.dumps(out["parcels"]["KAR-000004"])
