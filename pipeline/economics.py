@@ -83,7 +83,7 @@ def flip_irr(
 
 
 def risk_adjusted_irr(
-    parcel: dict[str, Any], cfg: dict[str, Any], months: int, mult: float
+    parcel: dict[str, Any], cfg: dict[str, Any], months: int | None, mult: float
 ) -> float:
     """Probability-weighted view: p × success-IRR + (1−p) × total-loss. Honest
     counterweight to the success-case grid (industry chance-of-success 10–50%)."""

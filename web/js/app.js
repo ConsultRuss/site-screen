@@ -94,7 +94,7 @@
     } catch (err) {
       // Deal data is optional — degrade gracefully, never break the rest of the site.
       const body = $("#deal-body");
-      if (body) body.innerHTML = `<p class="hint">Deal data unavailable right now (${err}).</p>`;
+      if (body) body.innerHTML = `<p class="hint">Deal data unavailable right now (${esc(String(err))}).</p>`;
     }
     drawParcels();
     applyFilters(true);
