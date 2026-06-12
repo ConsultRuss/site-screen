@@ -8,6 +8,7 @@ the math to hand-computed expecteds and guard the verified-claims constraints
 
 import math
 
+from pipeline import economics as ec
 from pipeline.config import load_config
 
 CFG = load_config()
@@ -34,8 +35,6 @@ def test_deal_economics_block_present_with_locked_values():
     # SB6 framing is direction-only — no dollar figure
     assert "$" not in DE["sb6_framing"]
 
-
-from pipeline import economics as ec
 
 # A representative shortlist parcel (values like KAR-000004-ish; round for hand-calc)
 P = {
@@ -101,3 +100,25 @@ def test_flip_irr_miss_window_is_total_loss_regardless_of_exit():
     # for EVERY exit column.
     for m in (2, 4, 6):
         assert ec.flip_irr(P, CFG, months=None, mult=m) == -1.0
+
+
+def test_sensitivity_grid_shape_and_miss_row():
+    grid = ec.sensitivity_grid(P, CFG)
+    # rows = months [36,48,60] + miss; cols = multiples [2,4,6]
+    assert [r["months"] for r in grid] == [36, 48, 60, None]
+    assert all(len(r["cells"]) == 3 for r in grid)
+    miss = grid[-1]
+    assert all(c["irr"] == -1.0 and not c["clears"] for c in miss["cells"])
+
+
+def test_sensitivity_cells_carry_hurdle_flag():
+    grid = ec.sensitivity_grid(P, CFG)
+    top = grid[0]["cells"][-1]  # 36 months, 6x — the strongest in-window cell
+    assert top["clears"] is (top["irr"] >= CFG["deal_economics"]["exit"]["hurdle_irr"])
+
+
+def test_risk_adjusted_irr_applies_success_probability():
+    # expected = p*success_irr + (1-p)*(-1.0)
+    p = CFG["deal_economics"]["exit"]["success_probability"]
+    s = ec.flip_irr(P, CFG, 48, 4)
+    assert math.isclose(ec.risk_adjusted_irr(P, CFG, 48, 4), p * s + (1 - p) * (-1.0), rel_tol=1e-9)

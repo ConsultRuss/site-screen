@@ -67,3 +67,28 @@ def flip_irr(
         return -1.0
     net = flip_gross_uplift(parcel, mult) - diligence_total(cfg) - carry(parcel, cfg, months)
     return (1 + net / cap) ** (12 / months) - 1
+
+
+def risk_adjusted_irr(
+    parcel: dict[str, Any], cfg: dict[str, Any], months: int, mult: float
+) -> float:
+    """Probability-weighted view: p × success-IRR + (1−p) × total-loss. Honest
+    counterweight to the success-case grid (industry chance-of-success 10–50%)."""
+    p = cfg["deal_economics"]["exit"]["success_probability"]
+    return p * flip_irr(parcel, cfg, months, mult) + (1 - p) * (-1.0)
+
+
+def sensitivity_grid(parcel: dict[str, Any], cfg: dict[str, Any]) -> list[dict[str, Any]]:
+    """The centerpiece: rows = energization months (+ a miss-window row),
+    cols = exit multiples. Each cell carries IRR + hurdle flag. Independent axes;
+    the miss row collapses every column to −100% — exit price scales, time gates."""
+    ex = cfg["deal_economics"]["exit"]
+    hurdle = ex["hurdle_irr"]
+    rows: list[dict[str, Any]] = []
+    for months in [*ex["time_to_power_months"], None]:
+        cells = []
+        for mult in ex["uplift_multiples"]:
+            irr = flip_irr(parcel, cfg, months, mult)
+            cells.append({"mult": mult, "irr": irr, "clears": irr >= hurdle})
+        rows.append({"months": months, "cells": cells})
+    return rows
