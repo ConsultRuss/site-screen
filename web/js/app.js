@@ -5,7 +5,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/parcels.geojson?v=a3";
+  const DATA_URL = "data/parcels.geojson?v=a6";
   // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
   // Empty string = built-in rule parser only (works fully offline).
   const WORKER_URL = "https://ask.consultruss.com";
@@ -54,6 +54,7 @@
 
   // Deal sheet (A3): development-margin economics + authored deal notes.
   let ECON = null, NOTES = null;
+  let PORT = null; // Portfolio (A1.5): option-budget allocations over the shortlist.
   const PROPS = new Map(); // parcel_id -> geojson properties (pipeline status/date/rank)
 
   const state = {
@@ -79,18 +80,20 @@
     }
     FEATURES.forEach((f) => PROPS.set(f.properties.parcel_id, f.properties));
     try {
-      const vr = await fetch("data/verdicts.json?v=a3");
+      const vr = await fetch("data/verdicts.json?v=a6");
       const vd = await vr.json();
       (vd.verdicts || []).forEach((v) => { VERDICTS.set(v.parcel_id, v); if (v.memo) MEMO = v; });
     } catch { /* verdicts are optional — flags still render without them */ }
     try {
       const [er, nr] = await Promise.all([
-        fetch("data/economics.json?v=a3"),
-        fetch("data/deal-notes.json?v=a3"),
+        fetch("data/economics.json?v=a6"),
+        fetch("data/deal-notes.json?v=a6"),
       ]);
       ECON = await er.json();
       NOTES = await nr.json();
+      PORT = await (await fetch("data/portfolio.json?v=a6")).json();
       buildDealSheet();
+      buildPortfolio();
     } catch (err) {
       // Deal data is optional — degrade gracefully, never break the rest of the site.
       const body = $("#deal-body");
@@ -656,6 +659,71 @@
     renderDeal(id);
   }
   window.openDeal = openDeal;
+
+  /* ---------------- portfolio (A1.5) ---------------- */
+  // Given an option budget, how the capital deploys across the pursue / pursue-if
+  // shortlist: spread options to control the best parcels, stage diligence on the
+  // speed-to-power winners. The model ranks; the analyst allocates. All synthetic.
+  function buildPortfolio() {
+    if (!PORT || !PORT.allocations) return;
+    const strat = $("#pf-strategy");
+    if (strat && NOTES && NOTES.portfolio) strat.textContent = NOTES.portfolio.strategy || "";
+    const wrap = $("#pf-budgets");
+    if (!wrap) return;
+    const budgets = PORT.assumptions.budgets_usd || [];
+    wrap.innerHTML = budgets.map((b) =>
+      `<button class="pf-budget" data-b="${b}">${money(b)}</button>`).join("");
+    wrap.querySelectorAll(".pf-budget").forEach((btn) =>
+      btn.addEventListener("click", () => renderPortfolio(+btn.dataset.b)));
+    if (budgets.length) renderPortfolio(budgets[0]);
+  }
+
+  function renderPortfolio(budget) {
+    const a = PORT.allocations.find((x) => x.budget === budget);
+    document.querySelectorAll(".pf-budget").forEach((btn) =>
+      btn.classList.toggle("is-active", +btn.dataset.b === budget));
+    const body = $("#pf-body");
+    if (!body || !a) { if (body) body.innerHTML = `<p class="hint">No allocation for ${esc(money(budget))}.</p>`; return; }
+
+    /* 1 — KPIs */
+    const kpi = (num, lbl) => `<div class="kpi"><span class="num">${num}</span><span class="lbl">${lbl}</span></div>`;
+    const kpis = `<div class="kpis pf-kpis">` +
+      kpi(a.n_controlled, "parcels controlled") +
+      kpi(a.acres_controlled.toLocaleString(), "buildable acres") +
+      kpi(`~${a.mw_controlled} MW`, "under control") +
+      kpi(money(a.capital_deployed), `option capital · ${Math.round(a.budget_utilization * 100)}% of ${money(budget)}`) +
+      kpi(`${a.n_staged} · ${money(a.staged_diligence_usd)}`, "staged for diligence") +
+      kpi(`${Math.round(a.blended_ra * 100)}%`, "blended risk-adj") +
+      `</div>`;
+
+    /* 2 — allocation table */
+    const head = `<tr>
+      <th>Parcel</th><th>County</th><th>Verdict</th><th>Action</th>
+      <th>Option $</th><th>Cumulative</th><th>Controls</th><th>Risk-adj</th></tr>`;
+    const rows = a.controlled.map((r) => `
+      <tr class="${r.stage_next ? "pf-staged" : ""}">
+        <td><span class="deal-link" onclick="openDeal('${r.parcel_id}')">${r.parcel_id}</span></td>
+        <td>${esc(r.county)}</td>
+        <td><span class="verdict ${r.verdict}">${VERDICT_LABEL[r.verdict]}</span></td>
+        <td>${r.stage_next ? "Option + diligence staged" : "Option (now)"}</td>
+        <td>${money(r.option_cost)}</td>
+        <td>${money(r.cumulative_option)}</td>
+        <td>${Math.round(r.acreage_buildable)} ac · ${Math.round(r.mw_est)} MW</td>
+        <td>${Math.round(r.ra * 100)}%</td>
+      </tr>`).join("");
+    const table = `<div class="deal-table-wrap"><table class="pf-table">
+      <thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
+
+    /* 3 — tail: what's left out at this budget */
+    const tail = `<p class="pf-tail">Not funded at ${money(budget)}: ${esc(a.unfunded.map((u) => u.parcel_id).join(", "))}<br>` +
+      `Excluded (analyst pass): ${esc(a.excluded.map((e) => e.parcel_id).join(", "))}</p>`;
+
+    /* 4 — authored by-budget rationale */
+    const note = (NOTES && NOTES.portfolio && NOTES.portfolio.by_budget) || {};
+    const rationale = `<p class="pf-note">${esc(note[String(budget)] || "")}</p>`;
+
+    body.innerHTML = kpis + table + tail + rationale;
+  }
 
   /* ---------- featured pass memo ---------- */
   function mountMemo() {

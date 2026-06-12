@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=a5" />
+  <link rel="stylesheet" href="css/styles.css?v=a6" />
 
   <script type="application/ld+json">
   {
@@ -78,6 +78,7 @@
       <button class="tab is-active" data-view="map" role="tab">Map / Screen</button>
       <button class="tab" data-view="pipeline" role="tab">Pipeline / Tracker</button>
       <button class="tab" data-view="deal" role="tab">Deal sheet</button>
+      <button class="tab" data-view="portfolio" role="tab">Portfolio</button>
       <button class="tab" data-view="changelog" role="tab">What's new</button>
       <button class="tab" data-view="about" role="tab">Methodology / About</button>
     </nav>
@@ -168,6 +169,17 @@
       </div>
       <div id="deal-body"></div>
       <p class="deal-synthetic">All deal figures are synthetic and illustrative; assumptions are stated per panel. Not investment advice.</p>
+    </section>
+
+    <!-- ============================ PORTFOLIO ============================ -->
+    <section id="view-portfolio" class="view">
+      <div class="pf-head">
+        <h2>Option-budget portfolio <span class="badge-illustrative">illustrative · basis-stated</span></h2>
+        <p class="hint" id="pf-strategy"></p>
+        <div class="pf-budgets" id="pf-budgets" role="tablist"></div>
+      </div>
+      <div id="pf-body"></div>
+      <p class="deal-synthetic">Synthetic + illustrative. Option capital deployed now; diligence staged as power validates. Not investment advice.</p>
     </section>
 
     <!-- ========================= METHODOLOGY / ABOUT ======================= -->
@@ -269,6 +281,7 @@
         <h2>What's new</h2>
         <p class="changelog-intro">Shipped, newest first — a running build log for the screen and tracker.</p>
         <ul class="changelog-list">
+          <li><time>2026-06-11</time><span><b>Portfolio view.</b> Given an option budget ($500K / $1M / $1.5M), how I'd deploy it across the shortlist — spread options to control the best parcels, stage diligence on the speed-to-power winners. The model ranks; I allocate.</span></li>
           <li><time>2026-06-11</time><span><b>Deal sheet.</b> Per-parcel development-margin economics — flip / ground-lease / JV side by side, a time-to-power × exit-value sensitivity table, and budget-vs-actual on the synthetic pipeline. Synthetic and illustrative; every assumption stated.</span></li>
           <li><time>2026-06-11</time><span><b>Verdict layer.</b> The model ranks; I decide. Authored pursue / pursue-if / pass calls on the shortlist, objective risk flags computed on every parcel, and a worked memo on why I'd pass on the #3 parcel in my own model.</span></li>
           <li><time>2026-06-11</time><span><b>Data integrity.</b> De-duplicated stacked parcel records from the statewide layer — the same physical parcel was being counted several times. 6,080 → 5,130 distinct parcels.</span></li>
@@ -281,6 +294,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=a3"></script>
+  <script src="js/app.js?v=a6"></script>
 </body>
 </html>
