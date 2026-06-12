@@ -51,7 +51,7 @@ body {
 .tab {
   border: none; background: none; padding: 0 0 14px; cursor: pointer; font: inherit;
   font-size: 0.86rem; font-weight: 500; letter-spacing: 0.04em; color: var(--muted);
-  border-bottom: 2px solid transparent; transition: color 0.15s;
+  border-bottom: 2px solid transparent; transition: color 0.15s; white-space: nowrap;
 }
 .tab:hover { color: var(--secondary); }
 .tab.is-active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -410,6 +410,9 @@ td .verdict-none { color: var(--faint); font-size: 0.74rem; }
   #map { min-height: 70vh; }
   .tracker-grid { grid-template-columns: 1fr; }
   .brand h1 { font-size: 1.4rem; }
+  /* tabs: wrap cleanly to <=2 rows (all 5 stay visible) instead of overflowing/clipping */
+  .tabs { flex-wrap: wrap; gap: 8px 16px; }
+  .tab { font-size: 0.8rem; padding-bottom: 10px; }
 }
 @media (max-width: 720px) {
   .deal-structures { grid-template-columns: 1fr; }
