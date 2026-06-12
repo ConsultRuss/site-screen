@@ -17,6 +17,7 @@ from pathlib import Path
 from . import build, export, fetch
 from .config import REPO_ROOT, load_config
 from .dedupe import dedupe_by_footprint
+from .economics import write_economics
 from .scoring import rank_parcels
 from .verdicts import county_price_medians, parcel_flags
 
@@ -66,6 +67,7 @@ _SYNTH_FIELDS = (
     "owner", "pipeline_status", "status_date", "title_flag", "est_price_per_ac", "notes"
 )
 WEB_GEOJSON = REPO_ROOT / "web" / "data" / "parcels.geojson"
+WEB_ECONOMICS = REPO_ROOT / "web" / "data" / "economics.json"
 RUN_META = REPO_ROOT / "data" / "screen_run.json"
 
 
@@ -121,6 +123,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     print("== export ==")
     export.write_geojson(fc, WEB_GEOJSON)
     export.write_run_metadata(cfg, RUN_META, extra=_run_meta_extra(fc))
+    n_econ = write_economics(fc, cfg, WEB_ECONOMICS)
+    print(f"   economics: {n_econ} shortlist parcels -> {WEB_ECONOMICS}")
     print(f"run complete: {len(fc['features'])} parcels -> {WEB_GEOJSON}")
     return 0
 
@@ -134,6 +138,8 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     _finalize(fc, cfg)
     export.write_geojson(fc, WEB_GEOJSON)
     export.write_run_metadata(cfg, RUN_META, extra=_run_meta_extra(fc))
+    n_econ = write_economics(fc, cfg, WEB_ECONOMICS)
+    print(f"   economics: {n_econ} shortlist parcels -> {WEB_ECONOMICS}")
     print(f"rebuild complete: {len(fc['features'])} parcels -> {WEB_GEOJSON}")
     return 0
 
@@ -149,6 +155,8 @@ def cmd_finalize(args: argparse.Namespace) -> int:
     export.write_geojson(fc, out)
     existing = json.loads(RUN_META.read_text(encoding="utf-8")) if RUN_META.exists() else {}
     export.write_run_metadata(cfg, RUN_META, extra=_run_meta_extra(fc, existing))
+    n_econ = write_economics(fc, cfg, WEB_ECONOMICS)
+    print(f"   economics: {n_econ} shortlist parcels -> {WEB_ECONOMICS}")
     print(f"finalized {before} -> {len(fc['features'])} parcels -> {out}")
     return 0
 

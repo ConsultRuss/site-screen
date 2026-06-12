@@ -222,3 +222,15 @@ def build_economics(parcels: list[dict[str, Any]], cfg: dict[str, Any]) -> dict[
         },
         "parcels": out,
     }
+
+
+def write_economics(fc: dict[str, Any], cfg: dict[str, Any], out_path) -> int:
+    """Compute economics for the finalized shortlist and write web/data/economics.json.
+    Returns the number of parcels written."""
+    import json
+    from pathlib import Path
+
+    props = [f["properties"] for f in fc["features"]]
+    data = build_economics(props, cfg)
+    Path(out_path).write_text(json.dumps(data, ensure_ascii=False, indent=0), encoding="utf-8")
+    return len(data["parcels"])
