@@ -70,3 +70,34 @@ def test_carry_compounds_annually_over_months():
     cap = ec.capital_deployed(P, CFG)
     expected = cap * ((1.12) ** (48 / 12) - 1)
     assert math.isclose(ec.carry(P, CFG, 48), expected, rel_tol=1e-9)
+
+
+def test_flip_gross_uplift_is_multiple_minus_one_times_basis():
+    # m=4: (4-1)*3450*2000 = 20,700,000
+    assert ec.flip_gross_uplift(P, 4) == 3 * 3450 * 2000.0
+
+
+def test_multiple_on_control_capital():
+    # gross_uplift(4) / control_cost = 20.7M / 207K = 100x
+    assert math.isclose(ec.multiple_on_control(P, CFG, 4), 100.0, rel_tol=1e-9)
+
+
+def test_flip_irr_in_window_is_positive_and_annualized():
+    irr = ec.flip_irr(P, CFG, months=48, mult=4)
+    cap = ec.capital_deployed(P, CFG)
+    net = ec.flip_gross_uplift(P, 4) - ec.diligence_total(CFG) - ec.carry(P, CFG, 48)
+    expected = (1 + net / cap) ** (12 / 48) - 1
+    assert math.isclose(irr, expected, rel_tol=1e-9)
+    assert irr > 0
+
+
+def test_flip_irr_shorter_time_to_power_beats_longer_at_same_exit():
+    # The thesis (within window): faster energization -> higher annualized IRR.
+    assert ec.flip_irr(P, CFG, 36, 4) > ec.flip_irr(P, CFG, 60, 4)
+
+
+def test_flip_irr_miss_window_is_total_loss_regardless_of_exit():
+    # The thesis hammer: miss the window -> control+diligence written off -> -100%,
+    # for EVERY exit column.
+    for m in (2, 4, 6):
+        assert ec.flip_irr(P, CFG, months=None, mult=m) == -1.0

@@ -41,3 +41,29 @@ def carry(parcel: dict[str, Any], cfg: dict[str, Any], months: int) -> float:
     """Cost-of-capital on deployed dollars, compounded annually over the hold."""
     rate = cfg["deal_economics"]["carry"]["annual_rate"]
     return capital_deployed(parcel, cfg) * ((1 + rate) ** (months / 12) - 1)
+
+
+def flip_gross_uplift(parcel: dict[str, Any], mult: float) -> float:
+    """Uplift captured = (exit multiple − 1) × basis × total acres."""
+    return (mult - 1) * float(parcel["est_price_per_ac"]) * float(parcel["acreage_total"])
+
+
+def multiple_on_control(parcel: dict[str, Any], cfg: dict[str, Any], mult: float) -> float:
+    """How many times the control (option) capital the success-case uplift is."""
+    return flip_gross_uplift(parcel, mult) / control_cost(parcel, cfg)
+
+
+def flip_irr(
+    parcel: dict[str, Any], cfg: dict[str, Any], months: int | None, mult: float
+) -> float:
+    """IRR on deployed control+diligence capital for the flip exit.
+
+    months=None is the 'misses the window' case: the option is not exercised, so
+    control + diligence are written off -> net = -capital -> IRR = -100%, for any
+    exit multiple. That is the interconnection-first thesis in money form.
+    """
+    cap = capital_deployed(parcel, cfg)
+    if months is None:
+        return -1.0
+    net = flip_gross_uplift(parcel, mult) - diligence_total(cfg) - carry(parcel, cfg, months)
+    return (1 + net / cap) ** (12 / months) - 1
