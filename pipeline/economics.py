@@ -92,3 +92,54 @@ def sensitivity_grid(parcel: dict[str, Any], cfg: dict[str, Any]) -> list[dict[s
             cells.append({"mult": mult, "irr": irr, "clears": irr >= hurdle})
         rows.append({"months": months, "cells": cells})
     return rows
+
+
+def lease_tier(parcel: dict[str, Any]) -> str:
+    """Interconnection-quality tier for the ground-lease rate.
+    prime: >=345 kV; near_substation: >=138 kV within ~1 mi; good_transmission:
+    >=138 kV but farther; standard: below 138 kV. (Illustrative tiering.)"""
+    kv = float(parcel.get("nearest_sub_kv") or 0)
+    dist = float(parcel.get("dist_substation_mi") or 99)
+    if kv >= 345:
+        return "prime"
+    if kv >= 138 and dist <= 1.0:
+        return "near_substation"
+    if kv >= 138:
+        return "good_transmission"
+    return "standard"
+
+
+def _mid(pair: list[float]) -> float:
+    return (pair[0] + pair[1]) / 2
+
+
+def lease_economics(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
+    le = cfg["deal_economics"]["lease"]
+    tier = lease_tier(parcel)
+    rate = _mid(le["tiers_usd_per_ac_yr"][tier])
+    annual = rate * float(parcel["acreage_buildable"])
+    return {
+        "tier": tier,
+        "rate_per_ac_yr": rate,
+        "annual": annual,
+        "yield_on_basis": annual / land_price(parcel),
+        "escalation_pct": le["escalation_pct"],
+        "term_years": le["term_years"],
+        "structure": le["structure"],
+    }
+
+
+def jv_economics(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
+    """Softest panel — present as a hedged scenario, not a point estimate."""
+    jv = cfg["deal_economics"]["jv"]
+    lo, base, hi = jv["retained_pct"]
+    s_lo, s_hi = jv["stabilized_share_pct"]
+    mw = mw_estimate(parcel, cfg)
+    stabilized_value = mw * jv["per_mw_stabilized_usd"]
+    return {
+        "retained_pct": {"low": lo, "base": base, "high": hi},
+        "stabilized_share_pct": {"low": s_lo, "high": s_hi},
+        "retained_value_base": base * s_hi * stabilized_value,
+        "valuation_basis": jv["valuation_basis"],
+        "note": jv["note"],
+    }

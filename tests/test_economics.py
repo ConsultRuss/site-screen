@@ -122,3 +122,30 @@ def test_risk_adjusted_irr_applies_success_probability():
     p = CFG["deal_economics"]["exit"]["success_probability"]
     s = ec.flip_irr(P, CFG, 48, 4)
     assert math.isclose(ec.risk_adjusted_irr(P, CFG, 48, 4), p * s + (1 - p) * (-1.0), rel_tol=1e-9)
+
+
+def test_lease_tier_by_interconnection():
+    # 345 kV on-parcel -> prime; weak (<138, far) -> standard
+    assert ec.lease_tier({"nearest_sub_kv": 345.0, "dist_substation_mi": 0.0}) == "prime"
+    assert ec.lease_tier({"nearest_sub_kv": 138.0, "dist_substation_mi": 1.0}) == "near_substation"
+    assert (
+        ec.lease_tier({"nearest_sub_kv": 138.0, "dist_substation_mi": 3.0}) == "good_transmission"
+    )
+    assert ec.lease_tier({"nearest_sub_kv": 69.0, "dist_substation_mi": 8.0}) == "standard"
+
+
+def test_lease_economics_rate_annual_yield():
+    le = ec.lease_economics(P, CFG)            # P is 345 kV on-parcel -> prime
+    assert le["tier"] == "prime"
+    assert le["rate_per_ac_yr"] == (1500 + 2000) / 2           # tier midpoint 1750
+    assert le["annual"] == 1750 * 1600.0                        # rate x buildable
+    assert math.isclose(le["yield_on_basis"], (1750 * 1600.0) / ec.land_price(P), rel_tol=1e-9)
+
+
+def test_jv_economics_is_hedged_scenario():
+    jv = ec.jv_economics(P, CFG)
+    assert jv["retained_pct"] == {"low": 0.05, "base": 0.10, "high": 0.15}
+    assert jv["stabilized_share_pct"] == {"low": 0.02, "high": 0.05}
+    # retained value (base) = retained_base x stabilized_share_high x (mw x per_mw)
+    assert ec.mw_estimate(P, CFG) > 0  # confirms mw_estimate feeds retained_value_base
+    assert jv["retained_value_base"] > 0 and "as-entitled" in jv["valuation_basis"]
