@@ -319,3 +319,27 @@ power_timeline:
     retrieved: "2026-06-11"
 
   license_discipline: "The license-restricted ERCOT interconnection-queue model is held to backend-abstracted use (0–100 Grid Connectivity Index); queue context here is sourced from public ERCOT/EIA reporting. The public grid overlay uses HIFLD."
+
+# -----------------------------------------------------------------------------
+# Data integrity (Feature A4). The audit panel computes its content from the run
+# artifacts (data/raw/fetch_status.json, data/screen_run.json, the parcels
+# GeoJSON) joined with this layer map. The license-restricted ERCOT GIS Report is
+# surfaced as a GOVERNANCE signal — never displayed raw. pipeline/audit.py reads this.
+# -----------------------------------------------------------------------------
+data_integrity:
+  null_rate_warn: 0.10     # flag a field whose null-rate across all parcels exceeds 10%
+  audit_fields: [suitability_score, dist_substation_mi, nearest_sub_kv, acreage_buildable, est_price_per_ac, slope_pct_mean, floodplain_pct]
+  layers:                  # layer -> {source, license, role}; joined with fetch_status by key
+    parcels:      {source: "TxGIO StratMap", license: "public", role: "Base geometry / acreage"}
+    substations:  {source: "HIFLD", license: "public-domain", role: "Interconnection distance / kV"}
+    transmission: {source: "HIFLD / DOE-NETL", license: "public-domain", role: "≥138 kV line distance"}
+    flood:        {source: "FEMA NFHL", license: "public-domain", role: "Floodplain exclusion"}
+    slope:        {source: "USGS 3DEP", license: "public-domain", role: "Terrain / slope"}
+    nlcd:         {source: "USGS / MRLC NLCD", license: "public-domain", role: "Land cover"}
+    soils:        {source: "USDA-NRCS SSURGO", license: "public-domain", role: "Soil capability class"}
+    roads:        {source: "Census TIGER", license: "public-domain", role: "Road access"}
+    generation:   {source: "EIA-860", license: "public-domain", role: "Generation proximity (flex lens)"}
+  restricted:
+    ercot_gis_report: {source: "ERCOT GIS Report (pg7-200-er)", license: "restricted", role: "Backend-abstracted to the 0–100 Grid Connectivity Index; never displayed raw"}
+  governance_note: "The license-restricted ERCOT interconnection-queue model is held to backend-abstracted use; any capacity signal is the 0–100 Grid Connectivity Index. The public grid overlay uses HIFLD."
+  reconciled: "2026-06-12"   # SOURCES.md last reconciled against the run (this batch)
