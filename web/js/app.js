@@ -691,7 +691,7 @@
     const kpis = `<div class="kpis pf-kpis">` +
       kpi(a.n_controlled, "parcels controlled") +
       kpi(a.acres_controlled.toLocaleString(), "buildable acres") +
-      kpi(`~${a.mw_controlled} MW`, "under control") +
+      kpi(`~${a.mw_controlled} MW`, "solar-generation potential") +
       kpi(money(a.capital_deployed), `option capital · ${Math.round(a.budget_utilization * 100)}% of ${budgetLabel(budget)}`) +
       kpi(`${a.n_staged} · ${money(a.staged_diligence_usd)}`, "staged for diligence") +
       kpi(`${Math.round(a.blended_ra * 100)}%`, "blended risk-adj") +
