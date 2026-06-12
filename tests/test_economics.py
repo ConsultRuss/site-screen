@@ -33,3 +33,40 @@ def test_deal_economics_block_present_with_locked_values():
     assert "excluded" not in note and "included" not in note
     # SB6 framing is direction-only — no dollar figure
     assert "$" not in DE["sb6_framing"]
+
+
+from pipeline import economics as ec
+
+# A representative shortlist parcel (values like KAR-000004-ish; round for hand-calc)
+P = {
+    "parcel_id": "KAR-000004", "county": "Karnes",
+    "acreage_total": 2000.0, "acreage_buildable": 1600.0, "est_price_per_ac": 3450,
+    "nearest_sub_kv": 345.0, "dist_substation_mi": 0.0, "dist_transmission_mi": 0.0,
+}
+
+
+def test_land_price_uses_total_acreage():
+    assert ec.land_price(P) == 3450 * 2000.0
+
+
+def test_mw_estimate_uses_buildable_over_density():
+    assert ec.mw_estimate(P, CFG) == 1600.0 / 8  # 200 MW
+
+
+def test_control_cost_is_option_pct_of_land_price():
+    assert ec.control_cost(P, CFG) == 0.03 * 3450 * 2000.0  # 207,000
+
+
+def test_diligence_total_sums_midpoints():
+    # mids: 7000+32500+10000+12500+5750+30000+50000 = 147750
+    assert ec.diligence_total(CFG) == 147750.0
+
+
+def test_capital_deployed_is_control_plus_diligence():
+    assert ec.capital_deployed(P, CFG) == 207000.0 + 147750.0  # 354750
+
+
+def test_carry_compounds_annually_over_months():
+    cap = ec.capital_deployed(P, CFG)
+    expected = cap * ((1.12) ** (48 / 12) - 1)
+    assert math.isclose(ec.carry(P, CFG, 48), expected, rel_tol=1e-9)
