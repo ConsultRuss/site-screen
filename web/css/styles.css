@@ -399,8 +399,15 @@ td .verdict-none { color: var(--faint); font-size: 0.74rem; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
+  /* Mobile: document-flow so EVERY view scrolls with the page (consistent with
+     map + what's-new). The desktop app-shell pins main's height and inner-scrolls
+     pipeline/about/deal via overflow:auto (line 63), which "locks the top" on a
+     phone. On mobile we let the page scroll naturally instead. */
+  main { display: block; }
+  #view-pipeline.is-active, #view-about.is-active, #view-deal.is-active { overflow: visible; }
   .map-layout { flex-direction: column; }
   .panel { width: 100%; max-height: 44vh; }
+  #map { min-height: 70vh; }
   .tracker-grid { grid-template-columns: 1fr; }
   .brand h1 { font-size: 1.4rem; }
 }
