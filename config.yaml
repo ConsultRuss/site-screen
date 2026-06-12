@@ -255,6 +255,13 @@ deal_economics:
     valuation_basis: "as-entitled (negotiated), not cost"
     note: "Most assumption-heavy. Energy land is usually leased/sold, not contributed — land-as-equity cuts ITC basis (HoldCo isolation is the workaround). No public energy comp; present as scenario with stated assumptions."
 
+  portfolio:                    # Feature A1.5 — option-budget allocation across the shortlist
+    budgets_usd: [250000, 500000, 1000000]   # stepped presets (no slider)
+    priority: risk_adjusted     # rank eligible by best risk-adjusted return, within verdict tier
+    exclude_verdicts: [pass]    # analyst's-call discipline: never allocate to a pass
+    stage_top_n: 3              # stage diligence on the top-N controlled winners (by risk-adj return)
+    disclosure: "Illustrative allocation; option capital deployed now, diligence staged as power validates. Synthetic + illustrative."
+
   incentives:
     note: "Section 151.359 sales-tax exemption + Ch. 312 abatement only (Ch. 312 up to 10 yr, local, school districts not eligible). JETI eligibility for data-center end-use is unsettled (Section 403.602); not assumed."
 
