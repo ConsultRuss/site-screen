@@ -51,3 +51,34 @@ def test_eligible_excludes_passes():
 def test_priority_pursue_tier_before_pursue_if_then_ra_desc():
     # pursue (A,B) before pursue_if (C); within pursue, A(ra .60) before B(ra .40)
     assert [p[0] for p in pf.eligible_priority(ECON, VERD, CFG)] == ["A", "B", "C"]
+
+
+def test_allocate_greedy_skip_and_continue_respects_budget():
+    # budget 300k: A(200k)+B(95k)=295k fit; C(150k) doesn't (5k left) -> unfunded.
+    out = pf.allocate(ECON, VERD, CFG, 300000)
+    assert [c["parcel_id"] for c in out["controlled"]] == ["A", "B"]
+    assert [u["parcel_id"] for u in out["unfunded"]] == ["C"]
+    assert out["excluded"][0]["parcel_id"] == "D"  # the pass
+    assert out["capital_deployed"] == 295000
+
+
+def test_allocate_skips_unaffordable_then_funds_cheaper_next():
+    # budget 250k: A(200k) fits (50k left); B(95k) doesn't -> unfunded; C(150k) doesn't -> unfunded.
+    out = pf.allocate(ECON, VERD, CFG, 250000)
+    assert [c["parcel_id"] for c in out["controlled"]] == ["A"]
+    # budget 500k: all eligible (A,B,C) fit.
+    out2 = pf.allocate(ECON, VERD, CFG, 500000)
+    assert [c["parcel_id"] for c in out2["controlled"]] == ["A", "B", "C"]
+
+
+def test_staging_flags_top_n_controlled_by_ra():
+    out = pf.allocate(ECON, VERD, CFG, 500000)  # controls A,B,C; stage_top_n=3 -> all flagged
+    staged = [c["parcel_id"] for c in out["controlled"] if c["stage_next"]]
+    assert set(staged) == {"A", "B", "C"}
+    assert out["staged_diligence_usd"] == 3 * 148000
+
+
+def test_allocation_monotonic_in_budget():
+    small = {c["parcel_id"] for c in pf.allocate(ECON, VERD, CFG, 250000)["controlled"]}
+    big = {c["parcel_id"] for c in pf.allocate(ECON, VERD, CFG, 500000)["controlled"]}
+    assert small <= big  # larger budget controls a superset
