@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 
 from . import build, export, fetch
+from .audit import write_audit
 from .config import REPO_ROOT, load_config
 from .dedupe import dedupe_by_footprint
 from .economics import write_economics
@@ -73,6 +74,8 @@ WEB_ECONOMICS = REPO_ROOT / "web" / "data" / "economics.json"
 WEB_VERDICTS = REPO_ROOT / "web" / "data" / "verdicts.json"
 WEB_PORTFOLIO = REPO_ROOT / "web" / "data" / "portfolio.json"
 WEB_TIMELINE = REPO_ROOT / "web" / "data" / "timeline.json"
+WEB_INTEGRITY = REPO_ROOT / "web" / "data" / "integrity.json"
+FETCH_STATUS = REPO_ROOT / "data" / "raw" / "fetch_status.json"
 RUN_META = REPO_ROOT / "data" / "screen_run.json"
 
 
@@ -134,6 +137,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"   portfolio: {n_pf} budgets -> {WEB_PORTFOLIO}")
     n_tl = write_timeline(fc, cfg, WEB_TIMELINE)
     print(f"   timeline: {n_tl} shortlist parcels -> {WEB_TIMELINE}")
+    n_au = write_audit(fc, cfg, FETCH_STATUS, RUN_META, WEB_INTEGRITY)
+    print(f"   integrity: {n_au} layers audited -> {WEB_INTEGRITY}")
     print(f"run complete: {len(fc['features'])} parcels -> {WEB_GEOJSON}")
     return 0
 
@@ -153,6 +158,8 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     print(f"   portfolio: {n_pf} budgets -> {WEB_PORTFOLIO}")
     n_tl = write_timeline(fc, cfg, WEB_TIMELINE)
     print(f"   timeline: {n_tl} shortlist parcels -> {WEB_TIMELINE}")
+    n_au = write_audit(fc, cfg, FETCH_STATUS, RUN_META, WEB_INTEGRITY)
+    print(f"   integrity: {n_au} layers audited -> {WEB_INTEGRITY}")
     print(f"rebuild complete: {len(fc['features'])} parcels -> {WEB_GEOJSON}")
     return 0
 
@@ -174,6 +181,8 @@ def cmd_finalize(args: argparse.Namespace) -> int:
     print(f"   portfolio: {n_pf} budgets -> {WEB_PORTFOLIO}")
     n_tl = write_timeline(fc, cfg, WEB_TIMELINE)
     print(f"   timeline: {n_tl} shortlist parcels -> {WEB_TIMELINE}")
+    n_au = write_audit(fc, cfg, FETCH_STATUS, RUN_META, WEB_INTEGRITY)
+    print(f"   integrity: {n_au} layers audited -> {WEB_INTEGRITY}")
     print(f"finalized {before} -> {len(fc['features'])} parcels -> {out}")
     return 0
 

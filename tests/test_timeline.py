@@ -34,7 +34,8 @@ def test_power_timeline_block_present_with_locked_values():
     assert "LLIS" in qc["llis"]
     # restricted-data discipline stated
     assert "HIFLD" in PT["license_discipline"]
-    assert "restricted" in PT["license_discipline"].lower() or "abstracted" in PT["license_discipline"].lower()
+    ld = PT["license_discipline"].lower()
+    assert "restricted" in ld or "abstracted" in ld
 
 
 # Representative shortlist parcels (grid quality varies; round for hand-calc)
@@ -48,7 +49,9 @@ WEAK = {"parcel_id": "KAR-000099", "county": "Karnes", "acreage_buildable": 200.
 
 def test_grid_quality_factor_strong_is_floor_fast():
     # 345 kV on-parcel -> best quality -> factor at min
-    assert math.isclose(tl.grid_quality_factor(STRONG, CFG), PT["grid_quality_factor"]["min"], rel_tol=1e-9)
+    assert math.isclose(
+        tl.grid_quality_factor(STRONG, CFG), PT["grid_quality_factor"]["min"], rel_tol=1e-9
+    )
 
 
 def test_grid_quality_factor_weak_is_slow():
@@ -96,7 +99,9 @@ def test_time_to_power_weak_dc_trips_miss_window():
 
 
 def test_time_to_power_monotonic_strong_faster_than_weak():
-    assert tl.time_to_power(STRONG, CFG, "solar")["p50"] < tl.time_to_power(WEAK, CFG, "solar")["p50"]
+    strong = tl.time_to_power(STRONG, CFG, "solar")["p50"]
+    weak = tl.time_to_power(WEAK, CFG, "solar")["p50"]
+    assert strong < weak
 
 
 def test_phase_bars_label_parallel_and_uncertain():

@@ -328,7 +328,10 @@ power_timeline:
 # -----------------------------------------------------------------------------
 data_integrity:
   null_rate_warn: 0.10     # flag a field whose null-rate across all parcels exceeds 10%
-  audit_fields: [suitability_score, dist_substation_mi, nearest_sub_kv, acreage_buildable, est_price_per_ac, slope_pct_mean, floodplain_pct]
+  # All-parcel geospatial-completeness fields only. NOTE: est_price_per_ac is
+  # deliberately excluded — it is synthetic + shortlist-only (24 of 5,130), so its
+  # all-parcel null-rate is ~99.5% BY DESIGN; flagging it would be a false anomaly.
+  audit_fields: [suitability_score, dist_substation_mi, nearest_sub_kv, acreage_buildable, slope_pct_mean, floodplain_pct]
   layers:                  # layer -> {source, license, role}; joined with fetch_status by key
     parcels:      {source: "TxGIO StratMap", license: "public", role: "Base geometry / acreage"}
     substations:  {source: "HIFLD", license: "public-domain", role: "Interconnection distance / kV"}

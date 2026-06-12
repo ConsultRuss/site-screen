@@ -29,7 +29,10 @@ FETCH = {"parcels": {"ok": True, "count": 7264}, "substations": {"ok": True, "co
          "generation": {"ok": True, "count": 43}}
 RUN = {"run_utc": "2026-06-12T17:45:52+00:00", "parcel_count": 5130, "shortlist_count": 24,
        "criteria_status": {"interconnection": "live", "buildable_acreage": "live"},
-       "lenses": {"flex_load": "live (curtailment-basis neutral — needs nodal LMP)", "agrivoltaic": "live"},
+       "lenses": {
+           "flex_load": "live (curtailment-basis neutral — needs nodal LMP)",
+           "agrivoltaic": "live",
+       },
        "verdict_layer": "live"}
 
 
@@ -52,3 +55,28 @@ def test_run_summary_reads_screen_run():
 def test_provenance_chain_uses_real_artifact_numbers():
     p = audit.provenance(FETCH, RUN)
     assert p["fetched"] == 7264 and p["final"] == 5130 and p["shortlist"] == 24
+
+
+def _fc(props_list):
+    return {"features": [{"properties": p} for p in props_list]}
+
+
+def test_field_completeness_computes_null_rates_and_flags():
+    fc = _fc([
+        {"suitability_score": 80, "nearest_sub_kv": 345},
+        {"suitability_score": 60, "nearest_sub_kv": None},  # 50% null on kv
+    ])
+    rows = audit.field_completeness(fc, CFG)
+    by = {r["field"]: r for r in rows}
+    assert by["suitability_score"]["null_rate"] == 0.0 and by["suitability_score"]["ok"] is True
+    assert by["nearest_sub_kv"]["null_rate"] == 0.5 and by["nearest_sub_kv"]["ok"] is False
+
+
+def test_build_audit_assembles_all_sections():
+    fc = _fc([{"suitability_score": 80, "nearest_sub_kv": 345, "pipeline_status": "LOI"}])
+    rep = audit.build_audit(fc, FETCH, RUN, CFG)
+    for key in ("run", "provenance", "layers", "completeness",
+                "governance_note", "reconciled", "anomalies"):
+        assert key in rep
+    # curtailment-neutral lens surfaces as an honest anomaly
+    assert any("curtailment" in a.lower() for a in rep["anomalies"])
