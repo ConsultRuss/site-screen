@@ -664,6 +664,7 @@
   // Given an option budget, how the capital deploys across the pursue / pursue-if
   // shortlist: spread options to control the best parcels, stage diligence on the
   // speed-to-power winners. The model ranks; the analyst allocates. All synthetic.
+  const budgetLabel = (b) => (b >= 1e6 ? "$" + b / 1e6 + "M" : "$" + b / 1000 + "K");
   function buildPortfolio() {
     if (!PORT || !PORT.allocations) return;
     const strat = $("#pf-strategy");
@@ -672,7 +673,7 @@
     if (!wrap) return;
     const budgets = PORT.assumptions.budgets_usd || [];
     wrap.innerHTML = budgets.map((b) =>
-      `<button class="pf-budget" data-b="${b}">${money(b)}</button>`).join("");
+      `<button class="pf-budget" data-b="${b}">${budgetLabel(b)}</button>`).join("");
     wrap.querySelectorAll(".pf-budget").forEach((btn) =>
       btn.addEventListener("click", () => renderPortfolio(+btn.dataset.b)));
     if (budgets.length) renderPortfolio(budgets[0]);
@@ -691,7 +692,7 @@
       kpi(a.n_controlled, "parcels controlled") +
       kpi(a.acres_controlled.toLocaleString(), "buildable acres") +
       kpi(`~${a.mw_controlled} MW`, "under control") +
-      kpi(money(a.capital_deployed), `option capital · ${Math.round(a.budget_utilization * 100)}% of ${money(budget)}`) +
+      kpi(money(a.capital_deployed), `option capital · ${Math.round(a.budget_utilization * 100)}% of ${budgetLabel(budget)}`) +
       kpi(`${a.n_staged} · ${money(a.staged_diligence_usd)}`, "staged for diligence") +
       kpi(`${Math.round(a.blended_ra * 100)}%`, "blended risk-adj") +
       `</div>`;
@@ -715,8 +716,8 @@
       <thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
 
     /* 3 — tail: what's left out at this budget */
-    const tail = `<p class="pf-tail">Not funded at ${money(budget)}: ${esc(a.unfunded.map((u) => u.parcel_id).join(", "))}<br>` +
-      `Excluded (analyst pass): ${esc(a.excluded.map((e) => e.parcel_id).join(", "))}</p>`;
+    const tail = `<p class="pf-tail">Not funded at ${money(budget)}: ${esc((a.unfunded || []).map((u) => u.parcel_id).join(", "))}<br>` +
+      `Excluded (analyst pass): ${esc((a.excluded || []).map((e) => e.parcel_id).join(", "))}</p>`;
 
     /* 4 — authored by-budget rationale */
     const note = (NOTES && NOTES.portfolio && NOTES.portfolio.by_budget) || {};
