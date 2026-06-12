@@ -266,3 +266,56 @@ deal_economics:
     note: "Section 151.359 sales-tax exemption + Ch. 312 abatement only (Ch. 312 up to 10 yr, local, school districts not eligible). JETI eligibility for data-center end-use is unsettled (Section 403.602); not assumed."
 
   sb6_framing: "Post-SB 6, large-load interconnection carries per-MW security and study costs borne by the end developer (PUCT Section 25.194 proposed rule, Project 58481; re-check ~July 2026). Direction only — figures not assumed."
+
+# -----------------------------------------------------------------------------
+# Power & timeline (Feature A4). Per-parcel SPEED-TO-POWER as a disclosed phase
+# model gated on the ERCOT interconnection queue — NOT a scraped COD. Phase
+# durations VERIFIED in docs/VERIFICATION_2026-06-11_permitting-guide.md (Domain
+# D); the interconnection long pole is [UNCERTAIN/directional] (Domain A) and is
+# modulated per-parcel by LIVE grid quality. The license-restricted ERCOT GIS
+# Report (pg7-200-er) is NEVER a display source — queue context here is public.
+# pipeline/timeline.py reads this; nothing hard-coded. Illustrative + basis-stated.
+# -----------------------------------------------------------------------------
+power_timeline:
+  disclosure: "Speed-to-power is a disclosed phase-model estimate gated on the ERCOT interconnection queue, not a scraped COD. Synthetic + illustrative; assumptions stated."
+  default_variant: solar          # solar-generation interconnection; DC large-load (LLIS) is the toggle
+
+  # Months P10 / P50 / P90. Diligence + permitting run PARALLEL to the queue
+  # (verified: "permits ∥ queue") -> under the long pole, excluded from the total.
+  # Critical path = interconnection (long pole, modulated) + construction tail.
+  phases:
+    solar:
+      diligence:       [3, 6, 9]      # VERIFIED
+      interconnection: [22, 30, 42]   # long pole; UNCERTAIN/directional — do NOT assert a precise study P50
+      permitting:      [8, 14, 24]    # VERIFIED; parallel
+      construction:    [12, 18, 24]   # VERIFIED; tail
+    dc:
+      diligence:       [3, 6, 12]     # VERIFIED (GCD stack)
+      interconnection: [22, 30, 42]   # LLIS long pole; UNCERTAIN
+      permitting:      [8, 14, 24]    # parallel
+      construction:    [18, 24, 36]   # VERIFIED; TSP equipment lead
+
+  # Per-parcel modulation of the interconnection long pole by LIVE grid quality
+  # (dist_substation_mi + nearest_sub_kv). Bounded multiplier; better grid -> lower -> faster.
+  grid_quality_factor:
+    min: 0.85          # best grid (on 345 kV backbone, short gen-tie)
+    max: 1.35          # weak grid (below 138 kV, far from transmission)
+    kv_backbone: 345   # kv_score 1.0 at/above
+    kv_transmission: 138  # kv_score 0.55 at/above; below -> 0.15
+    dist_near_mi: 1.0  # <=1 mi -> dist_score 1.0
+    dist_far_mi: 10.0  # >=10 mi -> dist_score 0.0
+
+  band_months:
+    floor: 36          # verified directional floor — nothing energizes faster
+    ceiling: 72        # honest upper for a weak-grid parcel
+
+  # PUBLIC, cited queue CONTEXT (NOT the restricted ERCOT GIS Report). Directional only.
+  queue_context:
+    batch_zero: "ERCOT is running Batch Zero (PGRR145) for large-load interconnection; TSP/ILLE deadlines Jul 10 / Jul 24, 2026. Process in flux — re-check ~July 2026."
+    sb6: "Post-SB 6, large-load interconnection carries per-MW security and study costs borne by the end developer (PUCT Section 25.194 proposed rule, Project 58481). Direction only — figures not assumed."
+    llis: "Large loads use the ERCOT Large Load Interconnection Study (LLIS), distinct from the generation interconnection process."
+    sources: ["ERCOT Large Load Integration (public)", "EIA-860 generation (public domain)", "Public reporting on ERCOT queue durations (e.g., JLL ~48 mo)"]
+    depth_note: "Among the most congested interconnection queues in the US (directional, public reporting). Specific GW figures not asserted without an ERCOT primary cite."
+    retrieved: "2026-06-11"
+
+  license_discipline: "The license-restricted ERCOT interconnection-queue model is held to backend-abstracted use (0–100 Grid Connectivity Index); queue context here is sourced from public ERCOT/EIA reporting. The public grid overlay uses HIFLD."
