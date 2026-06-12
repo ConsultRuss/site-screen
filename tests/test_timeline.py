@@ -71,3 +71,39 @@ def test_interconnection_p50_scales_with_factor():
     base = PT["phases"]["solar"]["interconnection"][1]  # P50
     expected = base * tl.grid_quality_factor(STRONG, CFG)
     assert math.isclose(tl.interconnection_months(STRONG, CFG, "solar")[1], expected, rel_tol=1e-9)
+
+
+def test_time_to_power_strong_in_window_and_maps_to_a_row():
+    t = tl.time_to_power(STRONG, CFG, "solar")
+    assert PT["band_months"]["floor"] <= t["p50"] <= 60      # strong grid -> in-window
+    assert t["miss_risk"] is False
+    assert t["expected_row"] in CFG["deal_economics"]["exit"]["time_to_power_months"]
+    assert t["band"][0] <= t["p50"] <= t["band"][1]           # P10 <= P50 <= P90
+
+
+def test_time_to_power_clamps_to_floor():
+    # band floor is a hard ceiling on optimism — nothing beats 36 mo
+    t = tl.time_to_power(STRONG, CFG, "solar")
+    assert t["band"][0] >= PT["band_months"]["floor"]
+
+
+def test_time_to_power_weak_dc_trips_miss_window():
+    # weak grid + DC (longer construction tail) -> P50 > 60 -> miss the window
+    t = tl.time_to_power(WEAK, CFG, "dc")
+    assert t["p50"] > 60
+    assert t["miss_risk"] is True
+    assert t["expected_row"] == "miss"
+
+
+def test_time_to_power_monotonic_strong_faster_than_weak():
+    assert tl.time_to_power(STRONG, CFG, "solar")["p50"] < tl.time_to_power(WEAK, CFG, "solar")["p50"]
+
+
+def test_phase_bars_label_parallel_and_uncertain():
+    phases = tl.phase_bars(STRONG, CFG, "solar")
+    names = [p["name"] for p in phases]
+    assert names == ["Diligence", "Interconnection", "Permitting", "Construction"]
+    inter = next(p for p in phases if p["name"] == "Interconnection")
+    assert inter["uncertain"] is True and inter["parallel"] is False
+    perm = next(p for p in phases if p["name"] == "Permitting")
+    assert perm["parallel"] is True

@@ -35,3 +35,45 @@ def interconnection_months(
     base = cfg["power_timeline"]["phases"][variant]["interconnection"]
     f = grid_quality_factor(parcel, cfg)
     return [p * f for p in base]
+
+
+def _nearest(anchors: list[int], value: float) -> int:
+    return min(anchors, key=lambda a: abs(a - value))
+
+
+def time_to_power(parcel: dict[str, Any], cfg: dict[str, Any], variant: str) -> dict[str, Any]:
+    """[P10,P50,P90] critical path = interconnection (modulated) + construction tail,
+    clamped to the defensible band. Maps P50 to A3's nearest sensitivity row (or
+    'miss' when P50 > 60). Diligence/permitting are parallel -> not in the total."""
+    pt = cfg["power_timeline"]
+    band = pt["band_months"]
+    inter = interconnection_months(parcel, cfg, variant)
+    tail = pt["phases"][variant]["construction"]
+    pts = [max(band["floor"], min(band["ceiling"], inter[i] + tail[i])) for i in range(3)]
+    p10, p50, p90 = pts
+    miss = p50 > 60
+    anchors = cfg["deal_economics"]["exit"]["time_to_power_months"]
+    return {
+        "p50": round(p50),
+        "band": [round(p10), round(p90)],
+        "miss_risk": miss,
+        "expected_row": "miss" if miss else _nearest(anchors, p50),
+    }
+
+
+def phase_bars(parcel: dict[str, Any], cfg: dict[str, Any], variant: str) -> list[dict[str, Any]]:
+    """The four phases for the timeline bars. Interconnection is modulated +
+    flagged uncertain; diligence/permitting are flagged parallel (under the pole)."""
+    ph = cfg["power_timeline"]["phases"][variant]
+    inter = interconnection_months(parcel, cfg, variant)
+
+    def bar(name, pts, parallel, uncertain):
+        return {"name": name, "p10": round(pts[0]), "p50": round(pts[1]),
+                "p90": round(pts[2]), "parallel": parallel, "uncertain": uncertain}
+
+    return [
+        bar("Diligence", ph["diligence"], True, False),
+        bar("Interconnection", inter, False, True),
+        bar("Permitting", ph["permitting"], True, False),
+        bar("Construction", ph["construction"], False, False),
+    ]
