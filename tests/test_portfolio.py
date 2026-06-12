@@ -82,3 +82,12 @@ def test_allocation_monotonic_in_budget():
     small = {c["parcel_id"] for c in pf.allocate(ECON, VERD, CFG, 250000)["controlled"]}
     big = {c["parcel_id"] for c in pf.allocate(ECON, VERD, CFG, 500000)["controlled"]}
     assert small <= big  # larger budget controls a superset
+
+
+def test_build_portfolio_runs_all_budgets_with_assumptions():
+    data = pf.build_portfolio(ECON, VERD, CFG)
+    assert [a["budget"] for a in data["allocations"]] == [250000, 500000, 1000000]
+    assert data["assumptions"]["stage_top_n"] == 3
+    import json
+    # no None leaks in controlled rows
+    assert "null" not in json.dumps(data["allocations"][1]["controlled"])
