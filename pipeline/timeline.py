@@ -21,7 +21,7 @@ def grid_quality_factor(parcel: dict[str, Any], cfg: dict[str, Any]) -> float:
     kv = float(parcel.get("nearest_sub_kv") or 0)
     dist_raw = parcel.get("dist_substation_mi")
     dist = float(dist_raw) if dist_raw is not None else g["dist_far_mi"]
-    kv_score = 1.0 if kv >= g["kv_backbone"] else (0.55 if kv >= g["kv_transmission"] else 0.15)
+    kv_score = 1.0 if kv >= g["kv_backbone"] else (0.30 if kv >= g["kv_transmission"] else 0.10)
     span = g["dist_far_mi"] - g["dist_near_mi"]
     dist_score = max(0.0, min(1.0, 1 - (dist - g["dist_near_mi"]) / span))
     quality = 0.5 * kv_score + 0.5 * dist_score          # 0..1

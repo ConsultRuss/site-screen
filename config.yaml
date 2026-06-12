@@ -298,10 +298,11 @@ power_timeline:
   # Per-parcel modulation of the interconnection long pole by LIVE grid quality
   # (dist_substation_mi + nearest_sub_kv). Bounded multiplier; better grid -> lower -> faster.
   grid_quality_factor:
-    min: 0.85          # best grid (on 345 kV backbone, short gen-tie)
-    max: 1.35          # weak grid (below 138 kV, far from transmission)
+    min: 0.75          # best grid (on 345 kV backbone, short gen-tie)
+    max: 1.55          # weak grid (below 138 kV, far from transmission)
     kv_backbone: 345   # kv_score 1.0 at/above
-    kv_transmission: 138  # kv_score 0.55 at/above; below -> 0.15
+    kv_transmission: 138  # kv_score 0.30 at/above; below -> 0.10 (steepened: a 138 kV parcel
+                          # several miles out carries real network-upgrade + gen-tie burden)
     dist_near_mi: 1.0  # <=1 mi -> dist_score 1.0
     dist_far_mi: 10.0  # >=10 mi -> dist_score 0.0
 

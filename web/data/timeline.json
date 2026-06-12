@@ -75,13 +75,13 @@
 "default_variant": "solar",
 "variants": {
 "solar": {
-"p50": 44,
+"p50": 40,
 "band": [
 36,
-60
+56
 ],
 "miss_risk": false,
-"expected_row": 48,
+"expected_row": 36,
 "phases": [
 {
 "name": "Diligence",
@@ -93,9 +93,9 @@
 },
 {
 "name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
+"p10": 16,
+"p50": 22,
+"p90": 32,
 "parallel": false,
 "uncertain": true
 },
@@ -118,10 +118,10 @@
 ]
 },
 "dc": {
-"p50": 50,
+"p50": 46,
 "band": [
-37,
-72
+36,
+68
 ],
 "miss_risk": false,
 "expected_row": 48,
@@ -136,9 +136,9 @@
 },
 {
 "name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
+"p10": 16,
+"p50": 22,
+"p90": 32,
 "parallel": false,
 "uncertain": true
 },
@@ -163,13 +163,13 @@
 },
 "headline": {
 "variant": "solar",
-"p50": 44,
+"p50": 40,
 "band": [
 36,
-60
+56
 ],
 "miss_risk": false,
-"expected_row": 48
+"expected_row": 36
 }
 },
 "KAR-000002": {
@@ -179,13 +179,13 @@
 "default_variant": "solar",
 "variants": {
 "solar": {
-"p50": 44,
+"p50": 40,
 "band": [
 36,
-60
+56
 ],
 "miss_risk": false,
-"expected_row": 48,
+"expected_row": 36,
 "phases": [
 {
 "name": "Diligence",
@@ -197,9 +197,9 @@
 },
 {
 "name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
+"p10": 16,
+"p50": 22,
+"p90": 32,
 "parallel": false,
 "uncertain": true
 },
@@ -222,10 +222,10 @@
 ]
 },
 "dc": {
-"p50": 50,
+"p50": 46,
 "band": [
-37,
-72
+36,
+68
 ],
 "miss_risk": false,
 "expected_row": 48,
@@ -240,9 +240,9 @@
 },
 {
 "name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
+"p10": 16,
+"p50": 22,
+"p90": 32,
 "parallel": false,
 "uncertain": true
 },
@@ -267,1787 +267,19 @@
 },
 "headline": {
 "variant": "solar",
-"p50": 44,
+"p50": 40,
 "band": [
 36,
-60
+56
 ],
 "miss_risk": false,
-"expected_row": 48
+"expected_row": 36
 }
 },
 "KAR-000003": {
 "parcel_id": "KAR-000003",
 "county": "Karnes",
 "suitability_rank": 3,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 47,
-"band": [
-36,
-64
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 40,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 53,
-"band": [
-39,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 40,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 47,
-"band": [
-36,
-64
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000004": {
-"parcel_id": "KAR-000004",
-"county": "Karnes",
-"suitability_rank": 4,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 50,
-"band": [
-37,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000005": {
-"parcel_id": "KAR-000005",
-"county": "Karnes",
-"suitability_rank": 5,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 50,
-"band": [
-37,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000006": {
-"parcel_id": "KAR-000006",
-"county": "Karnes",
-"suitability_rank": 6,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 50,
-"band": [
-37,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000007": {
-"parcel_id": "KAR-000007",
-"county": "Karnes",
-"suitability_rank": 7,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 54,
-"band": [
-40,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"WIL-000001": {
-"parcel_id": "WIL-000001",
-"county": "Wilson",
-"suitability_rank": 8,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 47,
-"band": [
-36,
-65
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 29,
-"p90": 41,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 53,
-"band": [
-40,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 29,
-"p90": 41,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 47,
-"band": [
-36,
-65
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000008": {
-"parcel_id": "KAR-000008",
-"county": "Karnes",
-"suitability_rank": 9,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 44,
-"band": [
-36,
-61
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 37,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 50,
-"band": [
-37,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 37,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 44,
-"band": [
-36,
-61
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000009": {
-"parcel_id": "KAR-000009",
-"county": "Karnes",
-"suitability_rank": 10,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 54,
-"band": [
-40,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000010": {
-"parcel_id": "KAR-000010",
-"county": "Karnes",
-"suitability_rank": 11,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 50,
-"band": [
-37,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000011": {
-"parcel_id": "KAR-000011",
-"county": "Karnes",
-"suitability_rank": 12,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 47,
-"band": [
-36,
-65
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 41,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 53,
-"band": [
-39,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 41,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 47,
-"band": [
-36,
-65
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000012": {
-"parcel_id": "KAR-000012",
-"county": "Karnes",
-"suitability_rank": 13,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 54,
-"band": [
-40,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000013": {
-"parcel_id": "KAR-000013",
-"county": "Karnes",
-"suitability_rank": 14,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 47,
-"band": [
-36,
-64
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 40,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 53,
-"band": [
-39,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 40,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 47,
-"band": [
-36,
-64
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000014": {
-"parcel_id": "KAR-000014",
-"county": "Karnes",
-"suitability_rank": 15,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 47,
-"band": [
-36,
-64
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 40,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 53,
-"band": [
-39,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 40,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 47,
-"band": [
-36,
-64
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000015": {
-"parcel_id": "KAR-000015",
-"county": "Karnes",
-"suitability_rank": 16,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 54,
-"band": [
-40,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"WIL-000002": {
-"parcel_id": "WIL-000002",
-"county": "Wilson",
-"suitability_rank": 17,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 54,
-"band": [
-40,
-72
-],
-"miss_risk": false,
-"expected_row": 60,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 42,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 48,
-"band": [
-36,
-66
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000016": {
-"parcel_id": "KAR-000016",
-"county": "Karnes",
-"suitability_rank": 18,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 44,
-"band": [
-36,
-61
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 37,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 50,
-"band": [
-37,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 37,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 44,
-"band": [
-36,
-61
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000017": {
-"parcel_id": "KAR-000017",
-"county": "Karnes",
-"suitability_rank": 19,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 50,
-"band": [
-37,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 19,
-"p50": 26,
-"p90": 36,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 44,
-"band": [
-36,
-60
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000018": {
-"parcel_id": "KAR-000018",
-"county": "Karnes",
-"suitability_rank": 20,
 "default_variant": "solar",
 "variants": {
 "solar": {
@@ -2148,6 +380,1774 @@
 "expected_row": 48
 }
 },
+"KAR-000004": {
+"parcel_id": "KAR-000004",
+"county": "Karnes",
+"suitability_rank": 4,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 46,
+"band": [
+36,
+68
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000005": {
+"parcel_id": "KAR-000005",
+"county": "Karnes",
+"suitability_rank": 5,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 46,
+"band": [
+36,
+68
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000006": {
+"parcel_id": "KAR-000006",
+"county": "Karnes",
+"suitability_rank": 6,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 46,
+"band": [
+36,
+68
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000007": {
+"parcel_id": "KAR-000007",
+"county": "Karnes",
+"suitability_rank": 7,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 50,
+"band": [
+36,
+69
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 32,
+"p90": 45,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 56,
+"band": [
+42,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 32,
+"p90": 45,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 50,
+"band": [
+36,
+69
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"WIL-000001": {
+"parcel_id": "WIL-000001",
+"county": "Wilson",
+"suitability_rank": 8,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 50,
+"band": [
+36,
+69
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 32,
+"p90": 45,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 56,
+"band": [
+41,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 32,
+"p90": 45,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 50,
+"band": [
+36,
+69
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000008": {
+"parcel_id": "KAR-000008",
+"county": "Karnes",
+"suitability_rank": 9,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 42,
+"band": [
+36,
+57
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 17,
+"p50": 24,
+"p90": 33,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 48,
+"band": [
+36,
+69
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 17,
+"p50": 24,
+"p90": 33,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 42,
+"band": [
+36,
+57
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000009": {
+"parcel_id": "KAR-000009",
+"county": "Karnes",
+"suitability_rank": 10,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 57,
+"band": [
+42,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000010": {
+"parcel_id": "KAR-000010",
+"county": "Karnes",
+"suitability_rank": 11,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 46,
+"band": [
+36,
+68
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000011": {
+"parcel_id": "KAR-000011",
+"county": "Karnes",
+"suitability_rank": 12,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 49,
+"band": [
+36,
+68
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
+"p90": 44,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 55,
+"band": [
+41,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
+"p90": 44,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 49,
+"band": [
+36,
+68
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000012": {
+"parcel_id": "KAR-000012",
+"county": "Karnes",
+"suitability_rank": 13,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 57,
+"band": [
+42,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000013": {
+"parcel_id": "KAR-000013",
+"county": "Karnes",
+"suitability_rank": 14,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 49,
+"band": [
+36,
+67
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
+"p90": 43,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 55,
+"band": [
+41,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
+"p90": 43,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 49,
+"band": [
+36,
+67
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000014": {
+"parcel_id": "KAR-000014",
+"county": "Karnes",
+"suitability_rank": 15,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 49,
+"band": [
+36,
+67
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
+"p90": 43,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 55,
+"band": [
+41,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
+"p90": 43,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 49,
+"band": [
+36,
+67
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000015": {
+"parcel_id": "KAR-000015",
+"county": "Karnes",
+"suitability_rank": 16,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 57,
+"band": [
+42,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"WIL-000002": {
+"parcel_id": "WIL-000002",
+"county": "Wilson",
+"suitability_rank": 17,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 57,
+"band": [
+42,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 24,
+"p50": 33,
+"p90": 46,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 51,
+"band": [
+36,
+70
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000016": {
+"parcel_id": "KAR-000016",
+"county": "Karnes",
+"suitability_rank": 18,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 42,
+"band": [
+36,
+57
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 17,
+"p50": 24,
+"p90": 33,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 48,
+"band": [
+36,
+69
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 17,
+"p50": 24,
+"p90": 33,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 42,
+"band": [
+36,
+57
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000017": {
+"parcel_id": "KAR-000017",
+"county": "Karnes",
+"suitability_rank": 19,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 41,
+"band": [
+36,
+57
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 17,
+"p50": 23,
+"p90": 33,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 47,
+"band": [
+36,
+69
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 17,
+"p50": 23,
+"p90": 33,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 41,
+"band": [
+36,
+57
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000018": {
+"parcel_id": "KAR-000018",
+"county": "Karnes",
+"suitability_rank": 20,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 52,
+"band": [
+37,
+72
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 25,
+"p50": 34,
+"p90": 48,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 58,
+"band": [
+43,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 25,
+"p50": 34,
+"p90": 48,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 52,
+"band": [
+37,
+72
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
 "KAR-000019": {
 "parcel_id": "KAR-000019",
 "county": "Karnes",
@@ -2155,7 +2155,111 @@
 "default_variant": "solar",
 "variants": {
 "solar": {
-"p50": 44,
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 46,
+"band": [
+36,
+68
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 16,
+"p50": 22,
+"p90": 32,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 40,
+"band": [
+36,
+56
+],
+"miss_risk": false,
+"expected_row": 36
+}
+},
+"KAR-000020": {
+"parcel_id": "KAR-000020",
+"county": "Karnes",
+"suitability_rank": 22,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 43,
 "band": [
 36,
 60
@@ -2174,7 +2278,7 @@
 {
 "name": "Interconnection",
 "p10": 19,
-"p50": 26,
+"p50": 25,
 "p90": 36,
 "parallel": false,
 "uncertain": true
@@ -2198,7 +2302,7 @@
 ]
 },
 "dc": {
-"p50": 50,
+"p50": 49,
 "band": [
 37,
 72
@@ -2217,7 +2321,7 @@
 {
 "name": "Interconnection",
 "p10": 19,
-"p50": 26,
+"p50": 25,
 "p90": 36,
 "parallel": false,
 "uncertain": true
@@ -2243,114 +2347,10 @@
 },
 "headline": {
 "variant": "solar",
-"p50": 44,
+"p50": 43,
 "band": [
 36,
 60
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000020": {
-"parcel_id": "KAR-000020",
-"county": "Karnes",
-"suitability_rank": 22,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 45,
-"band": [
-36,
-62
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 20,
-"p50": 27,
-"p90": 38,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 51,
-"band": [
-38,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 20,
-"p50": 27,
-"p90": 38,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 45,
-"band": [
-36,
-62
 ],
 "miss_risk": false,
 "expected_row": 48
@@ -2363,10 +2363,10 @@
 "default_variant": "solar",
 "variants": {
 "solar": {
-"p50": 48,
+"p50": 51,
 "band": [
-36,
-67
+37,
+71
 ],
 "miss_risk": false,
 "expected_row": 48,
@@ -2381,9 +2381,9 @@
 },
 {
 "name": "Interconnection",
-"p10": 22,
-"p50": 30,
-"p90": 43,
+"p10": 25,
+"p50": 33,
+"p90": 47,
 "parallel": false,
 "uncertain": true
 },
@@ -2406,9 +2406,9 @@
 ]
 },
 "dc": {
-"p50": 54,
+"p50": 57,
 "band": [
-40,
+43,
 72
 ],
 "miss_risk": false,
@@ -2424,8 +2424,112 @@
 },
 {
 "name": "Interconnection",
-"p10": 22,
-"p50": 30,
+"p10": 25,
+"p50": 33,
+"p90": 47,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 18,
+"p50": 24,
+"p90": 36,
+"parallel": false,
+"uncertain": false
+}
+]
+}
+},
+"headline": {
+"variant": "solar",
+"p50": 51,
+"band": [
+37,
+71
+],
+"miss_risk": false,
+"expected_row": 48
+}
+},
+"KAR-000022": {
+"parcel_id": "KAR-000022",
+"county": "Karnes",
+"suitability_rank": 24,
+"default_variant": "solar",
+"variants": {
+"solar": {
+"p50": 49,
+"band": [
+36,
+67
+],
+"miss_risk": false,
+"expected_row": 48,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 9,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
+"p90": 43,
+"parallel": false,
+"uncertain": true
+},
+{
+"name": "Permitting",
+"p10": 8,
+"p50": 14,
+"p90": 24,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Construction",
+"p10": 12,
+"p50": 18,
+"p90": 24,
+"parallel": false,
+"uncertain": false
+}
+]
+},
+"dc": {
+"p50": 55,
+"band": [
+41,
+72
+],
+"miss_risk": false,
+"expected_row": 60,
+"phases": [
+{
+"name": "Diligence",
+"p10": 3,
+"p50": 6,
+"p90": 12,
+"parallel": true,
+"uncertain": false
+},
+{
+"name": "Interconnection",
+"p10": 23,
+"p50": 31,
 "p90": 43,
 "parallel": false,
 "uncertain": true
@@ -2451,114 +2555,10 @@
 },
 "headline": {
 "variant": "solar",
-"p50": 48,
+"p50": 49,
 "band": [
 36,
 67
-],
-"miss_risk": false,
-"expected_row": 48
-}
-},
-"KAR-000022": {
-"parcel_id": "KAR-000022",
-"county": "Karnes",
-"suitability_rank": 24,
-"default_variant": "solar",
-"variants": {
-"solar": {
-"p50": 47,
-"band": [
-36,
-65
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 9,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 41,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 12,
-"p50": 18,
-"p90": 24,
-"parallel": false,
-"uncertain": false
-}
-]
-},
-"dc": {
-"p50": 53,
-"band": [
-39,
-72
-],
-"miss_risk": false,
-"expected_row": 48,
-"phases": [
-{
-"name": "Diligence",
-"p10": 3,
-"p50": 6,
-"p90": 12,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Interconnection",
-"p10": 21,
-"p50": 29,
-"p90": 41,
-"parallel": false,
-"uncertain": true
-},
-{
-"name": "Permitting",
-"p10": 8,
-"p50": 14,
-"p90": 24,
-"parallel": true,
-"uncertain": false
-},
-{
-"name": "Construction",
-"p10": 18,
-"p50": 24,
-"p90": 36,
-"parallel": false,
-"uncertain": false
-}
-]
-}
-},
-"headline": {
-"variant": "solar",
-"p50": 47,
-"band": [
-36,
-65
 ],
 "miss_risk": false,
 "expected_row": 48
