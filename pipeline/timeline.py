@@ -118,3 +118,15 @@ def build_timeline(parcels: list[dict[str, Any]], cfg: dict[str, Any]) -> dict[s
         "queue_context": pt["queue_context"],
         "parcels": out,
     }
+
+
+def write_timeline(fc: dict[str, Any], cfg: dict[str, Any], out_path) -> int:
+    """Compute speed-to-power for the finalized shortlist and write web/data/timeline.json.
+    Returns the number of parcels written."""
+    import json
+    from pathlib import Path
+
+    props = [f["properties"] for f in fc["features"]]
+    data = build_timeline(props, cfg)
+    Path(out_path).write_text(json.dumps(data, ensure_ascii=False, indent=0), encoding="utf-8")
+    return len(data["parcels"])

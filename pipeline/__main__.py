@@ -20,6 +20,7 @@ from .dedupe import dedupe_by_footprint
 from .economics import write_economics
 from .portfolio import write_portfolio
 from .scoring import rank_parcels
+from .timeline import write_timeline
 from .verdicts import county_price_medians, parcel_flags
 
 
@@ -71,6 +72,7 @@ WEB_GEOJSON = REPO_ROOT / "web" / "data" / "parcels.geojson"
 WEB_ECONOMICS = REPO_ROOT / "web" / "data" / "economics.json"
 WEB_VERDICTS = REPO_ROOT / "web" / "data" / "verdicts.json"
 WEB_PORTFOLIO = REPO_ROOT / "web" / "data" / "portfolio.json"
+WEB_TIMELINE = REPO_ROOT / "web" / "data" / "timeline.json"
 RUN_META = REPO_ROOT / "data" / "screen_run.json"
 
 
@@ -130,6 +132,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"   economics: {n_econ} shortlist parcels -> {WEB_ECONOMICS}")
     n_pf = write_portfolio(cfg, WEB_ECONOMICS, WEB_VERDICTS, WEB_PORTFOLIO)
     print(f"   portfolio: {n_pf} budgets -> {WEB_PORTFOLIO}")
+    n_tl = write_timeline(fc, cfg, WEB_TIMELINE)
+    print(f"   timeline: {n_tl} shortlist parcels -> {WEB_TIMELINE}")
     print(f"run complete: {len(fc['features'])} parcels -> {WEB_GEOJSON}")
     return 0
 
@@ -147,6 +151,8 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     print(f"   economics: {n_econ} shortlist parcels -> {WEB_ECONOMICS}")
     n_pf = write_portfolio(cfg, WEB_ECONOMICS, WEB_VERDICTS, WEB_PORTFOLIO)
     print(f"   portfolio: {n_pf} budgets -> {WEB_PORTFOLIO}")
+    n_tl = write_timeline(fc, cfg, WEB_TIMELINE)
+    print(f"   timeline: {n_tl} shortlist parcels -> {WEB_TIMELINE}")
     print(f"rebuild complete: {len(fc['features'])} parcels -> {WEB_GEOJSON}")
     return 0
 
@@ -166,6 +172,8 @@ def cmd_finalize(args: argparse.Namespace) -> int:
     print(f"   economics: {n_econ} shortlist parcels -> {WEB_ECONOMICS}")
     n_pf = write_portfolio(cfg, WEB_ECONOMICS, WEB_VERDICTS, WEB_PORTFOLIO)
     print(f"   portfolio: {n_pf} budgets -> {WEB_PORTFOLIO}")
+    n_tl = write_timeline(fc, cfg, WEB_TIMELINE)
+    print(f"   timeline: {n_tl} shortlist parcels -> {WEB_TIMELINE}")
     print(f"finalized {before} -> {len(fc['features'])} parcels -> {out}")
     return 0
 
