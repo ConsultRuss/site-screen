@@ -149,3 +149,27 @@ def test_jv_economics_is_hedged_scenario():
     # retained value (base) = retained_base x stabilized_share_high x (mw x per_mw)
     assert ec.mw_estimate(P, CFG) > 0  # confirms mw_estimate feeds retained_value_base
     assert jv["retained_value_base"] > 0 and "as-entitled" in jv["valuation_basis"]
+
+
+def test_parcel_economics_assembles_all_panels():
+    rec = ec.parcel_economics(P, CFG)
+    for key in ("land_price", "mw_est", "capital_deployed", "flip", "lease", "jv", "budget"):
+        assert key in rec
+    assert rec["flip"]["ntp_fee_per_mw"] == [80000, 120000]
+    assert len(rec["flip"]["sensitivity"]) == 4
+    # budget side: option + diligence + legal stages, each with a budget number
+    stages = {b["stage"] for b in rec["budget"]}
+    assert {"option", "diligence", "legal"} <= stages
+
+
+def test_build_economics_covers_only_shortlist_with_no_none_leaks():
+    parcels = [
+        dict(P, parcel_id="KAR-000004", pipeline_status="LOI"),
+        {"parcel_id": "X", "pipeline_status": None},  # not shortlist -> skipped
+    ]
+    out = ec.build_economics(parcels, CFG)
+    assert set(out["parcels"]) == {"KAR-000004"}
+    assert "assumptions" in out  # echoed for the UI assumptions block
+    # no None leaks in the computed record
+    import json
+    assert "null" not in json.dumps(out["parcels"]["KAR-000004"])
