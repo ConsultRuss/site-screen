@@ -1,0 +1,62 @@
+{
+  "_note": "Authored by RWH — synthetic budget actuals + variance notes + assumption-block prose + featured narrative. Voice-gated (drafted by Cowork for RWH review). Joined to economics.json by parcel_id. Synthetic + illustrative.",
+  "author": "RWH",
+  "date": "2026-06-11",
+  "methodology": "I trained in ARGUS-era institutional DCF during my Master of Real Estate at Texas A&M. This adapts that discipline from stabilized-NOI logic to development-margin / option logic — because that's what energy land actually is: you're underwriting a control position and a race to power, not a stabilized rent roll.",
+  "assumption_blocks": {
+    "flip": "Control the land with a purchase-option (~3% of price, transacted TX data-center option ratios; credited at closing if exercised, forfeit if abandoned), then spend diligence to reach a de-risked, interconnection-secured state and sell the powered position to a developer. Exit is modeled at 2-6x the raw basis (broker-observed ERCOT range: raw ~$2-5K/ac to NTP-ready ~$15-20K/ac; that is an industry range, not an appraised average). The 20-100x figures you see in the press are a different product — metro/industrial shovel-ready data-center sites with confirmed high-voltage and zoning — and I do not claim them for rural ranch land. Every IRR here is the SUCCESS case; an option that misses the power window expires worthless. That is why the risk-adjusted view sits right beneath it.",
+    "lease": "Deliver a de-risked, interconnection-ready site and hold it under a long-term NNN-style solar ground lease. Rates are tiered by interconnection quality (illustrative comps; $/ac/yr varies widely with substation proximity and grid headroom). 'NNN-style' means the tenant carries the solar improvements' taxes, insurance, and O&M and indemnifies the Texas three-year agricultural rollback (Tax Code 23.51) — it is not identical to a commercial NNN, and the specifics need counsel. The yield shown is on the land basis, not a market cap rate; the gap between it and an institutional ~6-8% ground-lease yield is the value the de-risking created.",
+    "jv": "The most assumption-heavy structure, and the least common in practice: energy land is usually leased or sold, not contributed for equity, because contributed land cuts the project's federal tax-credit basis. Where a land-into-JV roll does happen, the land is credited at its as-entitled value and the retained interest runs single-digit to low-double-digit percent of project equity — a land position is only a few percent of a utility-scale project's cost. There is no public comp for this; every number in this panel is an explicitly stated assumption, shown as a low/base/high scenario, not a point estimate."
+  },
+  "incentives_line": "Incentives modeled: Section 151.359 data-center sales-tax exemption + Chapter 312 local property-tax abatement only (Ch. 312 up to 10 years; school districts are not eligible). JETI eligibility for a data-center end-use is unsettled under Section 403.602 and is not assumed either way. No SB 6 dollar figures are modeled — post-SB 6, per-MW interconnection security and study costs fall on the end developer (PUCT Section 25.194 is a proposed rule, Project 58481, pending ~July 2026), so I treat them as direction, not line items.",
+  "featured_parcel": "KAR-000004",
+  "featured_narrative": [
+    "KAR-000004 is where the next dollar of diligence goes. It sits on the 345 kV system with transmission crossing the property, so the interconnection is not a question — and in ERCOT the interconnection is the whole game. At ~$3,450 an acre for a tract this size, the option to control it is a rounding error against what a powered, NTP-ready site is worth to a developer.",
+    "The sensitivity table is the point. The exit multiple scales the return, but time-to-power gates it. Energize inside the window and the option economics are real; miss it and the position reverts toward raw basis and the option expires worthless — every exit column collapses to a total loss. The risk-adjusted view underneath makes the same point in expected-value terms: at a realistic chance of actually reaching NTP, only the fast-energization cases clear. You are racing a queue, not tuning a price.",
+    "That is also why I'd pass on the #3 parcel even though my own model ranks it higher: same screen neighborhood, but it sits 4.4 miles off the transmission backbone, so the speed-to-power isn't there and the deal sheet never gets to do its work. The verdict says walk; the deal sheet says why the money agrees."
+  ],
+  "parcels": {
+    "KAR-000017": {
+      "budget_actuals": [
+        {"stage": "option", "actual_delta_pct": 0.0, "note": "Option executed at budget."},
+        {"stage": "diligence", "actual_delta_pct": 0.15, "note": "Wetland/floodplain delineation re-scoped after the 23% SFHA mapping; ALTA survey re-bid."},
+        {"stage": "legal", "actual_delta_pct": 0.10, "note": "Title survey still pending — cure budget held open."}
+      ]
+    },
+    "KAR-000018": {
+      "budget_actuals": [
+        {"stage": "option", "actual_delta_pct": 0.0, "note": "Option executed at budget."},
+        {"stage": "diligence", "actual_delta_pct": 0.08, "note": "ALTA expanded to plat the prime-soil boundary for the permitting file."},
+        {"stage": "legal", "actual_delta_pct": 0.05, "note": "Title survey in progress; modest overage."}
+      ]
+    },
+    "KAR-000019": {
+      "budget_actuals": [
+        {"stage": "option", "actual_delta_pct": 0.0, "note": "Struck at full ask — the basis is rich, but it secured the 345 kV position."},
+        {"stage": "diligence", "actual_delta_pct": -0.06, "note": "Small tract — diligence came in under budget."},
+        {"stage": "legal", "actual_delta_pct": 0.0, "note": "Clean title; legal at budget."}
+      ]
+    },
+    "KAR-000020": {
+      "budget_actuals": [
+        {"stage": "option", "actual_delta_pct": 0.0, "note": "Option executed at budget."},
+        {"stage": "diligence", "actual_delta_pct": 0.22, "note": "H&H and drainage study overran — a third of the tract in floodplain required a full hydrology model."},
+        {"stage": "legal", "actual_delta_pct": 0.0, "note": "Title clean; legal at budget."}
+      ]
+    },
+    "KAR-000021": {
+      "budget_actuals": [
+        {"stage": "option", "actual_delta_pct": 0.0, "note": "Option executed at budget."},
+        {"stage": "diligence", "actual_delta_pct": 0.05, "note": "Standard diligence; minor survey overage."},
+        {"stage": "legal", "actual_delta_pct": 0.35, "note": "Active title defect — cure ran long (curative affidavits + quiet-title review). Now in title/survey clearing."}
+      ]
+    },
+    "KAR-000022": {
+      "budget_actuals": [
+        {"stage": "option", "actual_delta_pct": 0.0, "note": "Option executed at budget."},
+        {"stage": "diligence", "actual_delta_pct": -0.08, "note": "Compact, clean tract — diligence under budget."},
+        {"stage": "legal", "actual_delta_pct": -0.10, "note": "Title clean from the start; cure unnecessary. Cleared."}
+      ]
+    }
+  }
+}
