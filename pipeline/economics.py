@@ -53,6 +53,19 @@ def multiple_on_control(parcel: dict[str, Any], cfg: dict[str, Any], mult: float
     return flip_gross_uplift(parcel, mult) / control_cost(parcel, cfg)
 
 
+def flip_net(parcel: dict[str, Any], cfg: dict[str, Any], months: int, mult: float) -> float:
+    """Net flip profit (success case): uplift − diligence − carry over the hold."""
+    return flip_gross_uplift(parcel, mult) - diligence_total(cfg) - carry(parcel, cfg, months)
+
+
+def money_multiple(parcel: dict[str, Any], cfg: dict[str, Any], months: int, mult: float) -> float:
+    """Total-return multiple on deployed capital (success case): (capital + net) / capital.
+    Unlike multiple-on-control (which is constant = (mult−1)/option_pct), this VARIES by
+    parcel because diligence is a fixed cost in the denominator."""
+    cap = capital_deployed(parcel, cfg)
+    return (cap + flip_net(parcel, cfg, months, mult)) / cap
+
+
 def flip_irr(
     parcel: dict[str, Any], cfg: dict[str, Any], months: int | None, mult: float
 ) -> float:
@@ -62,10 +75,10 @@ def flip_irr(
     control + diligence are written off -> net = -capital -> IRR = -100%, for any
     exit multiple. That is the interconnection-first thesis in money form.
     """
-    cap = capital_deployed(parcel, cfg)
     if months is None:
         return -1.0
-    net = flip_gross_uplift(parcel, mult) - diligence_total(cfg) - carry(parcel, cfg, months)
+    cap = capital_deployed(parcel, cfg)
+    net = flip_net(parcel, cfg, months, mult)
     return (1 + net / cap) ** (12 / months) - 1
 
 
@@ -178,14 +191,18 @@ def parcel_economics(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[str, A
         "diligence_total": round(diligence_total(cfg)),
         "capital_deployed": round(cap),
         "flip": {
-            "multiple_on_control": {m: round(multiple_on_control(parcel, cfg, m), 1)
-                                    for m in ex["uplift_multiples"]},
+            "money_multiple": {
+                m: round(money_multiple(parcel, cfg, ex["time_to_power_months"][1], m), 1)
+                for m in ex["uplift_multiples"]
+            },
             "uplift_per_ac": {m: round((m - 1) * parcel["est_price_per_ac"])
                               for m in ex["uplift_multiples"]},
             "ntp_fee_per_mw": ex["ntp_fee_per_mw"],
             "sensitivity": [
                 {"months": "miss" if r["months"] is None else r["months"],
-                 "cells": [{"mult": c["mult"], "irr": round(c["irr"], 3), "clears": c["clears"]}
+                 "cells": [{"mult": c["mult"], "irr": round(c["irr"], 3),
+                            "ra": round(risk_adjusted_irr(parcel, cfg, r["months"], c["mult"]), 3),
+                            "clears": c["clears"]}
                            for c in r["cells"]]}
                 for r in sensitivity_grid(parcel, cfg)
             ],

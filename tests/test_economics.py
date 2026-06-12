@@ -173,3 +173,31 @@ def test_build_economics_covers_only_shortlist_with_no_none_leaks():
     # no None leaks in the computed record
     import json
     assert "null" not in json.dumps(out["parcels"]["KAR-000004"])
+
+
+def test_flip_net_matches_irr_decomposition():
+    cap = ec.capital_deployed(P, CFG)
+    net = ec.flip_net(P, CFG, 48, 4)
+    assert math.isclose(ec.flip_irr(P, CFG, 48, 4), (1 + net / cap) ** (12 / 48) - 1, rel_tol=1e-9)
+
+
+def test_money_multiple_varies_by_parcel():
+    big = dict(P)  # 2000 ac, $3450 -> large land value
+    small = dict(P, acreage_total=600.0, acreage_buildable=560.0)  # smaller tract, same price
+    mm_big = ec.money_multiple(big, CFG, 48, 4)
+    mm_small = ec.money_multiple(small, CFG, 48, 4)
+    assert mm_big > mm_small > 1  # fixed diligence drags small tracts down
+
+
+def test_parcel_record_has_money_multiple_not_constant_control_metric():
+    rec = ec.parcel_economics(P, CFG)
+    assert "money_multiple" in rec["flip"]
+    assert "multiple_on_control" not in rec["flip"]  # replaced in the surfaced record
+
+
+def test_sensitivity_cells_have_risk_adjusted():
+    rec = ec.parcel_economics(P, CFG)
+    grid = rec["flip"]["sensitivity"]
+    assert all("ra" in c for row in grid for c in row["cells"])
+    miss = grid[-1]
+    assert all(c["ra"] == -1.0 for c in miss["cells"])  # miss row risk-adj is total loss too
