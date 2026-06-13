@@ -5,7 +5,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/parcels.geojson?v=a6";
+  const DATA_URL = "data/parcels.geojson?v=a7";
   // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
   // Empty string = built-in rule parser only (works fully offline).
   const WORKER_URL = "https://ask.consultruss.com";
@@ -55,6 +55,7 @@
   // Deal sheet (A3): development-margin economics + authored deal notes.
   let ECON = null, NOTES = null;
   let PORT = null; // Portfolio (A1.5): option-budget allocations over the shortlist.
+  let TL = null, TLNOTES = null, INTEG = null; // A4: timeline + notes + integrity
   const PROPS = new Map(); // parcel_id -> geojson properties (pipeline status/date/rank)
 
   const state = {
@@ -80,20 +81,25 @@
     }
     FEATURES.forEach((f) => PROPS.set(f.properties.parcel_id, f.properties));
     try {
-      const vr = await fetch("data/verdicts.json?v=a6");
+      const vr = await fetch("data/verdicts.json?v=a7");
       const vd = await vr.json();
       (vd.verdicts || []).forEach((v) => { VERDICTS.set(v.parcel_id, v); if (v.memo) MEMO = v; });
     } catch { /* verdicts are optional — flags still render without them */ }
     try {
       const [er, nr] = await Promise.all([
-        fetch("data/economics.json?v=a6"),
-        fetch("data/deal-notes.json?v=a6"),
+        fetch("data/economics.json?v=a7"),
+        fetch("data/deal-notes.json?v=a7"),
       ]);
       ECON = await er.json();
       NOTES = await nr.json();
-      PORT = await (await fetch("data/portfolio.json?v=a6")).json();
+      PORT = await (await fetch("data/portfolio.json?v=a7")).json();
+      TL = await (await fetch("data/timeline.json?v=a7")).json();
+      TLNOTES = await (await fetch("data/timeline-notes.json?v=a7")).json();
+      INTEG = await (await fetch("data/integrity.json?v=a7")).json();
       buildDealSheet();
       buildPortfolio();
+      buildPowerTimeline();
+      buildIntegrity();
     } catch (err) {
       // Deal data is optional — degrade gracefully, never break the rest of the site.
       const body = $("#deal-body");
@@ -189,6 +195,8 @@
     }
     html += `</dl>`;
     if (p.pipeline_status) {
+      const tl = TL && TL.parcels ? TL.parcels[p.parcel_id] : null;
+      if (tl) html += `<div class="pp-deal-link" onclick="openPower('${p.parcel_id}')">Speed to power: ~${tl.headline.p50} mo →</div>`;
       html += `<div class="pp-deal-link" onclick="openDeal('${p.parcel_id}')">Deal sheet →</div>`;
     }
     html += `<div class="pp-synthetic">Owner “${p.owner}” &amp; any pipeline data are synthetic.</div>`;
@@ -347,6 +355,10 @@
       const v = VERDICTS.get(p.parcel_id);
       return v ? VERDICT_ORDER[v.verdict] : 99;
     }
+    if (key === "speed_to_power") {
+      const t = TL && TL.parcels ? TL.parcels[p.parcel_id] : null;
+      return t ? t.headline.p50 : 999;
+    }
     return p[key];
   }
   function verdictCell(p) {
@@ -354,6 +366,13 @@
     if (!v) return `<span class="verdict-none">—</span>`;
     const title = (v.rationale || "").replace(/"/g, "&quot;");
     return `<span class="verdict ${v.verdict}" title="${title}">${VERDICT_LABEL[v.verdict]}</span>`;
+  }
+
+  function speedCell(p) {
+    const t = TL && TL.parcels ? TL.parcels[p.parcel_id] : null;
+    if (!t) return "—";
+    const warn = t.headline.miss_risk ? " ⚠" : "";
+    return `<span class="deal-link" onclick="event.stopPropagation();openPower('${p.parcel_id}')" title="Open power & timeline">~${t.headline.p50} mo${warn}</span>`;
   }
 
   function renderRows() {
@@ -369,7 +388,7 @@
         <td>${p.pipeline_status}</td><td>${p.acreage_buildable}</td>
         <td><span class="deal-link" onclick="event.stopPropagation();openDeal('${p.parcel_id}')" title="Open the deal sheet">${p.est_price_per_ac ? "$" + p.est_price_per_ac.toLocaleString() : "—"}</span></td>
         <td><span class="pill ${p.title_flag}">${p.title_flag}</span></td>
-        <td>${p.suitability_score}</td><td>${verdictCell(p)}</td><td>${p.status_date}</td>
+        <td>${p.suitability_score}</td><td>${speedCell(p)}</td><td>${verdictCell(p)}</td><td>${p.status_date}</td>
       </tr>`).join("");
     tbody.querySelectorAll("tr").forEach((tr) =>
       tr.addEventListener("click", () => locateOnMap(tr.dataset.id)));
@@ -660,6 +679,101 @@
   }
   window.openDeal = openDeal;
 
+  /* ---------------- power & timeline (A4) ---------------- */
+  let PT_VARIANT = "solar";
+  const VARIANT_LABEL = { solar: "Solar generation", dc: "DC large-load (LLIS)" };
+
+  function buildPowerTimeline() {
+    const sel = $("#pt-parcel");
+    if (!sel || !TL || !TL.parcels) return;
+    const ids = Object.keys(TL.parcels).sort();
+    sel.innerHTML = ids.map((id) => {
+      const r = TL.parcels[id];
+      return `<option value="${id}">${id} · ${r.county} · #${r.suitability_rank}</option>`;
+    }).join("");
+    const featured = (TLNOTES && TL.parcels[TLNOTES.featured_parcel]) ? TLNOTES.featured_parcel : ids[0];
+    PT_VARIANT = (TL.assumptions && TL.assumptions.default_variant) || "solar";
+    sel.value = featured;
+    if (TLNOTES && TLNOTES.methodology) $("#pt-methodology").textContent = TLNOTES.methodology;
+    const vwrap = $("#pt-variants");
+    if (vwrap) {
+      vwrap.innerHTML = Object.keys(TL.parcels[featured].variants).map((v) =>
+        `<button class="pt-variant" data-v="${v}">${VARIANT_LABEL[v] || v}</button>`).join("");
+      vwrap.querySelectorAll(".pt-variant").forEach((b) =>
+        b.addEventListener("click", () => { PT_VARIANT = b.dataset.v; renderPower(sel.value); }));
+    }
+    sel.addEventListener("change", (e) => renderPower(e.target.value));
+    renderPower(featured);
+  }
+
+  function renderPower(id) {
+    const body = $("#pt-body");
+    const r = TL && TL.parcels ? TL.parcels[id] : null;
+    if (!body || !r) { if (body) body.innerHTML = `<p class="hint">No timeline data for ${esc(id)}.</p>`; return; }
+    document.querySelectorAll(".pt-variant").forEach((b) =>
+      b.classList.toggle("is-active", b.dataset.v === PT_VARIANT));
+    const v = r.variants[PT_VARIANT] || r.variants[r.default_variant];
+    const notes = TLNOTES || {};
+    const qc = TL.queue_context || {};
+
+    /* 1 — speed-to-power headline + band + expected-row chip (links the deal sheet) */
+    const missChip = v.miss_risk
+      ? `<span class="pt-miss">at risk of missing the window</span>`
+      : `<span class="pt-row" onclick="openDeal('${esc(id)}')">expected deal-sheet row: ${v.expected_row} mo →</span>`;
+    const headline = `
+      <div class="pt-headline">
+        <div class="pt-num"><span class="pt-p50">~${v.p50}</span><span class="pt-unit">months to power</span></div>
+        <div class="pt-band">P50 · band ${v.band[0]}–${v.band[1]} mo · ${VARIANT_LABEL[PT_VARIANT]}</div>
+        ${missChip}
+      </div>`;
+
+    /* 2 — phase bars (critical path solid; parallel phases nested; interconnection flagged uncertain) */
+    const maxMo = Math.max(...v.phases.map((p) => p.p90));
+    const bars = v.phases.map((p) => {
+      const w = Math.round((p.p50 / maxMo) * 100);
+      const cls = `pt-bar${p.parallel ? " parallel" : ""}${p.uncertain ? " uncertain" : ""}`;
+      const tag = p.uncertain ? " (uncertain — the long pole)" : (p.parallel ? " (parallel)" : "");
+      return `<div class="pt-bar-row"><span class="pt-bar-lbl">${p.name}${tag}</span>
+        <span class="${cls}" style="width:${w}%"></span>
+        <span class="pt-bar-val">${p.p10}–${p.p90} mo</span></div>`;
+    }).join("");
+    const timeline = `<div class="pt-bars"><h4>Energization phases</h4>${bars}
+      <p class="hint">Critical path = interconnection (the long pole) + construction. Diligence and permitting run in parallel under the queue.</p></div>`;
+
+    /* 3 — public queue context (NO restricted ERCOT data) */
+    const context = `
+      <div class="pt-context">
+        <h4>Queue context <span class="ds-dim">public sources, directional</span></h4>
+        <p>${esc(qc.batch_zero || "")}</p>
+        <p>${esc(qc.sb6 || "")}</p>
+        <p>${esc(qc.depth_note || "")}</p>
+        <p class="pt-license">${esc((TL.assumptions && TL.assumptions.license_discipline) || "")}</p>
+      </div>`;
+
+    /* 4 — load-bearing assumptions + Batch-Zero caveat */
+    const assume = `
+      <div class="deal-assumptions">
+        <h4>Load-bearing assumptions</h4>
+        <p>${esc(notes.assumptions_block || "")}</p>
+        <p class="deal-assume-line">${esc(notes.batch_zero_caveat || "")}</p>
+        <p class="deal-assume-line">${esc(notes.variant_note || "")}</p>
+        <p class="deal-assume-disc">${esc((TL.assumptions && TL.assumptions.disclosure) || "")}</p>
+      </div>`;
+
+    const featured = (notes.featured_parcel === id && notes.featured_narrative)
+      ? `<div class="pt-featured">${notes.featured_narrative.map((t) => `<p>${esc(t)}</p>`).join("")}</div>` : "";
+
+    body.innerHTML = headline + featured + timeline + context + assume;
+  }
+
+  function openPower(id) {
+    activateView("power");
+    const sel = $("#pt-parcel");
+    if (sel) sel.value = id;
+    renderPower(id);
+  }
+  window.openPower = openPower;
+
   /* ---------------- portfolio (A1.5) ---------------- */
   // Given an option budget, how the capital deploys across the pursue / pursue-if
   // shortlist: spread options to control the best parcels, stage diligence on the
@@ -725,6 +839,47 @@
 
     body.innerHTML = kpis + table + tail + rationale;
   }
+
+  /* ---------------- data integrity (A4) ---------------- */
+  function buildIntegrity() {
+    const body = $("#integrity-body");
+    if (!body || !INTEG) return;
+    const r = INTEG.run || {}, pv = INTEG.provenance || {};
+
+    const runCards = `<div class="kpis pf-kpis">
+      ${kpiCard(pv.fetched ? pv.fetched.toLocaleString() : "—", "parcel records fetched")}
+      ${kpiCard(pv.final ? pv.final.toLocaleString() : "—", "distinct parcels (deduped)")}
+      ${kpiCard(pv.shortlist || "—", "synthetic shortlist")}
+      ${kpiCard(Object.values(r.criteria_status || {}).filter((s) => String(s).startsWith("live")).length + "/7", "criteria live")}
+    </div><p class="hint">${esc(pv.note || "")} Run ${esc((r.run_utc || "").replace("T", " ").replace("+00:00", " UTC"))}.</p>`;
+
+    const layerRows = (INTEG.layers || []).map((L) => {
+      const lic = `<span class="integ-lic ${L.license === "restricted" ? "restricted" : "ok"}">${esc(L.license)}</span>`;
+      const cnt = L.count != null ? L.count.toLocaleString() : "—";
+      return `<tr class="${L.license === "restricted" ? "integ-restricted" : ""}">
+        <td>${esc(L.layer)}</td><td>${esc(L.source)}</td><td>${lic}</td>
+        <td>${esc(L.role)}</td><td>${esc(L.status)}</td><td>${cnt}</td></tr>`;
+    }).join("");
+    const layers = `<div class="deal-table-wrap"><table class="integ-table">
+      <thead><tr><th>Layer</th><th>Source</th><th>License</th><th>Role</th><th>Status</th><th>Records</th></tr></thead>
+      <tbody>${layerRows}</tbody></table></div>
+      <p class="pt-license">${esc(INTEG.governance_note || "")}</p>`;
+
+    const compRows = (INTEG.completeness || []).map((c) =>
+      `<tr class="${c.ok ? "" : "integ-warn"}"><td>${esc(c.field)}</td>
+        <td>${(c.null_rate * 100).toFixed(1)}%</td><td>${c.ok ? "✓" : "⚠ over threshold"}</td></tr>`).join("");
+    const completeness = `<h3>Field completeness</h3><div class="deal-table-wrap"><table class="integ-table">
+      <thead><tr><th>Field</th><th>Null rate</th><th>Check</th></tr></thead><tbody>${compRows}</tbody></table></div>`;
+
+    const anomalies = (INTEG.anomalies || []).length
+      ? `<h3>Known gaps &amp; anomalies</h3><ul class="integ-anoms">${INTEG.anomalies.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>`
+      : "";
+    const recon = `<p class="hint">Documentation reconciled against the run: ${esc(INTEG.reconciled || "—")}.</p>`;
+
+    body.innerHTML = `<div class="integ-wrap">${runCards}<h3>Sources &amp; license posture</h3>${layers}${completeness}${anomalies}${recon}</div>`;
+  }
+
+  function kpiCard(num, lbl) { return `<div class="kpi"><span class="num">${num}</span><span class="lbl">${lbl}</span></div>`; }
 
   /* ---------- featured pass memo ---------- */
   function mountMemo() {
