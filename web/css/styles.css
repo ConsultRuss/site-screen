@@ -456,3 +456,58 @@ td .verdict-none { color: var(--faint); font-size: 0.74rem; }
 @media (max-width: 720px) {
   .deal-structures { grid-template-columns: 1fr; }
 }
+
+/* ============================ A4 — Power & timeline ============================ */
+.pt-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-bottom: 1rem; }
+.pt-head h2 { margin: 0; }
+.pt-variants { display: inline-flex; gap: 6px; }
+.pt-variant {
+  font: 500 0.82rem/1 "DM Sans", system-ui, sans-serif; color: #8a8580;
+  background: transparent; border: 1px solid rgba(200, 168, 124, 0.4);
+  border-radius: 999px; padding: 5px 12px; cursor: pointer;
+}
+.pt-variant:hover { color: #2b2b26; border-color: #c8a87c; }
+.pt-variant.is-active { color: #2b2b26; background: rgba(200, 168, 124, 0.22); border-color: #c8a87c; }
+
+.pt-headline { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin: 0.5rem 0 1.25rem; }
+.pt-num { display: flex; align-items: baseline; gap: 0.5rem; }
+.pt-p50 { font: 600 2.8rem/1 "Source Serif 4", Georgia, serif; color: #c8a87c; }
+.pt-unit { font-size: 1rem; color: #8a8580; }
+.pt-band { font-size: 0.9rem; color: #8a8580; }
+.pt-row { cursor: pointer; color: #3f6b3a; font-weight: 500; }
+.pt-row:hover { text-decoration: underline; }
+.pt-miss { color: #9e3b2c; font-weight: 600; }
+
+.pt-bars { margin: 1.25rem 0; }
+.pt-bars h4 { margin: 0 0 0.6rem; }
+.pt-bar-row { display: grid; grid-template-columns: minmax(9rem, 16rem) 1fr auto; gap: 0.6rem; align-items: center; margin-bottom: 0.45rem; }
+.pt-bar-lbl { font-size: 0.82rem; color: #2b2b26; }
+.pt-bar { height: 0.7rem; border-radius: 3px; background: #c8a87c; display: inline-block; min-width: 4px; }
+.pt-bar.uncertain { background: repeating-linear-gradient(45deg, #bf7a3a, #bf7a3a 4px, #a96a30 4px, #a96a30 8px); }
+.pt-bar.parallel { background: #7f9b4e; opacity: 0.5; }
+.pt-bar-val { font-size: 0.78rem; color: #8a8580; white-space: nowrap; }
+
+.pt-context { margin: 1.25rem 0; }
+.pt-context h4 { margin: 0 0 0.4rem; }
+.pt-context p { margin: 0.3rem 0; font-size: 0.9rem; }
+.pt-license { font-size: 0.82rem; color: #8a8580; border-left: 2px solid #c8a87c; padding-left: 0.6rem; margin-top: 0.6rem; }
+.pt-featured { border-left: 2px solid #7f9b4e; padding-left: 0.85rem; margin: 0.5rem 0 1.25rem; }
+.pt-featured p { margin: 0.4rem 0; }
+
+/* ============================ A4 — Data integrity ============================ */
+.integ-wrap h3 { margin: 1.5rem 0 0.6rem; }
+.integ-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.integ-table th, .integ-table td { text-align: left; padding: 6px 10px; border-bottom: 1px solid rgba(43, 43, 38, 0.08); vertical-align: top; }
+.integ-table th { color: #8a8580; font-weight: 500; }
+.integ-lic { font-size: 0.78rem; font-weight: 600; }
+.integ-lic.ok { color: #3f6b3a; }
+.integ-lic.restricted { color: #9e3b2c; }
+.integ-restricted { background: rgba(158, 59, 44, 0.07); }
+.integ-warn { background: rgba(191, 122, 58, 0.12); }
+.integ-anoms { color: #8a8580; font-size: 0.88rem; padding-left: 1.1rem; }
+.integ-anoms li { margin: 0.25rem 0; }
+
+@media (max-width: 720px) {
+  .pt-bar-row { grid-template-columns: 1fr; gap: 0.2rem; }
+  .integ-table, .pt-headline { font-size: 0.8rem; }
+}
