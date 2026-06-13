@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=a7" />
+  <link rel="stylesheet" href="css/styles.css?v=a8" />
 
   <script type="application/ld+json">
   {
@@ -79,6 +79,7 @@
       <button class="tab" data-view="pipeline" role="tab">Pipeline / Tracker</button>
       <button class="tab" data-view="deal" role="tab">Deal sheet</button>
       <button class="tab" data-view="power" role="tab">Power &amp; timeline</button>
+      <button class="tab" data-view="memo" role="tab">Memo</button>
       <button class="tab" data-view="portfolio" role="tab">Portfolio</button>
       <button class="tab" data-view="changelog" role="tab">What's new</button>
       <button class="tab" data-view="integrity" role="tab">Data integrity</button>
@@ -183,6 +184,17 @@
       </div>
       <div id="pt-body"></div>
       <p class="deal-synthetic">Speed-to-power is a disclosed phase-model estimate gated on the interconnection queue — not a scraped commissioning date. Synthetic + illustrative.</p>
+    </section>
+
+    <!-- ============================ EXEC MEMO ============================ -->
+    <section id="view-memo" class="view">
+      <div class="memo-head no-print">
+        <h2>Executive memo <span class="badge-illustrative">illustrative · basis-stated</span></h2>
+        <label class="deal-picker">Parcel <select id="memo-parcel"></select></label>
+        <button id="memo-print" class="btn" type="button">Download PDF</button>
+        <p class="hint">An IC-style one-pager for the parcel. <b>Download PDF</b> opens your browser's print dialog — choose <em>Save as PDF</em>.</p>
+      </div>
+      <div id="memo-body" class="memo-page"></div>
     </section>
 
     <!-- ============================ PORTFOLIO ============================ -->
@@ -295,6 +307,7 @@
         <h2>What's new</h2>
         <p class="changelog-intro">Shipped, newest first — a running build log for the screen and tracker.</p>
         <ul class="changelog-list">
+          <li><time>2026-06-12</time><span><b>Executive memo.</b> A per-parcel IC-style one-pager — verdict, the underwrite, speed-to-power, the diligence machinery, the feasibility gates, and an honest read on incentives + community posture. Built to print: "Download PDF" → save the memo. The artifact an interviewer can hold.</span></li>
           <li><time>2026-06-12</time><span><b>Power &amp; timeline.</b> A per-parcel speed-to-power estimate — P50 months with an honest band — and the energization phase behind it. A disclosed phase model gated on the interconnection queue, modulated by each parcel's grid quality, with a co-location fast-path for parcels near existing generation. The restricted ERCOT queue stays backend-only; context is public.</span></li>
           <li><time>2026-06-12</time><span><b>Data integrity.</b> The screen audits itself: source freshness and license posture, run QA (all seven criteria live), field completeness, and known gaps — flagged, not hidden.</span></li>
           <li><time>2026-06-11</time><span><b>Portfolio view.</b> Given an option budget ($500K / $1M / $1.5M), how I'd deploy it across the shortlist — spread options to control the best parcels, stage diligence on the speed-to-power winners. The model ranks; I allocate.</span></li>
@@ -319,6 +332,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=a7"></script>
+  <script src="js/app.js?v=a8"></script>
 </body>
 </html>
