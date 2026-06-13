@@ -134,3 +134,40 @@ def test_build_timeline_shortlist_only_with_queue_context_no_none_leaks():
     assert "assumptions" in out
     import json
     assert "null" not in json.dumps(out["parcels"]["KAR-000004"])
+
+
+# A4.1 — co-location / BTM fast-path fixtures (near vs far from generation)
+NEARGEN = {**STRONG, "dist_generation_mi": 2.0}   # <=5 mi: co-location eligible
+FARGEN = {**STRONG, "dist_generation_mi": 12.0}   # beyond 5 mi -> not eligible
+
+
+def test_colocation_eligible_is_faster_than_grid_and_floored():
+    grid = tl.time_to_power(NEARGEN, CFG, "solar")["p50"]
+    co = tl.colocation_speed_to_power(NEARGEN, CFG, "solar")
+    assert co["eligible"] is True
+    assert co["p50"] < grid  # co-location bypasses part of the queue
+    assert co["p50"] >= CFG["power_timeline"]["colocation"]["floor_months"]
+    assert co["saved_months"] > 0
+    assert co["band"][0] <= co["p50"] <= co["band"][1]
+
+
+def test_colocation_not_eligible_beyond_threshold():
+    assert tl.colocation_speed_to_power(FARGEN, CFG, "solar")["eligible"] is False
+
+
+def test_colocation_null_generation_not_eligible():
+    co = tl.colocation_speed_to_power({**STRONG, "dist_generation_mi": None}, CFG, "solar")
+    assert co["eligible"] is False
+
+
+def test_colocation_closer_saves_at_least_as_much():
+    near = tl.colocation_speed_to_power({**STRONG, "dist_generation_mi": 1.0}, CFG, "solar")
+    edge = tl.colocation_speed_to_power({**STRONG, "dist_generation_mi": 4.8}, CFG, "solar")
+    assert near["saved_months"] >= edge["saved_months"]      # monotonic in generation proximity
+
+
+def test_parcel_timeline_carries_colocation_when_eligible():
+    rec = tl.parcel_timeline(NEARGEN, CFG)
+    assert rec["colocation"]["eligible"] is True
+    rec_far = tl.parcel_timeline(FARGEN, CFG)
+    assert rec_far["colocation"]["eligible"] is False

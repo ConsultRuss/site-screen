@@ -79,6 +79,40 @@ def phase_bars(parcel: dict[str, Any], cfg: dict[str, Any], variant: str) -> lis
     ]
 
 
+def colocation_speed_to_power(
+    parcel: dict[str, Any], cfg: dict[str, Any], variant: str
+) -> dict[str, Any]:
+    """A4.1 — co-location / BTM fast-path. A parcel near existing generation
+    (EIA-860 dist_generation_mi) can partially bypass the grid interconnection
+    queue. The discount on the long pole scales with proximity (closer -> more),
+    floored at a build+approval minimum; returns {eligible: False} when there is
+    no nearby generation. Conservative (land-near-a-plant, not a self-build); the
+    grid path stays the default, and this is always presented as caveated
+    potential, never a promise."""
+    pt = cfg["power_timeline"]
+    co = pt["colocation"]
+    dist_raw = parcel.get("dist_generation_mi")
+    if dist_raw is None or float(dist_raw) > co["max_dist_mi"]:
+        return {"eligible": False}
+    dist = float(dist_raw)
+    inter = interconnection_months(parcel, cfg, variant)
+    tail = pt["phases"][variant]["construction"]
+    band = pt["band_months"]
+    discount = co["max_discount"] * (1 - dist / co["max_dist_mi"])  # closer -> more
+    pts = [
+        max(co["floor_months"], min(band["ceiling"], inter[i] * (1 - discount) + tail[i]))
+        for i in range(3)
+    ]
+    grid_p50 = time_to_power(parcel, cfg, variant)["p50"]
+    return {
+        "eligible": True,
+        "p50": round(pts[1]),
+        "band": [round(pts[0]), round(pts[2])],
+        "dist_generation_mi": round(dist, 1),
+        "saved_months": round(grid_p50 - pts[1]),
+    }
+
+
 def parcel_timeline(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
     pt = cfg["power_timeline"]
     default = pt["default_variant"]
@@ -95,6 +129,7 @@ def parcel_timeline(parcel: dict[str, Any], cfg: dict[str, Any]) -> dict[str, An
         "variants": variants,
         "headline": {"variant": default, "p50": h["p50"], "band": h["band"],
                      "miss_risk": h["miss_risk"], "expected_row": h["expected_row"]},
+        "colocation": colocation_speed_to_power(parcel, cfg, default),
     }
 
 

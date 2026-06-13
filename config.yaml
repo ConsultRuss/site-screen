@@ -310,6 +310,18 @@ power_timeline:
     floor: 36          # verified directional floor — nothing energizes faster
     ceiling: 72        # honest upper for a weak-grid parcel
 
+  # Co-location / behind-the-meter FAST-PATH (A4.1). Parcels near existing generation
+  # (EIA-860, dist_generation_mi) can partially bypass the grid interconnection queue via
+  # co-location / BTM — the field's fastest path (Foley 2026 survey: 56% of developers
+  # exploring it; ~3-5 yr faster for a full self-build). Modeled CONSERVATIVELY here for
+  # land-near-a-plant (co-location needs the plant's spare capacity + a deal + SB 6
+  # co-location approval ~180 days), NOT the full self-build. The grid path stays the default.
+  colocation:
+    max_dist_mi: 5.0       # within this of EIA-860 generation -> co-location-eligible
+    max_discount: 0.45     # max fraction of the interconnection long pole bypassable (at 0 mi); scales to 0 at max_dist
+    floor_months: 24       # still needs construction + ~180-day co-location/PUCT approval; never faster than this
+    note: "Co-location / behind-the-meter potential — faster ONLY if a deal with the adjacent generation is achievable (spare capacity + SB 6 co-location approval ~180 days). Illustrative; not a guarantee. The grid-interconnection path remains the conservative default."
+
   # PUBLIC, cited queue CONTEXT (NOT the restricted ERCOT GIS Report). Directional only.
   queue_context:
     batch_zero: "ERCOT is running Batch Zero (PGRR145) for large-load interconnection; TSP/ILLE deadlines Jul 10 / Jul 24, 2026. Process in flux — re-check ~July 2026."

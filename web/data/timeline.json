@@ -170,6 +170,9 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000002": {
@@ -274,6 +277,16 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": true,
+"p50": 36,
+"band": [
+25,
+49
+],
+"dist_generation_mi": 2.6,
+"saved_months": 4
 }
 },
 "KAR-000003": {
@@ -378,6 +391,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000004": {
@@ -482,6 +498,16 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": true,
+"p50": 40,
+"band": [
+28,
+55
+],
+"dist_generation_mi": 4.8,
+"saved_months": 0
 }
 },
 "KAR-000005": {
@@ -586,6 +612,9 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000006": {
@@ -690,6 +719,16 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": true,
+"p50": 40,
+"band": [
+28,
+55
+],
+"dist_generation_mi": 4.9,
+"saved_months": 0
 }
 },
 "KAR-000007": {
@@ -794,6 +833,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "WIL-000001": {
@@ -898,6 +940,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000008": {
@@ -1002,6 +1047,9 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000009": {
@@ -1106,6 +1154,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000010": {
@@ -1210,6 +1261,9 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000011": {
@@ -1314,6 +1368,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000012": {
@@ -1418,6 +1475,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000013": {
@@ -1522,6 +1582,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000014": {
@@ -1626,6 +1689,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000015": {
@@ -1730,6 +1796,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "WIL-000002": {
@@ -1834,6 +1903,16 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": true,
+"p50": 47,
+"band": [
+34,
+65
+],
+"dist_generation_mi": 3.8,
+"saved_months": 4
 }
 },
 "KAR-000016": {
@@ -1938,6 +2017,16 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": true,
+"p50": 36,
+"band": [
+25,
+49
+],
+"dist_generation_mi": 2.3,
+"saved_months": 6
 }
 },
 "KAR-000017": {
@@ -2042,6 +2131,16 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": true,
+"p50": 38,
+"band": [
+27,
+52
+],
+"dist_generation_mi": 3.5,
+"saved_months": 3
 }
 },
 "KAR-000018": {
@@ -2146,6 +2245,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000019": {
@@ -2250,6 +2352,9 @@
 ],
 "miss_risk": false,
 "expected_row": 36
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000020": {
@@ -2354,6 +2459,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000021": {
@@ -2458,6 +2566,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 },
 "KAR-000022": {
@@ -2562,6 +2673,9 @@
 ],
 "miss_risk": false,
 "expected_row": 48
+},
+"colocation": {
+"eligible": false
 }
 }
 }
