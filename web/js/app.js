@@ -5,7 +5,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/parcels.geojson?v=a7";
+  const DATA_URL = "data/parcels.geojson?v=a8";
   // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
   // Empty string = built-in rule parser only (works fully offline).
   const WORKER_URL = "https://ask.consultruss.com";
@@ -56,6 +56,7 @@
   let ECON = null, NOTES = null;
   let PORT = null; // Portfolio (A1.5): option-budget allocations over the shortlist.
   let TL = null, TLNOTES = null, INTEG = null; // A4: timeline + notes + integrity
+  let MEMONOTES = null; // A5: authored exec-memo prose
   const PROPS = new Map(); // parcel_id -> geojson properties (pipeline status/date/rank)
 
   const state = {
@@ -81,25 +82,27 @@
     }
     FEATURES.forEach((f) => PROPS.set(f.properties.parcel_id, f.properties));
     try {
-      const vr = await fetch("data/verdicts.json?v=a7");
+      const vr = await fetch("data/verdicts.json?v=a8");
       const vd = await vr.json();
       (vd.verdicts || []).forEach((v) => { VERDICTS.set(v.parcel_id, v); if (v.memo) MEMO = v; });
     } catch { /* verdicts are optional — flags still render without them */ }
     try {
       const [er, nr] = await Promise.all([
-        fetch("data/economics.json?v=a7"),
-        fetch("data/deal-notes.json?v=a7"),
+        fetch("data/economics.json?v=a8"),
+        fetch("data/deal-notes.json?v=a8"),
       ]);
       ECON = await er.json();
       NOTES = await nr.json();
-      PORT = await (await fetch("data/portfolio.json?v=a7")).json();
-      TL = await (await fetch("data/timeline.json?v=a7")).json();
-      TLNOTES = await (await fetch("data/timeline-notes.json?v=a7")).json();
-      INTEG = await (await fetch("data/integrity.json?v=a7")).json();
+      PORT = await (await fetch("data/portfolio.json?v=a8")).json();
+      TL = await (await fetch("data/timeline.json?v=a8")).json();
+      TLNOTES = await (await fetch("data/timeline-notes.json?v=a8")).json();
+      INTEG = await (await fetch("data/integrity.json?v=a8")).json();
+      MEMONOTES = await (await fetch("data/memo-notes.json?v=a8")).json();
       buildDealSheet();
       buildPortfolio();
       buildPowerTimeline();
       buildIntegrity();
+      buildMemo();
     } catch (err) {
       // Deal data is optional — degrade gracefully, never break the rest of the site.
       const body = $("#deal-body");
@@ -198,6 +201,7 @@
       const tl = TL && TL.parcels ? TL.parcels[p.parcel_id] : null;
       if (tl) html += `<div class="pp-deal-link" onclick="openPower('${p.parcel_id}')">Speed to power: ~${tl.headline.p50} mo →</div>`;
       html += `<div class="pp-deal-link" onclick="openDeal('${p.parcel_id}')">Deal sheet →</div>`;
+      html += `<div class="pp-deal-link" onclick="openExecMemo('${p.parcel_id}')">Exec memo →</div>`;
     }
     html += `<div class="pp-synthetic">Owner “${p.owner}” &amp; any pipeline data are synthetic.</div>`;
     return html;
@@ -529,6 +533,7 @@
         <div class="deal-ph-top">
           <h3>${esc(id)} · ${esc(d.county)} Co.</h3>
           ${verdictChip}
+          <span class="deal-memo-link" onclick="openExecMemo('${esc(id)}')">Exec memo →</span>
         </div>
         <div class="deal-ph-meta">
           <span>${statusBit}</span>
@@ -785,6 +790,110 @@
     renderPower(id);
   }
   window.openPower = openPower;
+
+  /* ---------------- executive memo (A5) ---------------- */
+  // Pure composition of existing per-parcel data into a print-clean IC one-pager.
+  function buildMemo() {
+    const sel = $("#memo-parcel");
+    if (!sel || !ECON || !ECON.parcels) return;
+    const ids = Object.keys(ECON.parcels).sort();
+    sel.innerHTML = ids.map((id) => {
+      const r = ECON.parcels[id];
+      return `<option value="${id}">${id} · ${r.county} · #${r.suitability_rank}</option>`;
+    }).join("");
+    const featured = (MEMONOTES && ECON.parcels[MEMONOTES.featured_parcel]) ? MEMONOTES.featured_parcel : ids[0];
+    sel.value = featured;
+    sel.addEventListener("change", (e) => renderMemo(e.target.value));
+    const btn = $("#memo-print");
+    if (btn) btn.addEventListener("click", () => window.print());
+    renderMemo(featured);
+  }
+
+  function renderMemo(id) {
+    const body = $("#memo-body");
+    const d = ECON && ECON.parcels ? ECON.parcels[id] : null;
+    if (!body || !d) { if (body) body.innerHTML = `<p class="hint">No memo data for ${esc(id)}.</p>`; return; }
+    const v = VERDICTS.get(id);
+    const tl = TL && TL.parcels ? TL.parcels[id] : null;
+    const A = (ECON && ECON.assumptions) || {};
+    const mn = MEMONOTES || {};
+    const pnote = (mn.parcels && mn.parcels[id]) || {};
+
+    /* 1 — header + recommendation */
+    const verdictChip = v ? `<span class="verdict ${v.verdict}">${VERDICT_LABEL[v.verdict]}</span>` : "";
+    const rec = pnote.recommendation || (v && v.rationale) || "";
+    const header = `
+      <div class="memo-h">
+        <div class="memo-h-top"><h3>${esc(id)} · ${esc(d.county)} Co.</h3>${verdictChip}</div>
+        <div class="memo-h-meta">Suitability #${d.suitability_rank} · ${Math.round(d.acreage_buildable)} buildable ac · ~${d.mw_est} MW · est. $${(d.est_price_per_ac || 0).toLocaleString()}/ac</div>
+        <p class="memo-rec">${esc(rec)}</p>
+      </div>`;
+
+    /* 2 — speed to power */
+    let sp = "";
+    if (tl) {
+      const h = tl.headline, co = tl.colocation || {};
+      const coLine = (co.eligible && co.saved_months >= 2)
+        ? ` · co-location candidate ~${co.p50} mo (within ${co.dist_generation_mi} mi of generation)` : "";
+      const gate = h.miss_risk
+        ? "At risk of missing the energization window."
+        : `Maps to the ${h.expected_row}-month deal-sheet row.`;
+      sp = `<div class="memo-block"><h4>Speed to power</h4>
+        <p><span class="memo-fig">~${h.p50} mo</span> to power (P50; band ${h.band[0]}–${h.band[1]} mo, solar-gen)${coLine}. ${gate}</p></div>`;
+    }
+
+    /* 3 — the underwrite (condensed A3) */
+    const flip = d.flip || {}, lease = d.lease || {}, jv = d.jv || {};
+    const mm = flip.money_multiple ? flip.money_multiple["4"] : null;
+    const ntp = flip.ntp_fee_per_mw || [0, 0];
+    const rp = jv.retained_pct || { low: 0, high: 0 };
+    const underwrite = `<div class="memo-block"><h4>The underwrite</h4>
+      <ul class="memo-list">
+        <li><b>Flip at NTP-ready:</b> ${mm ? mm + "× on capital" : "—"} at a 4× exit · ${money(ntp[0])}–${money(ntp[1])}/MW NTP lens.</li>
+        <li><b>Powered-land lease:</b> ${tierLabel(lease.tier)} tier · $${(lease.rate_per_ac_yr || 0).toLocaleString()}/ac/yr · ${money(lease.annual || 0)}/yr.</li>
+        <li><b>JV retained:</b> ${Math.round(rp.low * 100)}–${Math.round(rp.high * 100)}% (most speculative).</li>
+      </ul>
+      <p class="memo-thesis">Exit price scales the return; <b>time-to-power gates it</b> — miss the window and the option reverts to raw basis.</p></div>`;
+
+    /* 4 — diligence machinery (fixed + variable) */
+    const ov = A.diligence_overhead || {}, fixed = ov.fixed_reserve_usd || [0, 0];
+    const dilig = `<div class="memo-block"><h4>Diligence machinery</h4>
+      <p>Variable diligence for this parcel: <b>${money(d.diligence_total || 0)}</b> (option + studies + legal), within a standing fixed institutional reserve of <b>${money(fixed[0])}–${money(fixed[1])}</b> (${(ov.components || []).join(" · ")}).</p>
+      <p class="memo-note">${esc(mn.diligence_machinery || "")}</p></div>`;
+
+    /* 5 — feasibility / walk-away gates */
+    const g = mn.feasibility_gates || {};
+    const gates = `<div class="memo-block"><h4>Feasibility &amp; walk-away gates</h4>
+      <ul class="memo-list">
+        <li>${esc(g.permitting || "")}</li>
+        <li>${esc(g.interconnection_headroom || "")}</li>
+        <li>${esc(g.community_political || "")}</li>
+        <li>${esc(g.labor_om || "")}</li>
+      </ul></div>`;
+
+    /* 6 — incentives & community posture */
+    const inc = mn.incentives || {};
+    const incentives = `<div class="memo-block"><h4>Incentives &amp; community posture</h4>
+      <p>${esc(inc.structure || "")}</p>
+      <p>${esc(inc.isd_scale || "")}</p>
+      <p>${esc(inc.jobs || "")}</p>
+      <p>${esc(inc.community_posture || "")}</p></div>`;
+
+    /* 7 — footer (disclosure + provenance + methodology) */
+    const footer = `<div class="memo-foot">
+      <p>${esc(A.disclosure || "")} Geospatial layers real + sourced; ownership and the deal pipeline are synthetic.</p>
+      <p class="memo-method">${esc(mn.methodology || "")}</p></div>`;
+
+    body.innerHTML = header + sp + underwrite + dilig + gates + incentives + footer;
+  }
+
+  function openExecMemo(id) {
+    activateView("memo");
+    const sel = $("#memo-parcel");
+    if (sel) sel.value = id;
+    renderMemo(id);
+  }
+  window.openExecMemo = openExecMemo;
 
   /* ---------------- portfolio (A1.5) ---------------- */
   // Given an option budget, how the capital deploys across the pursue / pursue-if
