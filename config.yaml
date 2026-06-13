@@ -222,6 +222,14 @@ deal_economics:
     drainage_hh:        [25000, 75000]
   diligence_order_of_magnitude: [geotech, drainage_hh]   # flagged "order-of-magnitude" in UI
 
+  diligence_overhead:           # A5 — FIXED institutional reserve (vs the per-parcel VARIABLE diligence_usd)
+    fixed_reserve_usd: [2000000, 3000000]   # illustrative standing reserve range
+    components:                  # what the fixed reserve buys — standing, not assembled per-deal
+      - "Legal retainer (energy land + title)"
+      - "ERCOT pre-application coordination"
+      - "Title-plant access"
+    note: "Per-parcel variable diligence (diligence_usd) sits WITHIN this standing fixed reserve — the fixed+variable split is the institutional-machinery signal, not a solo operator assembling diligence per deal. Illustrative, basis-stated."
+
   carry:
     annual_rate: 0.12           # illustrative cost-of-capital on deployed dollars
     compounding: annual

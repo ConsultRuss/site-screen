@@ -233,6 +233,7 @@ def build_economics(parcels: list[dict[str, Any]], cfg: dict[str, Any]) -> dict[
             "hurdle_irr": de["exit"]["hurdle_irr"],
             "diligence_usd": de["diligence_usd"],
             "diligence_order_of_magnitude": de["diligence_order_of_magnitude"],
+            "diligence_overhead": de["diligence_overhead"],
             "incentives_note": de["incentives"]["note"],
             "sb6_framing": de["sb6_framing"],
             "disclosure": de["disclosure"],

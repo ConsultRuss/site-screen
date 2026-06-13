@@ -49,6 +49,18 @@
 "geotech",
 "drainage_hh"
 ],
+"diligence_overhead": {
+"fixed_reserve_usd": [
+2000000,
+3000000
+],
+"components": [
+"Legal retainer (energy land + title)",
+"ERCOT pre-application coordination",
+"Title-plant access"
+],
+"note": "Per-parcel variable diligence (diligence_usd) sits WITHIN this standing fixed reserve — the fixed+variable split is the institutional-machinery signal, not a solo operator assembling diligence per deal. Illustrative, basis-stated."
+},
 "incentives_note": "Section 151.359 sales-tax exemption + Ch. 312 abatement only (Ch. 312 up to 10 yr, local, school districts not eligible). JETI eligibility for data-center end-use is unsettled (Section 403.602); not assumed.",
 "sb6_framing": "Post-SB 6, large-load interconnection carries per-MW security and study costs borne by the end developer (PUCT Section 25.194 proposed rule, Project 58481; re-check ~July 2026). Direction only — figures not assumed.",
 "disclosure": "All figures synthetic + illustrative; basis stated per line. Not investment advice."

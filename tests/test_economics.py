@@ -201,3 +201,13 @@ def test_sensitivity_cells_have_risk_adjusted():
     assert all("ra" in c for row in grid for c in row["cells"])
     miss = grid[-1]
     assert all(c["ra"] == -1.0 for c in miss["cells"])  # miss row risk-adj is total loss too
+
+
+def test_diligence_overhead_block_present_and_emitted():
+    do = DE["diligence_overhead"]
+    assert len(do["fixed_reserve_usd"]) == 2
+    assert do["fixed_reserve_usd"][0] < do["fixed_reserve_usd"][1]
+    assert do["components"] and "note" in do
+    # surfaced into the emitted economics.json assumptions block (one source for the memo)
+    out = ec.build_economics([dict(P, pipeline_status="LOI")], CFG)
+    assert out["assumptions"]["diligence_overhead"] == do
