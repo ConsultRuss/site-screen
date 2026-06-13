@@ -747,7 +747,7 @@
         <p>${esc(qc.batch_zero || "")}</p>
         <p>${esc(qc.sb6 || "")}</p>
         <p>${esc(qc.depth_note || "")}</p>
-        <p class="pt-license">${esc((TL.assumptions && TL.assumptions.license_discipline) || "")}</p>
+        <p class="pt-license">${esc(notes.queue_context_narrative || (TL.assumptions && TL.assumptions.license_discipline) || "")}</p>
       </div>`;
 
     /* 4 — load-bearing assumptions + Batch-Zero caveat */
