@@ -494,6 +494,13 @@ td .verdict-none { color: var(--faint); font-size: 0.74rem; }
 .pt-featured { border-left: 2px solid #7f9b4e; padding-left: 0.85rem; margin: 0.5rem 0 1.25rem; }
 .pt-featured p { margin: 0.4rem 0; }
 
+.pt-coloc { background: rgba(127, 155, 78, 0.10); border: 1px solid rgba(127, 155, 78, 0.35); border-radius: 6px; padding: 0.7rem 0.9rem; margin: 0.75rem 0 1.25rem; }
+.pt-coloc-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
+.pt-coloc-tag { font-weight: 600; color: #3f6b3a; }
+.pt-coloc-num { font: 600 1.4rem/1 "Source Serif 4", Georgia, serif; color: #3f6b3a; }
+.pt-coloc-detail { font-size: 0.85rem; color: #8a8580; }
+.pt-coloc-caveat { font-size: 0.82rem; color: #8a8580; margin: 0.5rem 0 0; }
+
 /* ============================ A4 — Data integrity ============================ */
 .integ-wrap h3 { margin: 1.5rem 0 0.6rem; }
 .integ-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }

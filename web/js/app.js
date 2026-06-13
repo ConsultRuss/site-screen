@@ -763,7 +763,19 @@
     const featured = (notes.featured_parcel === id && notes.featured_narrative)
       ? `<div class="pt-featured">${notes.featured_narrative.map((t) => `<p>${esc(t)}</p>`).join("")}</div>` : "";
 
-    body.innerHTML = headline + featured + timeline + context + assume;
+    /* A4.1 — co-location / BTM fast-path (only surfaced when the modeled saving is meaningful) */
+    const co = r.colocation || {};
+    const coBlock = (co.eligible && co.saved_months >= 2) ? `
+      <div class="pt-coloc">
+        <div class="pt-coloc-head">
+          <span class="pt-coloc-tag">⚡ Co-location candidate</span>
+          <span class="pt-coloc-num">~${co.p50} mo</span>
+          <span class="pt-coloc-detail">within ${co.dist_generation_mi} mi of existing generation · ~${co.saved_months} mo faster than the grid path (modeled, conservative)</span>
+        </div>
+        <p class="pt-coloc-caveat">${esc(notes.colocation_caveat || "")}</p>
+      </div>` : "";
+
+    body.innerHTML = headline + coBlock + featured + timeline + context + assume;
   }
 
   function openPower(id) {
