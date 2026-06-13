@@ -1,0 +1,24 @@
+{
+  "_note": "Authored by RWH — exec-memo prose: methodology, diligence-machinery framing, feasibility gates, incentives & community posture, featured #4 intro + per-parcel recommendations. Voice-gated. Shared blocks at top; per-parcel under parcels{}.",
+  "author": "RWH",
+  "date": "2026-06-12",
+  "methodology": "This is the memo I'd put in front of an investment committee: what the position is, how it pencils, how fast it powers, what would kill it, and how the county deal closes.",
+  "diligence_machinery": "The per-parcel diligence above is the VARIABLE spend; it sits within a standing fixed institutional reserve (legal retainer, ERCOT pre-application coordination, title-plant access). The fixed+variable split is the point — institutional diligence machinery, not a solo operator assembling a deal from scratch.",
+  "feasibility_gates": {
+    "permitting": "Permitting path — Texas counties can't zone, but they CAN require floodplain permits, platting, and road/ROW approval, on top of the state/federal stack (TPDES stormwater, USACE §404 only where wetlands actually trigger — post-Sackett that's often NOT the case on rural tracts, which is good news). The gate: is the path clean, or does a floodplain/wetland/ROW issue add months?",
+    "interconnection_headroom": "Interconnection headroom — 'near a substation' is not 'near power.' The gate is real capacity headroom at the point of interconnection and the network-upgrade burden — what the ERCOT study would actually return, not what a map distance implies.",
+    "community_political": "Community / political feasibility — a paper-clean permit is not the absence of opposition. A rural commissioners court or organized landowners can slow-walk an abatement or a plat. The gate: what would a week of local diligence (court posture, prior solar/data-center reception, vocal landowners) surface?",
+    "labor_om": "Labor / O&M availability — a thin rural tech-labor market within commute radius. Construction labor travels; permanent O&M has to be local or relocated. The gate: is there a workforce, or is that a recruiting/relocation line item?"
+  },
+  "incentives": {
+    "structure": "Incentive structure (Texas) — the operative tools are the §151.359 sales-tax exemption on qualifying equipment and a Chapter 312 property-tax abatement (county/city; school districts are NOT eligible, Ch. 312 caps at 10 years, sunset ~2029). JETI eligibility for a data-center end-use is unsettled (§403.602) and is NOT assumed here. Posture matters more than the headline: a county that has run Ch. 312 abatements before closes faster.",
+    "isd_scale": "ISD / tax scale (illustrative) — a Ch. 312 abatement covers the county/city line, NOT the ISD line, so the school district keeps its levy: that's a real community-relations asset to lead with, not a giveaway. The defensible county-level RIMS-II impact model is Phase B; this memo states the structure, not a fabricated number.",
+    "jobs": "Jobs (illustrative) — be honest about solar: a meaningful construction-peak workforce for ~12–18 months, then a THIN permanent O&M footprint (a handful of roles per ~100 MW). Anyone quoting big permanent job counts for utility solar is selling. The construction spend and the retained tax base are the real county benefits; the permanent-jobs number is small, and I'd say so in the room.",
+    "community_posture": "Community posture — lead with the ISD levy retained, the construction spend, and the land staying on the tax roll; be ready for the encroachment / viewshed / 'why abate it' questions. This is a diligence-and-relations question, not a policy argument."
+  },
+  "featured_parcel": "KAR-000004",
+  "featured_intro": "KAR-000004 is the memo to read first: a pursue on the 345 kV backbone with the fastest speed-to-power in the shortlist and a co-location option next door. The economics pencil because the interconnection isn't a question — which is the whole game in ERCOT.",
+  "parcels": {
+    "KAR-000004": { "recommendation": "Pursue. Fast power, clean interconnection, co-location optionality — the next dollar of diligence goes here." }
+  }
+}
