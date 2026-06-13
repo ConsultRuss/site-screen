@@ -518,3 +518,33 @@ td .verdict-none { color: var(--faint); font-size: 0.74rem; }
   .pt-bar-row { grid-template-columns: 1fr; gap: 0.2rem; }
   .integ-table, .pt-headline { font-size: 0.8rem; }
 }
+
+/* ============================ A5 — Executive memo ============================ */
+.memo-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.1rem; margin-bottom: 1rem; }
+.memo-head h2 { margin: 0; }
+.memo-page { max-width: 8.1in; margin: 0 auto; background: #fffdf9; color: #24221d; padding: 2rem 2.2rem; border: 1px solid rgba(43, 43, 38, 0.12); border-radius: 4px; }
+.memo-h { border-bottom: 2px solid #c8a87c; padding-bottom: 0.6rem; margin-bottom: 0.9rem; }
+.memo-h-top { display: flex; align-items: baseline; gap: 0.8rem; }
+.memo-h-top h3 { margin: 0; font-size: 1.3rem; }
+.memo-h-meta { font-size: 0.85rem; color: #8a8580; margin-top: 0.2rem; }
+.memo-rec { font-weight: 600; margin: 0.5rem 0 0; }
+.memo-block { margin: 0.9rem 0; break-inside: avoid; }
+.memo-block h4 { margin: 0 0 0.3rem; color: #3f6b3a; font-size: 0.95rem; }
+.memo-block p { margin: 0.35rem 0; font-size: 0.9rem; }
+.memo-fig { font: 600 1.3rem/1 "Source Serif 4", Georgia, serif; color: #c8a87c; }
+.memo-list { margin: 0.3rem 0; padding-left: 1.1rem; font-size: 0.9rem; }
+.memo-list li { margin: 0.3rem 0; }
+.memo-thesis { font-style: italic; }
+.memo-note { font-size: 0.82rem; color: #8a8580; }
+.memo-foot { border-top: 1px solid rgba(43, 43, 38, 0.15); margin-top: 1rem; padding-top: 0.6rem; font-size: 0.8rem; color: #8a8580; }
+.deal-memo-link { cursor: pointer; color: #c8a87c; font-size: 0.85rem; margin-left: 0.6rem; }
+
+@media print {
+  .site-header, .tabs, .no-print, #memo-print, .memo-head, .leaflet-container { display: none !important; }
+  body, main { display: block !important; margin: 0; background: #fff; }
+  .view { display: none !important; }
+  #view-memo { display: block !important; }
+  .memo-page { max-width: none; margin: 0; padding: 0; border: none; border-radius: 0; background: #fff; color: #1a1a1a; }
+  .memo-block { break-inside: avoid; }
+  a, .deal-memo-link { color: inherit; text-decoration: none; }
+}
