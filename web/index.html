@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=a9" />
+  <link rel="stylesheet" href="css/styles.css?v=a10" />
 
   <script type="application/ld+json">
   {
@@ -73,6 +73,7 @@
       <p class="tagline">Which land is worth pursuing — and where each parcel stands on the way to site control. Wilson &amp; Karnes counties.</p>
       <a class="brand-backlink" href="https://consultruss.com">← Russell W. Hild · consultruss.com</a>
       <a class="brand-backlink linkedin" href="https://www.linkedin.com/in/russhld/" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <button id="tour-start" class="btn-tour" type="button">▸ Start here</button>
     </div>
     <nav class="tabs" role="tablist">
       <button class="tab is-active" data-view="map" role="tab">Map / Screen</button>
@@ -311,6 +312,7 @@
         <h2>What's new</h2>
         <p class="changelog-intro">Shipped, newest first — a running build log for the screen and tracker.</p>
         <ul class="changelog-list">
+          <li><time>2026-07-17</time><span><b>Guided tour.</b> A "Start here" walkthrough — the model ranks and I decide on the map, then the deal sheet, speed-to-power, and the memo, in four steps. First visit opens it once; the button in the header reopens it anytime.</span></li>
           <li><time>2026-07-16</time><span><b>Pipeline on the map.</b> The pipeline board IS the map: a fourth coloring mode shows every shortlist parcel colored by site-control stage, with a clickable stage strip to filter and everything else dimmed. Each pipeline parcel's popup now names its <em>binding constraint</em> — the one thing that kills or gates it right now — and the next action, authored parcel-by-parcel. Deep link: <code>?view=pipeline-map</code>.</span></li>
           <li><time>2026-06-12</time><span><b>Executive memo.</b> A per-parcel IC-style one-pager — verdict, the underwrite, speed-to-power, the diligence machinery, the feasibility gates, and an honest read on incentives + community posture. Built to print: "Download PDF" → save the memo. The artifact an interviewer can hold.</span></li>
           <li><time>2026-06-12</time><span><b>Power &amp; timeline.</b> A per-parcel speed-to-power estimate — P50 months with an honest band — and the energization phase behind it. A disclosed phase model gated on the interconnection queue, modulated by each parcel's grid quality, with a co-location fast-path for parcels near existing generation. The restricted ERCOT queue stays backend-only; context is public.</span></li>
@@ -337,6 +339,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=a9"></script>
+  <script src="js/app.js?v=a10"></script>
 </body>
 </html>

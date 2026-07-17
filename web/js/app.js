@@ -5,7 +5,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/parcels.geojson?v=a9";
+  const DATA_URL = "data/parcels.geojson?v=a10";
   // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
   // Empty string = built-in rule parser only (works fully offline).
   const WORKER_URL = "https://ask.consultruss.com";
@@ -114,25 +114,25 @@
     }
     FEATURES.forEach((f) => PROPS.set(f.properties.parcel_id, f.properties));
     try {
-      const vr = await fetch("data/verdicts.json?v=a9");
+      const vr = await fetch("data/verdicts.json?v=a10");
       const vd = await vr.json();
       (vd.verdicts || []).forEach((v) => { VERDICTS.set(v.parcel_id, v); if (v.memo) MEMO = v; });
     } catch { /* verdicts are optional — flags still render without them */ }
     try {
-      BIND = await (await fetch("data/binding-constraints.json?v=a9")).json();
+      BIND = await (await fetch("data/binding-constraints.json?v=a10")).json();
     } catch { /* authored constraints are optional — popup degrades gracefully */ }
     try {
       const [er, nr] = await Promise.all([
-        fetch("data/economics.json?v=a9"),
-        fetch("data/deal-notes.json?v=a9"),
+        fetch("data/economics.json?v=a10"),
+        fetch("data/deal-notes.json?v=a10"),
       ]);
       ECON = await er.json();
       NOTES = await nr.json();
-      PORT = await (await fetch("data/portfolio.json?v=a9")).json();
-      TL = await (await fetch("data/timeline.json?v=a9")).json();
-      TLNOTES = await (await fetch("data/timeline-notes.json?v=a9")).json();
-      INTEG = await (await fetch("data/integrity.json?v=a9")).json();
-      MEMONOTES = await (await fetch("data/memo-notes.json?v=a9")).json();
+      PORT = await (await fetch("data/portfolio.json?v=a10")).json();
+      TL = await (await fetch("data/timeline.json?v=a10")).json();
+      TLNOTES = await (await fetch("data/timeline-notes.json?v=a10")).json();
+      INTEG = await (await fetch("data/integrity.json?v=a10")).json();
+      MEMONOTES = await (await fetch("data/memo-notes.json?v=a10")).json();
       buildDealSheet();
       buildPortfolio();
       buildPowerTimeline();
