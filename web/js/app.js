@@ -151,6 +151,7 @@
     mountMemo();
     if (isPipeline()) renderStageStrip();
     if (deep.parcel && LAYERS.has(deep.parcel)) locateOnMap(deep.parcel);
+    wireTour();
   }
 
   function readParams() {
@@ -1157,6 +1158,166 @@
     if (det) { det.open = true; det.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
   }
   window.openMemo = openMemo;
+
+  /* ---------------- guided tour (A2) ---------------- */
+  // Hand-rolled, zero-dependency cross-tab walkthrough. Reuses the existing
+  // deep-links so the tour never duplicates view logic. Spotlight = a transparent
+  // box with a huge box-shadow (dims all but the anchor); coachmark = an aria dialog.
+  const TOUR_KEY = "tourSeenV1";
+  let tourIdx = -1, tourEls = null, tourLastFocus = null, tourPrevMetric = null;
+
+  function tourSteps() {
+    const feat =
+      (MEMONOTES && MEMONOTES.featured_parcel) ||
+      (NOTES && NOTES.featured_parcel) ||
+      (TLNOTES && TLNOTES.featured_parcel) || null;
+    return [
+      { view: "map", anchor: ".memo-panel",
+        before: () => { activateView("map"); openMemo(); },
+        title: "The model ranks — I decide",
+        body: "5,130 rural parcels &ge; 50 acres across Wilson &amp; Karnes, scored interconnection-first on public data &mdash; the model is mine, built by directing an AI-assisted development process. Every shortlist parcel gets an authored verdict &mdash; pursue, pursue-if, or pass. Here's the one I'd <b>pass</b> on that my own model ranked #3." },
+      { view: "deal", anchor: "#view-deal .deal-head",
+        before: () => { feat ? openDeal(feat) : activateView("deal"); },
+        title: "What pursuing looks like",
+        body: "Three exit structures side by side &mdash; and the one sensitivity that matters: <b>time-to-power &times; exit value</b>. Miss the power window and the return goes to &minus;100%." },
+      { view: "power", anchor: "#view-power .pt-headline",
+        before: () => { feat ? openPower(feat) : activateView("power"); },
+        title: "The number the field buys on",
+        body: "<b>Speed to power</b> &mdash; a disclosed phase model gated on the interconnection queue. P50 months with an honest band, modulated by each parcel's grid quality." },
+      { view: "memo", anchor: "#view-memo .memo-head",
+        before: () => { feat ? openExecMemo(feat) : activateView("memo"); },
+        title: "One memo you can hand over",
+        body: "It all composes into an IC-style one-pager &mdash; verdict, the underwrite, speed-to-power, incentives, and the diligence that closes a Texas county deal. <b>Download PDF</b>, and explore the tabs from here. Curious how the model &mdash; and this tool &mdash; actually got built? <button type=\"button\" class=\"tour-method\">See Methodology</button>" },
+    ];
+  }
+
+  function ensureTourEls() {
+    if (tourEls) return tourEls;
+    const spot = document.createElement("div");
+    spot.className = "tour-spot"; spot.setAttribute("aria-hidden", "true");
+    const pop = document.createElement("div");
+    pop.className = "tour-pop"; pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-modal", "true"); pop.setAttribute("aria-labelledby", "tour-title");
+    document.body.append(spot, pop);
+    tourEls = { spot, pop };
+    return tourEls;
+  }
+
+  function renderTourStep() {
+    const steps = tourSteps();
+    const step = steps[tourIdx];
+    const { pop } = ensureTourEls();
+    if (step.before) step.before();
+    requestAnimationFrame(() => {
+      const el = document.querySelector(step.anchor);
+      pop.innerHTML =
+        `<p class="tour-count">${tourIdx + 1} / ${steps.length}</p>` +
+        `<h3 id="tour-title">${step.title}</h3>` +
+        `<p class="tour-body">${step.body}</p>` +
+        `<div class="tour-nav">` +
+          `<button type="button" class="tour-skip">Skip</button>` +
+          `<span class="tour-sp"></span>` +
+          (tourIdx > 0 ? `<button type="button" class="btn-ghost tour-back">Back</button>` : "") +
+          `<button type="button" class="btn tour-next">${tourIdx === steps.length - 1 ? "Done" : "Next ▸"}</button>` +
+        `</div>`;
+      pop.querySelector(".tour-skip").addEventListener("click", () => endTour(true));
+      pop.querySelector(".tour-next").addEventListener("click",
+        () => (tourIdx === steps.length - 1 ? endTour(true) : goTour(tourIdx + 1)));
+      const back = pop.querySelector(".tour-back");
+      if (back) back.addEventListener("click", () => goTour(tourIdx - 1));
+      const method = pop.querySelector(".tour-method");
+      if (method) method.addEventListener("click", () => { endTour(true); activateView("about"); });
+      positionTour(el);
+      pop.querySelector(".tour-next").focus();
+    });
+  }
+
+  function positionTour(el) {
+    const { spot, pop } = tourEls;
+    const mobile = window.innerWidth < 640;
+    if (el && !mobile) {
+      el.scrollIntoView({ block: "center" });
+      const r = el.getBoundingClientRect();
+      spot.style.display = "block";
+      spot.style.top = (r.top - 8) + "px"; spot.style.left = (r.left - 8) + "px";
+      spot.style.width = (r.width + 16) + "px"; spot.style.height = (r.height + 16) + "px";
+      const pw = 360, ph = pop.offsetHeight || 220;
+      let top = r.bottom + 14; if (top + ph > window.innerHeight - 14) top = Math.max(14, r.top - ph - 14);
+      const left = Math.min(Math.max(14, r.left), window.innerWidth - pw - 14);
+      pop.style.top = top + "px"; pop.style.left = left + "px"; pop.style.right = ""; pop.style.bottom = "";
+    } else {
+      spot.style.display = "none";
+      pop.style.left = "14px"; pop.style.right = "14px"; pop.style.bottom = "14px"; pop.style.top = "auto";
+    }
+  }
+
+  function goTour(i) { tourIdx = i; renderTourStep(); }
+
+  function startTour() {
+    tourLastFocus = document.activeElement;
+    tourPrevMetric = state.metric;
+    // Correction 3: A7's "Pipeline status" lens dims all but a ~24-parcel shortlist;
+    // the tour narrates the full 5,130-parcel field, so force Suitability for the
+    // tour and restore the visitor's lens on exit.
+    if (state.metric !== "suitability_score") {
+      const sel = $("#metric"); if (sel) sel.value = "suitability_score";
+      setMetric("suitability_score");
+    }
+    document.body.classList.add("tour-on");
+    document.addEventListener("keydown", tourKey, true);
+    window.addEventListener("resize", tourResize);
+    goTour(0);
+  }
+
+  function endTour(markSeen) {
+    document.body.classList.remove("tour-on");
+    document.removeEventListener("keydown", tourKey, true);
+    window.removeEventListener("resize", tourResize);
+    if (tourEls) { tourEls.spot.remove(); tourEls.pop.remove(); tourEls = null; }
+    tourIdx = -1;
+    // Correction 3: restore the pre-tour color-by lens (don't clobber a returning
+    // visitor's preference — e.g. a ?view=pipeline-map arrival who opened the tour).
+    if (tourPrevMetric && tourPrevMetric !== state.metric) {
+      const sel = $("#metric"); if (sel) sel.value = tourPrevMetric;
+      setMetric(tourPrevMetric);
+    }
+    tourPrevMetric = null;
+    if (markSeen) { try { localStorage.setItem(TOUR_KEY, "1"); } catch (e) { /* private mode */ } }
+    if (tourLastFocus && tourLastFocus.focus) tourLastFocus.focus();
+  }
+
+  function tourResize() {
+    if (tourIdx < 0 || !tourEls) return;
+    const step = tourSteps()[tourIdx];
+    positionTour(document.querySelector(step.anchor));
+  }
+
+  function tourKey(e) {
+    const n = tourSteps().length;
+    if (e.key === "Escape") { e.preventDefault(); endTour(true); }
+    else if (e.key === "ArrowRight" || e.key === "Enter") { e.preventDefault(); tourIdx === n - 1 ? endTour(true) : goTour(tourIdx + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); if (tourIdx > 0) goTour(tourIdx - 1); }
+    else if (e.key === "Tab" && tourEls) {
+      const f = tourEls.pop.querySelectorAll("button");
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  function wireTour() {
+    const btn = $("#tour-start");
+    if (btn) btn.addEventListener("click", startTour);
+    let seen = false;
+    try { seen = !!localStorage.getItem(TOUR_KEY); } catch (e) { /* private mode */ }
+    const params = new URLSearchParams(location.search);
+    const arrivedViaDeepLink = params.has("view") || params.has("parcel");
+    // Correction 2: don't auto-fire the generic tour over an intentional deep-link
+    // cold-open (?view=pipeline-map is built to read in 10s cold — A7 ground rule).
+    // "Start here" stays available to invoke it manually afterward.
+    if (!seen && !arrivedViaDeepLink) setTimeout(startTour, 900); // let the map paint first
+  }
 
   document.addEventListener("DOMContentLoaded", init);
 })();
