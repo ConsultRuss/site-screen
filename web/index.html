@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=DM+Sans:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=a8" />
+  <link rel="stylesheet" href="css/styles.css?v=a9" />
 
   <script type="application/ld+json">
   {
@@ -93,7 +93,7 @@
       <div class="map-layout">
         <aside class="panel">
           <div id="memo-mount"></div>
-          <div class="panel-block">
+          <div class="panel-block" id="block-ask">
             <label class="panel-label" for="ask">Ask the map</label>
             <input id="ask" type="text" placeholder='e.g. over 200 buildable acres within 3 miles of a 138 kV substation, no floodplain' />
             <button id="ask-go" class="btn">Filter</button>
@@ -106,10 +106,12 @@
               <option value="suitability_score">Suitability (base model)</option>
               <option value="flex_load_score">Flexible-load lens</option>
               <option value="agrivoltaic_score">Agrivoltaics / stewardship lens</option>
+              <option value="pipeline">Pipeline status</option>
             </select>
+            <p class="hint" id="pipeline-note" hidden>The pipeline board, on the map. Pipeline, ownership, statuses and dates are <em>synthetic, for demonstration</em>; binding constraints and next actions are authored parcel-by-parcel, not generated.</p>
           </div>
 
-          <div class="panel-block">
+          <div class="panel-block" id="block-filters">
             <span class="panel-label">Filters</span>
             <label class="field">County
               <select id="f-county"><option value="">All</option><option>Wilson</option><option>Karnes</option></select>
@@ -139,7 +141,9 @@
           </div>
         </aside>
 
-        <div id="map" aria-label="Parcel suitability map"></div>
+        <div id="map" aria-label="Parcel suitability map">
+          <div id="stage-strip" class="stage-strip" hidden></div>
+        </div>
       </div>
     </section>
 
@@ -307,6 +311,7 @@
         <h2>What's new</h2>
         <p class="changelog-intro">Shipped, newest first — a running build log for the screen and tracker.</p>
         <ul class="changelog-list">
+          <li><time>2026-07-16</time><span><b>Pipeline on the map.</b> The pipeline board IS the map: a fourth coloring mode shows every shortlist parcel colored by site-control stage, with a clickable stage strip to filter and everything else dimmed. Each pipeline parcel's popup now names its <em>binding constraint</em> — the one thing that kills or gates it right now — and the next action, authored parcel-by-parcel. Deep link: <code>?view=pipeline-map</code>.</span></li>
           <li><time>2026-06-12</time><span><b>Executive memo.</b> A per-parcel IC-style one-pager — verdict, the underwrite, speed-to-power, the diligence machinery, the feasibility gates, and an honest read on incentives + community posture. Built to print: "Download PDF" → save the memo. The artifact an interviewer can hold.</span></li>
           <li><time>2026-06-12</time><span><b>Power &amp; timeline.</b> A per-parcel speed-to-power estimate — P50 months with an honest band — and the energization phase behind it. A disclosed phase model gated on the interconnection queue, modulated by each parcel's grid quality, with a co-location fast-path for parcels near existing generation. The restricted ERCOT queue stays backend-only; context is public.</span></li>
           <li><time>2026-06-12</time><span><b>Data integrity.</b> The screen audits itself: source freshness and license posture, run QA (all seven criteria live), field completeness, and known gaps — flagged, not hidden.</span></li>
@@ -332,6 +337,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="js/app.js?v=a8"></script>
+  <script src="js/app.js?v=a9"></script>
 </body>
 </html>

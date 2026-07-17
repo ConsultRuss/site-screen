@@ -5,7 +5,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/parcels.geojson?v=a8";
+  const DATA_URL = "data/parcels.geojson?v=a9";
   // Ask-the-map Worker endpoint (deployed on the consultruss.com zone).
   // Empty string = built-in rule parser only (works fully offline).
   const WORKER_URL = "https://ask.consultruss.com";
@@ -13,6 +13,7 @@
     suitability_score: "Suitability",
     flex_load_score: "Flexible-load",
     agrivoltaic_score: "Agrivoltaics",
+    pipeline: "Pipeline stage",
   };
   const LAND_LABELS = {
     pasture_hay: "Pasture / hay", grassland_pasture: "Grassland", shrubland: "Shrub / scrub",
@@ -45,6 +46,25 @@
     "Identified", "Screened", "Outreach", "LOI", "Option/Lease Negotiation",
     "Under Option", "Site Control Secured", "Title/Survey Clearing", "Cleared",
   ];
+  // A7 pipeline-on-the-map: ordinal ramp over the same stage taxonomy as the
+  // funnel — warm (working it) into green (control path). One hue step per stage.
+  const STAGE_COLORS = {
+    "Identified": "#d8c69a",
+    "Screened": "#c8a87c",
+    "Outreach": "#bf7a3a",
+    "LOI": "#8a5a28",
+    "Option/Lease Negotiation": "#9aa251",
+    "Under Option": "#7f9b4e",
+    "Site Control Secured": "#5f8a43",
+    "Title/Survey Clearing": "#4d7a3e",
+    "Cleared": "#3f6b3a",
+  };
+  const STAGE_SHORT = {
+    "Option/Lease Negotiation": "Negotiation",
+    "Under Option": "Under option",
+    "Site Control Secured": "Control secured",
+    "Title/Survey Clearing": "Title clearing",
+  };
 
   let MAP, GEO_LAYER, FEATURES = [];
   const LAYERS = new Map(); // parcel_id -> leaflet layer
@@ -57,12 +77,15 @@
   let PORT = null; // Portfolio (A1.5): option-budget allocations over the shortlist.
   let TL = null, TLNOTES = null, INTEG = null; // A4: timeline + notes + integrity
   let MEMONOTES = null; // A5: authored exec-memo prose
+  let BIND = null; // A7: authored binding-constraint + next-action lines
   const PROPS = new Map(); // parcel_id -> geojson properties (pipeline status/date/rank)
 
   const state = {
     metric: "suitability_score",
     county: "", minAcres: 0, maxDist: 15, minKv: 0, noFlood: false,
+    stage: "", // A7: pipeline-mode stage filter (click a chip in the strip)
   };
+  const isPipeline = () => state.metric === "pipeline";
 
   const $ = (sel) => document.querySelector(sel);
   const colorFor = (v) => (BUCKETS.find((b) => v >= b.min) || BUCKETS[BUCKETS.length - 1]).color;
@@ -72,6 +95,15 @@
     wireTabs();
     wireControls();
     initMap();
+    // A7 deep link: ?view=pipeline-map cold-opens the pipeline-on-the-map mode;
+    // ?view=<tab> opens a tab; ?parcel=<id> locates a parcel once data loads.
+    const deep = readParams();
+    if (deep.view === "pipeline-map") {
+      $("#metric").value = "pipeline";
+      setMetric("pipeline", true);
+    } else if (deep.view && document.getElementById("view-" + deep.view)) {
+      activateView(deep.view);
+    }
     try {
       const res = await fetch(DATA_URL);
       const data = await res.json();
@@ -82,22 +114,25 @@
     }
     FEATURES.forEach((f) => PROPS.set(f.properties.parcel_id, f.properties));
     try {
-      const vr = await fetch("data/verdicts.json?v=a8");
+      const vr = await fetch("data/verdicts.json?v=a9");
       const vd = await vr.json();
       (vd.verdicts || []).forEach((v) => { VERDICTS.set(v.parcel_id, v); if (v.memo) MEMO = v; });
     } catch { /* verdicts are optional — flags still render without them */ }
     try {
+      BIND = await (await fetch("data/binding-constraints.json?v=a9")).json();
+    } catch { /* authored constraints are optional — popup degrades gracefully */ }
+    try {
       const [er, nr] = await Promise.all([
-        fetch("data/economics.json?v=a8"),
-        fetch("data/deal-notes.json?v=a8"),
+        fetch("data/economics.json?v=a9"),
+        fetch("data/deal-notes.json?v=a9"),
       ]);
       ECON = await er.json();
       NOTES = await nr.json();
-      PORT = await (await fetch("data/portfolio.json?v=a8")).json();
-      TL = await (await fetch("data/timeline.json?v=a8")).json();
-      TLNOTES = await (await fetch("data/timeline-notes.json?v=a8")).json();
-      INTEG = await (await fetch("data/integrity.json?v=a8")).json();
-      MEMONOTES = await (await fetch("data/memo-notes.json?v=a8")).json();
+      PORT = await (await fetch("data/portfolio.json?v=a9")).json();
+      TL = await (await fetch("data/timeline.json?v=a9")).json();
+      TLNOTES = await (await fetch("data/timeline-notes.json?v=a9")).json();
+      INTEG = await (await fetch("data/integrity.json?v=a9")).json();
+      MEMONOTES = await (await fetch("data/memo-notes.json?v=a9")).json();
       buildDealSheet();
       buildPortfolio();
       buildPowerTimeline();
@@ -114,6 +149,13 @@
     buildCharts();
     buildKpis();
     mountMemo();
+    if (isPipeline()) renderStageStrip();
+    if (deep.parcel && LAYERS.has(deep.parcel)) locateOnMap(deep.parcel);
+  }
+
+  function readParams() {
+    const q = new URLSearchParams(location.search);
+    return { view: q.get("view") || "", parcel: q.get("parcel") || "" };
   }
 
   /* ---------------- tabs ---------------- */
@@ -141,10 +183,26 @@
       { maxZoom: 19, attribution: "Imagery &copy; Esri, USDA NAIP" }
     );
     L.control.layers({ Street: street, "Aerial (NAIP)": aerial }, null, { position: "topright" }).addTo(MAP);
+    // A7: the stage strip lives inside the map container — keep its clicks
+    // and scrolls from reaching the map underneath.
+    const strip = $("#stage-strip");
+    if (strip) { L.DomEvent.disableClickPropagation(strip); L.DomEvent.disableScrollPropagation(strip); }
   }
 
   const HIDDEN = { opacity: 0, fillOpacity: 0 };
   function visibleStyle(p) {
+    if (isPipeline()) {
+      // Pipeline mode: shortlist parcels colored by stage; everything else
+      // dims to a low-opacity neutral so the pipeline pops.
+      if (p.pipeline_status) {
+        const active = !state.stage || p.pipeline_status === state.stage;
+        const fill = STAGE_COLORS[p.pipeline_status] || "#7a756e";
+        return active
+          ? { fillColor: fill, color: "#26231e", weight: 1.4, opacity: 0.9, fillOpacity: 0.88 }
+          : { fillColor: fill, color: "#2b2b26", weight: 0.7, opacity: 0.35, fillOpacity: 0.18 };
+      }
+      return { fillColor: "#7a756e", color: "#2b2b26", weight: 0.4, opacity: 0.12, fillOpacity: 0.07 };
+    }
     const v = p[state.metric];
     const fill = (v === null || v === undefined) ? "#7a756e" : colorFor(v); // grey = no data
     return { fillColor: fill, color: "#2b2b26", weight: 0.6, opacity: 0.5, fillOpacity: 0.72 };
@@ -192,11 +250,17 @@
     html += row("Road · gen", na(p.dist_road_mi, " mi") + " · " + na(p.dist_generation_mi, " mi"));
     html += row("Flex · agri", na(p.flex_load_score) + " · " + na(p.agrivoltaic_score));
     if (p.pipeline_status) {
-      html += row("Pipeline", p.pipeline_status);
+      html += row("Pipeline", `${p.pipeline_status}${p.status_date ? ` <span class="pp-dim">since ${p.status_date}</span>` : ""}`);
       html += row("Title", `<span class="pill ${p.title_flag}">${p.title_flag}</span>`);
       html += row("Est. $/ac", p.est_price_per_ac ? "$" + p.est_price_per_ac.toLocaleString() : "—");
     }
     html += `</dl>`;
+    // A7: the authored binding-constraint + next-action lines (shortlist only).
+    const bind = (p.pipeline_status && BIND && BIND.parcels) ? BIND.parcels[p.parcel_id] : null;
+    if (bind) {
+      html += `<div class="pp-bind"><span class="pp-bind-lbl">Binding constraint</span>${bind.constraint}</div>`;
+      html += `<div class="pp-bind pp-next"><span class="pp-bind-lbl">Next action</span>${bind.next_action}</div>`;
+    }
     if (p.pipeline_status) {
       const tl = TL && TL.parcels ? TL.parcels[p.parcel_id] : null;
       if (tl) html += `<div class="pp-deal-link" onclick="openPower('${p.parcel_id}')">Speed to power: ~${tl.headline.p50} mo →</div>`;
@@ -213,12 +277,18 @@
       style: (f) => visibleStyle(f.properties),
       onEachFeature: (feature, layer) => {
         LAYERS.set(feature.properties.parcel_id, layer);
-        layer.bindPopup(() => popupHtml(layer.feature.properties), { maxWidth: 300 });
+        // autoPanPaddingTopLeft keeps an opened popup clear of the A7 stage strip.
+        layer.bindPopup(() => popupHtml(layer.feature.properties), {
+          maxWidth: 300, autoPanPaddingTopLeft: L.point(16, 104),
+        });
       },
     }).addTo(MAP);
   }
 
   function passesFilters(p) {
+    // Pipeline mode shows the whole shortlist — attribute filters are disabled
+    // there (they'd silently hide pipeline parcels); the stage strip filters.
+    if (isPipeline() && p.pipeline_status) return true;
     if (state.county && p.county !== state.county) return false;
     if (p.acreage_buildable < state.minAcres) return false;
     if (p.dist_substation_mi > state.maxDist) return false;
@@ -228,16 +298,21 @@
   }
 
   function applyFilters(fit) {
+    const pipe = isPipeline();
     let shown = 0;
     const bounds = [];
     LAYERS.forEach((layer) => {
       const p = layer.feature.properties;
-      if (passesFilters(p)) {
-        layer.setStyle(visibleStyle(p));
-        if (fit) bounds.push(layer.getBounds());
+      if (!passesFilters(p)) { layer.setStyle(HIDDEN); return; }
+      layer.setStyle(visibleStyle(p));
+      // In pipeline mode, the count and the fit follow the pipeline itself
+      // (stage-filtered), not the dimmed background parcels.
+      const counts = pipe
+        ? !!p.pipeline_status && (!state.stage || p.pipeline_status === state.stage)
+        : true;
+      if (counts) {
         shown++;
-      } else {
-        layer.setStyle(HIDDEN);
+        if (fit) bounds.push(layer.getBounds());
       }
     });
     $("#count").textContent = shown.toLocaleString();
@@ -248,8 +323,21 @@
     }
   }
 
+  function stageCounts() {
+    const c = {};
+    shortlist().forEach((p) => { c[p.pipeline_status] = (c[p.pipeline_status] || 0) + 1; });
+    return c;
+  }
+
   function updateLegend() {
     $("#legend-title").textContent = METRIC_LABELS[state.metric];
+    if (isPipeline()) {
+      const counts = stageCounts();
+      $("#legend").innerHTML = STATUS_ORDER.filter((s) => counts[s]).map((s) =>
+        `<div class="row"><span class="swatch" style="background:${STAGE_COLORS[s]}"></span>${s} · ${counts[s]}</div>`
+      ).join("");
+      return;
+    }
     const hasData = FEATURES.some((f) => f.properties[state.metric] != null);
     if (!hasData) {
       $("#legend").innerHTML =
@@ -262,8 +350,47 @@
   }
 
   /* ---------------- controls ---------------- */
+  // A7: entering/leaving pipeline mode toggles the stage strip, the honesty
+  // note, and the attribute filters (disabled with a tooltip — they conflict
+  // with showing the full shortlist). `boot` = called before data has loaded.
+  const FILTER_CONTROLS = ["#f-county", "#f-acres", "#f-dist", "#f-kv", "#f-noflood", "#f-reset", "#ask", "#ask-go"];
+  const PIPELINE_FILTER_TIP = "Filters apply to the screening lenses. The pipeline view always shows the full shortlist — use the stage strip on the map to filter by stage.";
+  function setMetric(v, boot = false) {
+    state.metric = v;
+    state.stage = "";
+    const pipe = isPipeline();
+    document.body.classList.toggle("pipeline-mode", pipe);
+    FILTER_CONTROLS.forEach((s) => { const el = $(s); if (el) el.disabled = pipe; });
+    ["#block-ask", "#block-filters"].forEach((s) => {
+      const el = $(s);
+      if (el) { if (pipe) el.setAttribute("title", PIPELINE_FILTER_TIP); else el.removeAttribute("title"); }
+    });
+    const note = $("#pipeline-note"); if (note) note.hidden = !pipe;
+    const strip = $("#stage-strip"); if (strip) strip.hidden = !pipe;
+    if (boot) return;
+    if (pipe) renderStageStrip();
+    applyFilters(pipe); // entering the mode refits the map to the pipeline
+  }
+
+  function renderStageStrip() {
+    const strip = $("#stage-strip");
+    if (!strip) return;
+    const counts = stageCounts();
+    strip.innerHTML = STATUS_ORDER.filter((s) => counts[s]).map((s) => `
+      <button class="stage-chip${state.stage === s ? " is-active" : ""}" data-stage="${s}" type="button"
+        title="${s} — ${counts[s]} parcel${counts[s] > 1 ? "s" : ""}. Click to filter; click again to clear.">
+        <span class="stage-swatch" style="background:${STAGE_COLORS[s]}"></span>${STAGE_SHORT[s] || s}<span class="stage-count">${counts[s]}</span>
+      </button>`).join("");
+    strip.querySelectorAll(".stage-chip").forEach((b) =>
+      b.addEventListener("click", () => {
+        state.stage = state.stage === b.dataset.stage ? "" : b.dataset.stage;
+        renderStageStrip();
+        applyFilters(false);
+      }));
+  }
+
   function wireControls() {
-    $("#metric").addEventListener("change", (e) => { state.metric = e.target.value; applyFilters(false); });
+    $("#metric").addEventListener("change", (e) => setMetric(e.target.value));
     $("#f-county").addEventListener("change", (e) => { state.county = e.target.value; applyFilters(false); });
     $("#f-acres").addEventListener("input", (e) => {
       state.minAcres = +e.target.value; $("#f-acres-val").textContent = e.target.value; applyFilters(false);

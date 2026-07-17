@@ -539,6 +539,50 @@ td .verdict-none { color: var(--faint); font-size: 0.74rem; }
 .memo-foot { border-top: 1px solid rgba(43, 43, 38, 0.15); margin-top: 1rem; padding-top: 0.6rem; font-size: 0.8rem; color: #8a8580; }
 .deal-memo-link { cursor: pointer; color: #c8a87c; font-size: 0.85rem; margin-left: 0.6rem; }
 
+/* ============================ A7 — Pipeline on the map ============================ */
+/* The stage strip floats over the map (cream, like the Leaflet controls);
+   chips filter by stage. Popup gains the authored binding-constraint and
+   next-action rows. Attribute filters dim while the mode is active. */
+.stage-strip {
+  /* below Leaflet's popup pane (700) so an open popup reads over the strip,
+     above the overlay/canvas panes (400) */
+  position: absolute; z-index: 650; top: 12px; left: 56px; right: 56px;
+  display: flex; flex-wrap: wrap; gap: 6px; pointer-events: none;
+}
+.stage-chip {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 6px;
+  background: var(--cream); color: var(--cream-ink);
+  border: 1px solid rgba(43, 43, 38, 0.28); border-radius: 999px;
+  padding: 4px 11px; font: 500 0.74rem/1.2 var(--font-sans);
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); white-space: nowrap;
+}
+.stage-chip:hover { border-color: #8a6a2f; }
+.stage-chip.is-active { background: #2b2b26; color: var(--cream); border-color: #2b2b26; }
+.stage-swatch { width: 11px; height: 11px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0.25); flex: none; }
+.stage-count { font-weight: 600; color: #8a6a2f; }
+.stage-chip.is-active .stage-count { color: var(--accent); }
+
+/* popup: the authored binding-constraint / next-action rows */
+.pp-bind {
+  margin-top: 9px; padding: 7px 10px; border-left: 3px solid #a23c2b;
+  background: rgba(162, 60, 43, 0.07); border-radius: 0 6px 6px 0;
+  font-size: 0.78rem; line-height: 1.45; color: var(--cream-ink);
+}
+.pp-bind.pp-next { margin-top: 6px; border-left-color: #4e6b2e; background: rgba(127, 155, 78, 0.10); }
+.pp-bind-lbl {
+  display: block; font-size: 0.58rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.12em; color: #8a6a2f; margin-bottom: 2px;
+}
+
+/* pipeline mode: filters + ask-the-map are disabled (tooltip explains why) */
+body.pipeline-mode #block-ask, body.pipeline-mode #block-filters { opacity: 0.45; cursor: help; }
+#pipeline-note em { color: #a98b54; font-style: italic; }
+
+@media (max-width: 860px) {
+  .stage-strip { top: 8px; left: 52px; right: 8px; gap: 4px; }
+  .stage-chip { font-size: 0.68rem; padding: 3px 8px; }
+}
+
 @media print {
   .site-header, .tabs, .no-print, #memo-print, .memo-head, .leaflet-container { display: none !important; }
   body, main { display: block !important; margin: 0; background: #fff; }

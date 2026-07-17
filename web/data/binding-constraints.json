@@ -1,0 +1,103 @@
+{
+  "_note": "Authored binding constraints — for each shortlist parcel, one line naming the single thing that kills or gates it right now, and the next action. Written parcel-by-parcel by RWH, never generated. Drafted from the authored verdicts and computed flags; approved before publish.",
+  "author": "RWH",
+  "date": "2026-07-16",
+  "parcels": {
+    "KAR-000001": {
+      "constraint": "Uncontrolled — the screen's #1 parcel has no owner contact yet, and nothing adverse on the data to slow it down.",
+      "next_action": "Open owner outreach; order a preliminary title commitment."
+    },
+    "KAR-000002": {
+      "constraint": "Uncontrolled — the best co-location profile on the board (2.6 mi to existing generation) is still open to any bidder.",
+      "next_action": "Open owner outreach; carry the co-location angle into the first conversation."
+    },
+    "KAR-000003": {
+      "constraint": "138 kV sub 160 ft away but 4.4 mi off the backbone — speed-to-power fails; proximity to a substation is not proximity to power.",
+      "next_action": "None — the pass stands unless a transmission-provider headroom screen shows real capacity."
+    },
+    "KAR-000004": {
+      "constraint": "Uncontrolled — the best risk-adjusted parcel on the board is exposed until an option is signed.",
+      "next_action": "First outreach call — this is where the next dollar of diligence goes."
+    },
+    "KAR-000005": {
+      "constraint": "Class-2 prime farmland with 13% in floodplain — siting and permitting must both net out before it's worth an offer.",
+      "next_action": "Desktop siting study to confirm the array clears the floodplain before any owner contact."
+    },
+    "KAR-000006": {
+      "constraint": "Clean screen, no flags — the only gate is that it hasn't entered outreach yet.",
+      "next_action": "Promote to outreach; get standard title and survey quotes in hand."
+    },
+    "KAR-000007": {
+      "constraint": "None on the screen — 138 kV with the backbone 0.3 mi out is interconnection done right; control is the only gap.",
+      "next_action": "Promote to outreach."
+    },
+    "WIL-000001": {
+      "constraint": "Compactness 0.42 — an irregular shape that may not take an efficient array layout.",
+      "next_action": "Run the layout/fit study before outreach spends any goodwill."
+    },
+    "KAR-000008": {
+      "constraint": "16% floodplain on a low-compactness shape — the usable footprint is unproven.",
+      "next_action": "Hazard-exclusion footprint study before an offer number exists."
+    },
+    "KAR-000009": {
+      "constraint": "138 kV, 2.3 mi off the backbone, at a small-tract premium — the speed-to-power isn't there at this basis.",
+      "next_action": "Stand down outreach; revisit only on a sharp price drop."
+    },
+    "KAR-000010": {
+      "constraint": "Scale — 407 buildable acres caps this at roughly a 40 MW project; a clean site, not a flagship.",
+      "next_action": "Continue outreach toward LOI terms."
+    },
+    "KAR-000011": {
+      "constraint": "No adverse flags — owner terms are the only open item.",
+      "next_action": "Push outreach to an LOI."
+    },
+    "KAR-000012": {
+      "constraint": "22% floodplain at a full price — the buildable block has to survive the hazard exclusion.",
+      "next_action": "Condition the LOI on a floodplain-exclusion survey."
+    },
+    "KAR-000013": {
+      "constraint": "Basis — $5,200/ac is rich for the county; the line crossing the parcel is why it can still pencil.",
+      "next_action": "Negotiate the LOI price toward the county norm before anything else moves."
+    },
+    "KAR-000014": {
+      "constraint": "The land fights the use — prime soil, 13% floodplain, and 0.46 compactness stack against it.",
+      "next_action": "Let the LOI lapse; no extension."
+    },
+    "KAR-000015": {
+      "constraint": "Nothing adverse — option terms are the open item.",
+      "next_action": "Close the option: term, exercise window, and price at the county norm."
+    },
+    "WIL-000002": {
+      "constraint": "Class-2 prime farmland — a community and permitting friction, not an engineering one.",
+      "next_action": "Write a permitting contingency into the option before signature."
+    },
+    "KAR-000016": {
+      "constraint": "Prime-soil optics on one of the best co-location profiles on the list — permitting is the risk, not the wires.",
+      "next_action": "Price the option with a soil/permitting out; open the county conversation early."
+    },
+    "KAR-000017": {
+      "constraint": "Survey-pending title with 23% floodplain behind it — both must clear before more capital goes in.",
+      "next_action": "Expedite the survey; run the floodplain footprint study in parallel."
+    },
+    "KAR-000018": {
+      "constraint": "Survey-pending title — it gates everything else on this parcel.",
+      "next_action": "Clear the survey first; then take the prime-soil question through the permitting read."
+    },
+    "KAR-000019": {
+      "constraint": "Basis — $6,250/ac secured on class-2 prime farmland is top-of-market and must still pencil against the build.",
+      "next_action": "Re-underwrite at current exit assumptions before further spend."
+    },
+    "KAR-000020": {
+      "constraint": "34% floodplain — the question is how much developable ground is actually left inside a secured position.",
+      "next_action": "Commission the hazard-exclusion layout study."
+    },
+    "KAR-000021": {
+      "constraint": "An active title issue on a weak-interconnect site — clearing cost is going into a parcel without speed-to-power.",
+      "next_action": "Stop the clearing spend; exit the position."
+    },
+    "KAR-000022": {
+      "constraint": "Small, prime-soil, and rich at $6,450/ac — a tuck-in that only works in support of a larger anchor.",
+      "next_action": "Hold as cleared inventory; deploy only alongside a larger anchor site."
+    }
+  }
+}
