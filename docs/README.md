@@ -29,12 +29,13 @@ python -m pipeline export --output data/screen_run.json      # write run metadat
 python -m pipeline --help                                    # all commands
 ```
 
-`fetch`, `build`, and the full `run` need the geospatial stack and land in M1:
+`fetch`, `build`, `rebuild`, and the full `run` need the geospatial stack (GeoPandas, Rasterio, Shapely, pyproj), pinned separately because those wheels are
+large and platform-sensitive:
 
 ```bash
 python -m venv .venv && . .venv/Scripts/activate   # (Windows) or .venv/bin/activate
 pip install -e ".[dev]"
-pip install -r pipeline/requirements-geo.txt        # verify pins first (supply-chain policy)
+pip install -r pipeline/requirements-geo.txt        # heavy; only for rebuilding from source data
 ```
 
 ## Tests / eval

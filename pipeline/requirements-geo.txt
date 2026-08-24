@@ -1,10 +1,9 @@
-# Geospatial stack for the fetch/build pipeline stages (M1).
+# Geospatial stack for the fetch/build pipeline stages. Not needed to run the web
+# app or the score/export commands — install it only to rebuild from source data.
 #
-# SUPPLY-CHAIN POLICY: pin every dependency to an EXACT version. Before installing
-# at M1, verify each release against current PyPI, confirm the PyPI artifact
-# matches the project's GitHub tag, check the changelog, and honor the 48-hour
-# post-release delay. The pins below are a known-stable starting point captured at
-# planning time — re-confirm (and bump only deliberately) before the first install.
+# Every dependency is pinned to an EXACT version. Before bumping any pin, confirm the
+# PyPI artifact matches the project's GitHub tag and read the changelog; these wheels
+# are large, platform-sensitive, and easy to break as a set.
 #
 # Note: the project uses its OWN virtual environment; these pins are independent
 # of whatever is installed system-wide. pandas is held at 2.x here for geopandas

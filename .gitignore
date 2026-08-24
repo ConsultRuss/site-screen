@@ -31,6 +31,10 @@ secrets/
 data/raw/
 data/cache/
 data/screen_run.json
+# same, for any additional study-area directory (e.g. <area>/data/raw/)
+**/data/raw/
+**/data/cache/
+**/data/screen_run.json
 *.tif
 *.tiff
 *.gpkg

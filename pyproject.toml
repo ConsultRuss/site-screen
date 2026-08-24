@@ -10,10 +10,10 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Russell W. Hild" }]
-# Runtime deps pinned exactly (supply-chain policy). The geospatial stack used by
-# the fetch/build stages is heavier and platform-sensitive; it is pinned and
-# installed at M1 from pipeline/requirements-geo.txt after verifying current
-# releases against the 48h / changelog rule.
+# Runtime deps are pinned to exact versions. The web app and the score/export
+# stages need only PyYAML. The geospatial stack used by the fetch/build stages is
+# far heavier and platform-sensitive, so it is pinned separately in
+# pipeline/requirements-geo.txt and installed only when rebuilding from source data.
 dependencies = [
     "PyYAML==6.0.2",
 ]

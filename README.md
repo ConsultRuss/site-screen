@@ -4,7 +4,7 @@
 
 A working tool that screens South Texas land for renewable / data-center suitability and tracks candidate parcels through site control — the two halves of early-stage energy land development, in one clickable map.
 
-> **What this is, honestly.** A reference demonstration over **public** South Texas data, distilled from how I evaluate sites in practice. The geospatial and infrastructure layers are **real and sourced**; ownership names and the deal pipeline are **synthetic**, for demonstration. I trained in ArcGIS/ESRI during my Master of Real Estate at Texas A&M and **re-sharpened hands-on in QGIS** to build this — open-source, brand-agnostic, and translatable to ArcGIS Pro and Google Earth. The methodology, not the tool, is the point.
+> **What this is, honestly.** A reference demonstration over **public** South Texas data, distilled from how I evaluate sites in practice. The geospatial and infrastructure layers are **real and sourced**; ownership names and the deal pipeline are **synthetic**, for demonstration. I trained in ArcGIS/ESRI during my Master of Real Estate at Texas A&M. The analytical model here — the **criteria, weights, and exclusions** — is mine; I built the implementation with **AI-assisted development** in QGIS and Python (open-source, brand-agnostic, translatable to ArcGIS Pro and Google Earth). The methodology and the judgment behind it, not the tooling, are the point.
 
 ---
 
@@ -61,14 +61,38 @@ The suitability model is a transparent weighted overlay; the default weights are
 
 ## Quickstart
 
+The web app is static and reads the scored GeoJSON that ships in the repo — no backend, no
+geospatial dependencies, no API keys. That path is first because it works in about a minute.
+
 ```bash
-# Regenerate the scored dataset from public sources
-python -m pipeline run --config config.yaml
-# Serve the web app locally
-cd web && python -m http.server 8000
+# 1 — install (pure Python: PyYAML, plus pytest/ruff for the test suite)
+python -m venv .venv
+. .venv/bin/activate            # Windows: . .venv/Scripts/activate
+pip install -e ".[dev]"
+
+# 2 — serve the map against the shipped scored dataset
+cd web && python -m http.server 8000     # then open http://localhost:8000
 ```
 
-Full setup, the Worker config, and the eval suite are documented in [`docs/`](docs/).
+Optional, from the repo root — re-score the shipped parcels with the published weights.
+Still pure Python; edit `config.yaml` and re-run to see the ranking move:
+
+```bash
+python -m pipeline score --input web/data/parcels.geojson
+python -m pipeline --help                # fetch · build · run · rebuild · finalize · score · export
+```
+
+Optional — rebuild the dataset from the public sources. **This is the heavy path**: it needs the
+geospatial stack (GeoPandas, Rasterio, Shapely, pyproj), pinned separately because those wheels are
+large and platform-sensitive, and it downloads the public source layers on first run (~1.9 GB cached for the Wilson/Karnes study area):
+
+```bash
+pip install -r pipeline/requirements-geo.txt
+python -m pipeline run --config config.yaml     # fetch → build → finalize → export
+python -m pipeline rebuild                      # same, from already-cached raw data
+```
+
+Full setup, the Worker config, and the eval suites are documented in [`docs/`](docs/).
 
 ---
 
