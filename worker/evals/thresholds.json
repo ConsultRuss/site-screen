@@ -1,0 +1,6 @@
+{
+  "_comment": "Regression floors enforced by `run.mjs --ci`, set from the measured baseline on 2026-08-24 rather than aspirationally. CI should go red when the parser gets WORSE, not stay red because it was never perfect. Raise these when the parser improves; never lower them to make a build pass.",
+  "baseline_date": "2026-08-24",
+  "min_exact_match_pct": 75.9,
+  "min_refusal_correctness_pct": 71.4
+}

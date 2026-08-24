@@ -10,75 +10,20 @@
  * Guardrails: per-IP rate limit, input-length cap, small max_tokens, pinned models,
  * origin-restricted CORS. The OpenRouter key is a secret (never committed):
  *   npx wrangler secret put OPENROUTER_API_KEY
+ *
+ * The parsing layer lives in ./parser.js so the eval suite (../evals/) can measure
+ * the shipped code directly. This file is the HTTP layer only.
  */
 
-const MAX_QUESTION_CHARS = 280;
-const DEFAULT_PRIMARY = "meta-llama/llama-3.3-70b-instruct";
-const DEFAULT_FALLBACK = "meta-llama/llama-3.1-8b-instruct";
-
-// Whitelisted filter fields — the only keys we ever emit or accept.
-const FILTER_FIELDS = {
-  county: (v) => (v === "Wilson" || v === "Karnes" ? v : null),
-  minBuildableAcres: (v) => (Number.isFinite(+v) ? +v : null),
-  maxDistSubstationMi: (v) => (Number.isFinite(+v) ? +v : null),
-  minKv: (v) => ([69, 138, 345].includes(+v) ? +v : null),
-  noFloodplain: (v) => (typeof v === "boolean" ? v : null),
-};
-
-// JSON schema pinned for OpenRouter structured outputs (all fields nullable).
-const FILTER_SCHEMA = {
-  name: "parcel_filter",
-  strict: true,
-  schema: {
-    type: "object",
-    additionalProperties: false,
-    required: ["county", "minBuildableAcres", "maxDistSubstationMi", "minKv", "noFloodplain"],
-    properties: {
-      county: { type: ["string", "null"], enum: ["Wilson", "Karnes", null] },
-      minBuildableAcres: { type: ["number", "null"] },
-      maxDistSubstationMi: { type: ["number", "null"] },
-      minKv: { type: ["number", "null"], enum: [69, 138, 345, null] },
-      noFloodplain: { type: ["boolean", "null"] },
-    },
-  },
-};
-
-const SYSTEM_PROMPT =
-  "Convert the user's plain-English question about South Texas land parcels into a JSON " +
-  "filter. Use ONLY these fields: county ('Wilson'|'Karnes'|null), minBuildableAcres " +
-  "(number|null), maxDistSubstationMi (number|null), minKv (69|138|345|null), " +
-  "noFloodplain (boolean|null). Set a field to null if the question does not mention it. " +
-  "Never invent values. Return only the JSON object.";
-
-function validateFilter(obj) {
-  const out = {};
-  if (obj && typeof obj === "object") {
-    for (const [k, coerce] of Object.entries(FILTER_FIELDS)) {
-      if (k in obj && obj[k] !== null) {
-        const v = coerce(obj[k]);
-        if (v !== null) out[k] = v;
-      }
-    }
-  }
-  return out;
-}
-
-// Deterministic rule-based parser — the guaranteed fallback.
-function ruleParse(text) {
-  const t = (text || "").toLowerCase();
-  const f = {};
-  let m;
-  if ((m = t.match(/(\d{2,4})\s*\+?\s*(?:buildable\s*)?acre/))) f.minBuildableAcres = +m[1];
-  if ((m = t.match(/(\d+(?:\.\d+)?)\s*(?:mi|mile)/))) f.maxDistSubstationMi = +m[1];
-  if ((m = t.match(/(\d{2,3})\s*kv/))) {
-    const kv = +m[1];
-    f.minKv = kv >= 345 ? 345 : kv >= 138 ? 138 : 69;
-  }
-  if (/no floodplain|outside (?:the )?floodplain|not in (?:the )?floodplain/.test(t)) f.noFloodplain = true;
-  if (t.includes("wilson")) f.county = "Wilson";
-  else if (t.includes("karnes")) f.county = "Karnes";
-  return f;
-}
+import {
+  DEFAULT_FALLBACK,
+  DEFAULT_PRIMARY,
+  MAX_QUESTION_CHARS,
+  SYSTEM_PROMPT,
+  extractJson,
+  ruleParse,
+  validateFilter,
+} from "./parser.js";
 
 // LLM layer — OpenRouter with pinned primary + fallback models, structured output.
 async function llmParse(question, env) {
@@ -109,26 +54,6 @@ async function llmParse(question, env) {
   const content = data?.choices?.[0]?.message?.content;
   if (!content) return null;
   return extractJson(content);
-}
-
-// Robustly pull a JSON object from a model response — handles ```json fences and
-// JSON embedded in prose (some providers don't honor response_format: json_object).
-function extractJson(text) {
-  let t = String(text).trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-  try {
-    return JSON.parse(t);
-  } catch {
-    /* fall through to brace extraction */
-  }
-  const m = t.match(/\{[\s\S]*\}/);
-  if (m) {
-    try {
-      return JSON.parse(m[0]);
-    } catch {
-      /* give up -> deterministic fallback */
-    }
-  }
-  return null;
 }
 
 function corsHeaders(origin, env) {

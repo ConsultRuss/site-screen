@@ -1,0 +1,12 @@
+{
+  "name": "site-screen-ask",
+  "private": true,
+  "type": "module",
+  "description": "Ask-the-map Cloudflare Worker: natural language -> validated filter DSL",
+  "license": "MIT",
+  "scripts": {
+    "eval": "node evals/run.mjs",
+    "eval:ci": "node evals/run.mjs --ci",
+    "eval:live": "node evals/run.mjs --live --record"
+  }
+}

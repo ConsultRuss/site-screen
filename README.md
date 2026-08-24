@@ -94,6 +94,38 @@ python -m pipeline rebuild                      # same, from already-cached raw 
 
 Full setup, the Worker config, and the eval suites are documented in [`docs/`](docs/).
 
+## Evals & CI
+
+Two suites, both run by [CI](.github/workflows/ci.yml) on every push, alongside `ruff` and a
+pinned full-history `gitleaks` secret scan.
+
+**The scoring model — 95 tests across 10 modules** ([`tests/`](tests/)), pure Python, no geo
+dependencies. Of those, [`tests/test_scoring.py`](tests/test_scoring.py) is a **mini-eval**: 7
+tests / 24 assertions that check the model behaves the way the methodology claims rather than
+merely running. It asserts that normalization anchors hit their endpoints and clamp outside
+them; that a parcel wholly inside a flood zone scores 0 on the hazard criterion; that a
+criterion with no data yet scores a neutral 50 rather than a falsely perfect 100; that land
+cover and NRCS soil-class lookups resolve as configured — including that prime farmland is
+*penalized*, not rewarded; and that ranking is deterministic across reruns. What it does not
+do is validate the weights themselves, which are illustrative and tunable by design.
+
+**The natural-language layer — 54 labelled cases**
+([`worker/evals/`](worker/evals/)). Each question is paired with the filter it *should*
+produce, judged by hand rather than recorded from parser output. Baseline 2026-08-24 for the
+deterministic parser: **75.9% exact match** (41/54), **71.4% correct refusals** on out-of-scope
+and inexpressible questions, **3/3 prompt-injection attempts resisted**, and no drift between
+the Worker's parser and the browser's offline copy. The failures are published too, with the
+four patterns behind them — a thousands separator that silently parses to zero, no range
+validation, inverted direction words, and keyword matching that both over- and under-fires.
+See [`worker/README.md`](worker/README.md).
+
+Two honest gaps. The **LLM path is not measured yet** — the offline replay mechanism ships and
+CI runs it, but the fixtures are empty until a live recording run, so the **fallback rate is
+still unknown**, and that is the number that would turn "a deterministic parser stands behind a
+pinned model" from a design claim into evidence. And neither suite touches the geospatial
+fetch/build stages, which need the heavy stack and network access; their provenance and QA are
+reported instead on the live site's Data-integrity tab.
+
 ---
 
 *Built by Russell W. Hild — land & real estate professional (Texas A&M Master of Real Estate, Land Economics) who builds and runs his own data systems. Reference implementation distilled from how I work; data is public and synthetic as noted above.*

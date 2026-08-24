@@ -19,6 +19,21 @@ jobs:
       - name: Tests + mini-eval
         run: pytest -q
 
+  worker-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # Offline replay only: the rule parser over the labelled cases, plus any
+      # recorded model responses. No API key, no spend, deterministic. The live
+      # model run (`--live`) is manual. Fails if accuracy drops below the floors
+      # in worker/evals/thresholds.json, or if the browser's copy of the parser
+      # has drifted from the Worker's.
+      - name: Ask-the-map eval (offline)
+        run: node worker/evals/run.mjs --ci
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:

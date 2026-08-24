@@ -1,0 +1,6 @@
+{
+  "_comment": "Recorded OpenRouter responses, replayed by run.mjs so the LLM path can be measured in CI without a key or spend. EMPTY until someone runs: OPENROUTER_API_KEY=... node worker/evals/run.mjs --live --record. While empty, the runner reports the LLM path as 'not measured' rather than guessing.",
+  "recorded_utc": null,
+  "models": null,
+  "responses": {}
+}
