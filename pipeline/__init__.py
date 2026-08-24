@@ -12,4 +12,4 @@ geospatial dependencies. Only the fetch/build stages require the heavier
 geospatial stack in ``requirements-geo.txt``.
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"

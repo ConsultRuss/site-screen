@@ -1,6 +1,6 @@
 # South Texas Site Screen & Land-Control Tracker
 
-**Live:** [sites.consultruss.com](https://sites.consultruss.com) · **By:** [Russell W. Hild](https://consultruss.com) · **License:** MIT
+**Live:** [sites.consultruss.com](https://sites.consultruss.com) · **By:** [Russell W. Hild](https://consultruss.com) · **License:** MIT · **Release:** [v1.0.0](CHANGELOG.md)
 
 A working tool that screens South Texas land for renewable / data-center suitability and tracks candidate parcels through site control — the two halves of early-stage energy land development, in one clickable map.
 
